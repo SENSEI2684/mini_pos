@@ -6,6 +6,7 @@ import com.mini_pos.dao.BaseDao;
 import com.mini_pos.dao.etinity.Items;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -74,8 +75,9 @@ public class PaginationFrame extends JFrame {
         itemsPanel.revalidate();
         itemsPanel.repaint();
     }
-
+    
     private JPanel createItemPanel(Items item) {
+
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -106,6 +108,7 @@ public class PaginationFrame extends JFrame {
     }
 
     public static List<Items> loadItems() throws SQLException {
+    	
         List<Items> list = new ArrayList<>();
         Connection conn = new BaseDao().getconnection();
 
