@@ -25,6 +25,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
+				Integer id = rs.getInt("id");
 				String item_code = rs.getString("item_code");
 				String name = rs.getString("name");
 				Integer price = rs.getInt("price");
@@ -32,7 +33,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				String photo = rs.getString("photo");
 				Integer category_id = rs.getInt("category_id");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-				Items item = new Items(item_code, name, price,quantity, photo,category_id, created_at);
+				Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
 				items.add(item);
 			}
 			rs.close();
@@ -75,7 +76,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	@Override
 	public List<Items> getItemsByCategoryCode(String code) {
 		List<Items> items = new ArrayList<Items>();
-		String sql = "Select * from items where category_id = ?";
+		String sql = "Select * from items where category_id = ?;";
 		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 			stmt.setString(1, code); // set parameter now ? become 1
@@ -83,6 +84,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
+				Integer id = rs.getInt("id");
 				String item_code = rs.getString("item_code");
 				String name = rs.getString("name");
 				Integer price = rs.getInt("price");
@@ -90,7 +92,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				String photo = rs.getString("photo");
 				Integer category_id = rs.getInt("category_id");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-				Items item = new Items(item_code, name, price,quantity, photo,category_id, created_at);
+				Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
 				items.add(item);
 			}
 			rs.close();
@@ -188,6 +190,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
+				Integer id = rs.getInt("id");
 				String item_code = rs.getString("item_code");
 				String name = rs.getString("name");
 				Integer price = rs.getInt("price");
@@ -195,7 +198,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				String photo = rs.getString("photo");
 				Integer category_id = rs.getInt("category_id");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-				Items item = new Items(item_code, name, price,quantity, photo,category_id, created_at);
+				Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
 
 				String cat_name = rs.getString("category_name");
 				ItemsWithCategories item_cat = new ItemsWithCategories(item, cat_name);
@@ -208,6 +211,83 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 		return itemWCat;
 	}
 	
+	@Override
+	public List<Items> getItemsEachPage(int page, int itemsPerPage) {
+		 List<Items> items = new ArrayList<>();
+
+	        int offset = (page - 1) * itemsPerPage;
+	        String sql = "SELECT * FROM items ORDER BY id LIMIT ? OFFSET ?;";
+	        try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+
+	            stmt.setInt(1, itemsPerPage);
+	            stmt.setInt(2, offset);
+	            ResultSet rs = stmt.executeQuery();
+
+				while (rs.next()) {
+					Integer id = rs.getInt("id");
+					String item_code = rs.getString("item_code");
+					String name = rs.getString("name");
+					Integer price = rs.getInt("price");
+					Integer quantity = rs.getInt("quantity");
+					String photo = rs.getString("photo");
+					Integer category_id = rs.getInt("category_id");
+					LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
+					Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
+					items.add(item);
+	            }
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+
+	        return items;
+	}
+
+	@Override
+	public List<Items> searchItemsWithName(String name) {
+        List<Items> items = new ArrayList<>();
+        String sql = "SELECT * FROM items WHERE name LIKE ? ORDER BY id;";
+		 try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+
+	            stmt.setString(1, "%" + name + "%");	
+	            ResultSet rs = stmt.executeQuery();
+
+	            while (rs.next()) {
+	            	Integer id = rs.getInt("id");
+					String item_code = rs.getString("item_code");
+					String names = rs.getString("name");
+					Integer price = rs.getInt("price");
+					Integer quantity = rs.getInt("quantity");
+					String photo = rs.getString("photo");
+					Integer category_id = rs.getInt("category_id");
+					LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
+					Items item = new Items(id,item_code, names, price,quantity, photo,category_id, created_at);
+					items.add(item);
+	            }
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+
+	        return items;
+	}
+
+
+	@Override
+	public int getTotalItems() {
+		String sql = "SELECT COUNT(*) FROM items;";
+        try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {       	
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+            	return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
 
 	
 

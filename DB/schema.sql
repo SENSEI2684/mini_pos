@@ -36,7 +36,9 @@ CREATE TABLE cart (
     id                INT AUTO_INCREMENT PRIMARY KEY,
     user_id       	  INT NOT NULL,
     item_id           INT NOT NULL,
+    item_name         VARCHAR(100),
     quantity          INT NOT NULL,
+    price             DECIMAL(10,2) NOT NULL,
     added_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cart_users 
     FOREIGN KEY (user_id) REFERENCES users(id)

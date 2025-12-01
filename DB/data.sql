@@ -55,3 +55,9 @@ INSERT INTO categories (category_name) VALUES
 ('Phones'),
 ('Laptops'),
 ('HeadPhone');
+
+
+
+
+
+

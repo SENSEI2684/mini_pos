@@ -396,3 +396,5 @@ public class LoginDiaBox extends javax.swing.JFrame {
     private javax.swing.JTextField txtusername;
     // End of variables declaration//GEN-END:variables
 }
+
+
