@@ -13,4 +13,5 @@ public interface UserDao {
 	public boolean deleteaAccWithUsername(String username);
 	public boolean updateUser(String username, String password);
 	public List<Users> getAllUsers();
+	public  Users getUserByUsernameAndPassword(String username, String password);
 }

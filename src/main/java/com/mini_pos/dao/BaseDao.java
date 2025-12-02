@@ -34,7 +34,7 @@ public class BaseDao {
 	            String pass = props.getProperty("db.password");
 	            this.conn = DriverManager.getConnection(url, user, pass);//that code make connection with DB
 				if (conn != null && !conn.isClosed()) {
-	                System.out.println("✅ Database connected successfully!");
+//	                System.out.println("✅ Database connected successfully!");
 	            } else {
 	                System.out.println("❌ Connection failed!");
 	            }

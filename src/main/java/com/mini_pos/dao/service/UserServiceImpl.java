@@ -11,9 +11,16 @@ public class UserServiceImpl implements UserService{
 
 	UserDao userdao = new UserDaoImpl();
 	
+	public UserServiceImpl() {
+		// TODO Auto-generated constructor stub
+		
+	}
+	
 	@Override
 	public void registerUser(Users users) throws Exception { 
 		boolean isExisting = userdao.isUserExist(users.username()); // that is business logic code only reqister when there is no same username;
+		
+		
 		if(isExisting)
 		{
 			throw new Exception("User already existed");
@@ -28,6 +35,8 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public boolean loginUser(String username, String password ) throws Exception{
 		Boolean loginOK = this.userdao.loginUser(username, password);
+		
+		
 		
 		
 		if(!loginOK)
@@ -61,25 +70,31 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public boolean isUserExist(String username) {
 		// TODO Auto-generated method stub
-		return isUserExist(username);
+		return userdao.isUserExist(username);
 	}
 
 	@Override
 	public boolean deleteaAccWithUsername(String username) {
 		// TODO Auto-generated method stub
-		return deleteaAccWithUsername(username);
+		return userdao.deleteaAccWithUsername(username);
 	}
 
 	@Override
-	public boolean updateUsers(String username, String password) {
+	public boolean updateUser(String username, String password) {
 		// TODO Auto-generated method stub
-		return updateUsers(username, password);
+		return userdao.updateUser(username, password);
 	}
 
 	@Override
 	public List<Users> getAllUsers() {
 		// TODO Auto-generated method stub
-		return getAllUsers();
+		return userdao.getAllUsers();
+	}
+
+	@Override
+	public  Users getUserByUsernameAndPassword(String username, String password){
+		return userdao.getUserByUsernameAndPassword(username, password);
+		
 	}
 
 }

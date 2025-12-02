@@ -6,8 +6,9 @@ import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.CartWithItems;
 
 public interface CartDao {
-	public boolean saveCart(Cart cart);
-	List <CartWithItems> selectCartWithItemName();
+	public boolean addtoCart(Cart cart);
+	List <CartWithItems> selectCartWithJoinItem();
 	public boolean resetCart();
+	public boolean deleteItemsByCartId(Integer id);
 	
 }

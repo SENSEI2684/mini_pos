@@ -17,7 +17,7 @@ import com.mini_pos.dao.etinity.Items;
 public class CartDaoImpl extends BaseDao implements CartDao{
 
 	@Override
-	public boolean saveCart(Cart cart) {
+	public boolean addtoCart(Cart cart) {
 		String sql = "INSERT INTO cart (user_id,item_id,quantity) VALUES(?,?,?);";
 		try(PreparedStatement stmt = this.getconnection().prepareStatement(sql)){
 			
@@ -36,20 +36,21 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 	}
 
 	@Override
-	public List<CartWithItems> selectCartWithItemName() {
+	public List<CartWithItems> selectCartWithJoinItem() {
 		List<CartWithItems> cart = new ArrayList<CartWithItems>();
 		String sql = "SELECT \r\n"
 				+ "    c.id, \r\n"
 				+ "    i.name, \r\n"
+				+ "    i.price, \r\n"
 				+ "    c.quantity, \r\n"
-				+ "    i.price * c.quantity AS price\r\n"
+				+ "    i.price * c.quantity AS totalprice\r\n"
 				+ "FROM cart c\r\n"
 				+ "JOIN items i ON c.item_id = i.id;";
 		
 		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 		
-			System.out.println("SQL" + sql);
+//			System.out.println("SQL" + sql);
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
@@ -57,8 +58,9 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 				String name =rs.getString("name");
 				Integer quantity = rs.getInt("quantity");
 				Integer price = rs.getInt("price");
+				Integer total_price = rs.getInt("totalprice");
 				Cart c = new Cart(id,null,null,quantity,null);
-				CartWithItems item = new CartWithItems(c,name,price);
+				CartWithItems item = new CartWithItems(c,name,price,total_price);
 				cart.add(item);
 			}
 			rs.close();
@@ -66,6 +68,23 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 			e.printStackTrace();
 		}
 		return cart;
+	}
+	
+	@Override
+	public boolean deleteItemsByCartId(Integer id) {
+		String sql = "Delete from cart where id = ?";
+		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+																					// to sql
+
+			stmt.setInt(1, id); // level
+
+			int row = stmt.executeUpdate();// this must use .executeUpdate bec we make insert changes
+
+			return row > 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	@Override
@@ -82,12 +101,12 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 		
 	
 	public static void main(String [] args) {
-		CartDao cdao = new CartDaoImpl();
-		List<CartWithItems> list = cdao.selectCartWithItemName();
-		list.forEach(System.out::println);
-		
-		System.out.println(cdao.resetCart());
-		list.forEach(System.out::println);
+//		CartDao cdao = new CartDaoImpl();
+//		List<CartWithItems> list = cdao.selectCartWithItemName();
+//		list.forEach(System.out::println);
+//		
+//		System.out.println(cdao.resetCart());
+//		list.forEach(System.out::println);
 	}
 
 	

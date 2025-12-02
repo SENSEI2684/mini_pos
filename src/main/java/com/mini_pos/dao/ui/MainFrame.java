@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -23,17 +24,21 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.CartWithItems;
 import com.mini_pos.dao.etinity.Items;
+import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.service.CartService;
 import com.mini_pos.dao.service.CartServiceImpl;
 import com.mini_pos.dao.service.ItemsService;
 import com.mini_pos.dao.service.ItemsServiceImpl;
 import com.mini_pos.dao.service.UserService;
 import com.mini_pos.dao.service.UserServiceImpl;
+import com.mini_pos.dao.session.Session;
 import com.mini_pos.dao.ui.ItemCard;
 
 /**
@@ -47,50 +52,38 @@ public class MainFrame extends javax.swing.JFrame {
      */
 	
 	// Pagination variables
-	private int currentPage = 1;
-	private int itemsPerPage = 9; // 3x3 grid
-	private int totalItems = 0;
-	private boolean loginSucceeded = false;
-    private ImageIcon eyeIcon;
-    private ImageIcon eyeHideIcon;
-	private boolean passwordHidden = true;
-	private Integer userId;
-	private Integer cartId;
+	private int currentPage = 1; //for pagination
+	private int itemsPerPage = 9; // 3x3 grid , for pagination
+	private int totalItems = 0;  // for items JDBC
+	private boolean loginSucceeded = false; // for login
+    private ImageIcon eyeIcon;   // for login eyelogo
+    private ImageIcon eyeHideIcon; // for login eyelogo hide
+	private boolean passwordHidden = true; // for login function
+//	private Integer userId;
+	private Integer cartId;   // for cart function
+	private Integer selectedID; // for selection
+	private Integer total;
 
 	// DAO to load items
 	private ItemsService itemService = new ItemsServiceImpl();
 	private CartService cartService = new CartServiceImpl();
 	private UserService userService = new UserServiceImpl();
+	private Session session = Session.getInstance();
+	NumberFormat formatter = NumberFormat.getInstance();
 	
 	
     public MainFrame() {
         initComponents();
         initPasswordFeatures();   // Enable eye toggle
         setTime();
+        this.loadCartTable();
+        this.valueSelect();
     }
  
-//Item CardFunction   
- 
-    void loadCartTable() // to add sql data on ui table
-    {
-    	List<CartWithItems> cartwithItem = this.cartService.showcartdata();
-        DefaultTableModel model = (DefaultTableModel)tblCart.getModel();//put create table in this method
-        for(CartWithItems item : cartwithItem)
-        {
-            Object [] row = new Object[4];
-            row[0] = item.cart().id();
-            row[1] = item.item_name();
-            row[2] = item.cart().quantity();
-            row[3] = item.item_price();
-            
-           // add all columns in array and
-            model.addRow(row); // put array in table
-        }
-    }
-
 //    
- //----------------------------------------------------------------------------------------------------------------------------------------
- //loginUI
+ //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+ //loginUI ***************************************************************
     public void loginForm() { //setup dlglogin box 
     	dialogin.setModal(true);// this code mean another step will appear only if this box close
     	dialogin.pack();
@@ -100,6 +93,7 @@ public class MainFrame extends javax.swing.JFrame {
     	dialogin.setVisible(true);
     }
     
+ //login function ***************************************************************
     private void login() { // login function when click login button take input String from textbox and check with UserDAO loginUser
 		try 
     	{
@@ -109,12 +103,24 @@ public class MainFrame extends javax.swing.JFrame {
     		
     		System.out.println("LoginResult " + loginResult +username + " " + password);
     		if(loginResult)
-    		{
+    		{	
+    			
+    			Users user = userService.getUserByUsernameAndPassword(username, password); // write this method
+    			
+    			if (user == null) {
+    			    System.out.println("Login failed!");
+    			} else {
+    			    Session.getInstance().setUser(user);   // save to session
+    			    System.out.println("Saved to session: " + Session.getInstance().getUsername());
+    			}
+    		              
+    		
+    			
     			 this.loginSucceeded = true;
     			this.dialogin.setVisible(false);
     			
-    			totalItems = itemService.getTotalItems();
-    		    loadItemsToPanel();
+    			totalItems = itemService.getTotalItems();// this code need to write in login function bec after login success it will work with pagination next and previous button
+    		    loadItemsToPanel(); //Main UI code 
     		    updatePageLabel();
     		}
     		else
@@ -129,6 +135,9 @@ public class MainFrame extends javax.swing.JFrame {
     	}
 	}
 
+    
+ //password hide and show function***************************************************************
+    
     private ImageIcon resizeIcon(ImageIcon icon, int w, int h) {
         Image img = icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
         return new ImageIcon(img);
@@ -160,8 +169,10 @@ public class MainFrame extends javax.swing.JFrame {
             passwordHidden = true;
         }
     }
-//-------------------------------------------------------------------------------------------
-//MainFrame UI
+    
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+//MainFrame UI***************************************************************
     
     public void loadItemsToPanel() {
         try {
@@ -170,40 +181,113 @@ public class MainFrame extends javax.swing.JFrame {
             pnlMainItem.setMinimumSize(new Dimension(1000, 350));
             pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));  // 3 rows x 3 cols
            
-
-            List<Items> items = itemService.getItemsEachPage(currentPage, itemsPerPage);
-            
-            
-            
+            List<Items> items = itemService.getItemsEachPage(currentPage, itemsPerPage);//for pagination function call JDBC code
+   
             for (Items item : items) {
 
-                ItemCard card = new ItemCard(item, () -> {
-
-                    Integer qty = 1; // default
-
-                    // TODO: you can read qty from card later
-                    System.out.println("Add to cart clicked: " + item.name());
-
-                    // Add to cart logic
-                    Cart cart = new Cart(cartId,userId,item.id(),qty,null);
-                    cartService.addToCart(cart);
-
-                    loadCartTable();
-                });
-
-                pnlMainItem.add(card);
+//                ItemCard card = new ItemCard(item, () -> {
+//
+//                    Integer qty = 1; // default
+//
+//                    // TODO: you can read qty from card later
+//                	System.out.println("Current user " + session.getUsername() + session.getUser());
+//                    System.out.println("Add to cart clicked: " + item.name());
+//
+//                    // Add to cart logic
+//                    Integer userId = session.getUserId();
+//                    
+//                    Cart cart = new Cart(cartId,userId,item.id(),qty,null);
+//                    cartService.addToCart(cart);
+//
+//                    loadCartTable();
+//                });
+            	ItemCard card = new ItemCard(item, () -> { //inthis card there are function for adding items into cart via spinner and button
+            	    loadCartTable();   // refresh after each add
+            	});
+            	
+                pnlMainItem.add(card); // put all pagination keys and items data on MainItem panal
             }
-
             pnlMainItem.revalidate();
             pnlMainItem.repaint();
-            
-           
-            
+         
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
+    private void updatePageLabel() {
+        lblPageNumber.setText("Page " + currentPage);
+    }
+    
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+    
+  //Show Item Card data in table Function***************************************************************
+    
+    void loadCartTable() // to add existing sql data on ui table
+    {
+    	List<CartWithItems> cartwithItem = this.cartService.showcartdata();
+        DefaultTableModel model = (DefaultTableModel)this.tblCart.getModel();// create table in this method
+        
+        model.setRowCount(0); // without this code when add new items to cart previous data insert duplicate
+        
+        total = 0;
+        
+        for(CartWithItems item : cartwithItem)
+        {
+            Object [] row = new Object[5];
+            row[0] = item.cart().id();
+            row[1] = item.item_name();
+            row[2] = formatter.format(item.item_price());
+            row[3] = item.cart().quantity();
+            row[4] = formatter.format(item.total_price());
+         
+           // add all columns in array and
+            model.addRow(row); // put array in table
+            total += item.total_price();   
+            
+        }    
+        txtTotalPrice.setText(formatter.format(total)); //this code is for to look number is formattly
+    }
+    
+    public void reloadAllItems()
+    {
+    	DefaultTableModel model = (DefaultTableModel)this.tblCart.getModel();
+    	model.setRowCount(0);
+    	this.loadCartTable();
+    	
+    }
+    
+  
+ //-------------------------------------------------------------------------------------------------------------------------
+    
+ //money give back change function***************************************************************   
+ 
+    private void updateChange() {
+        total = Integer.parseInt(txtTotalPrice.getText().replaceAll(",", ""));
+        String paidText = txtPaid.getText();
+
+        if (!paidText.isEmpty()) {
+            try {
+                int paid = Integer.parseInt(paidText);
+
+                if (paid >= total) {
+                    int change = paid - total;
+                    txtChange.setText(formatter.format(change));
+                } else {
+                	JOptionPane.showMessageDialog(this, "Insufficient Balance");
+                    txtChange.setText("0");
+                }
+
+            } catch (NumberFormatException e) {
+                txtChange.setText("0");
+            }
+        }
+    }
+
+    
+ //-------------------------------------------------------------------------------------------------------------------------   
+    
+ //For time and date function and UI ***************************************************************
     public void setTime() {
 		new Thread(new Runnable() {
 
@@ -226,14 +310,81 @@ public class MainFrame extends javax.swing.JFrame {
 
 			}
 
-		}).start();
-		;
+		}).start();		
 	}
 
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+ //Select row function******************************************************************************
+    
+	public void valueSelect() {
+		this.tblCart.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent event) {
+				// do some actions here, for example
+				// print first column value from selected row
+				if (!event.getValueIsAdjusting()) {// getValueIsAdjusting() is true while the selection is still
+													// changing, so skipping when true avoids weird duplicate
+													// selections.
+					int row = tblCart.getSelectedRow();
+					if (row != -1) {
+						Integer id = (Integer) tblCart.getValueAt(row, 0);
+						selectedID = id;
+						String items = (String) tblCart.getValueAt(row, 1);
+						Integer qty = (Integer) tblCart.getValueAt(row, 2);
+						Integer price = (Integer) tblCart.getValueAt(row, 3);
+					}
+					System.out.println("Table row" + row);
+				} // this code is for role selected put into constructor bec want to select even
+					// after program start run
+			}
+		});
+	}
+    
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+// Reset Item in Cart function***************************************************************************
+	
+	 void removeItems()
+	    {
+	    	int row = tblCart.getSelectedRow();
+	    	if(row != -1) {
+	    		
+	    		Integer id = (Integer)tblCart.getValueAt(row, 0);
+	    		
+//	    		int result = JOptionPane.showConfirmDialog(
+//	    		        this,
+//	    		        "Confirm that you want to Delete this item " + id ,
+//	    		        "Delete",
+//	    		        JOptionPane.YES_NO_OPTION,
+//	    		        JOptionPane.WARNING_MESSAGE
+//	    		);
 
-    private void updatePageLabel() {
-        lblPageNumber.setText("Page " + currentPage);
-    }
+//	    		if (result == JOptionPane.YES_OPTION) {
+//	    		    // user clicked YES
+//	    			this.itemsService.deleteItemsByCartId(id);
+//	    			this.reloadAllItems();
+//	    		} else {
+//	    		    // user clicked NO or closed
+//	    		    System.out.println("Delete canceled");
+//	    		}
+	    		this.cartService.deleteItemsByCartId(id);
+	    		this.reloadAllItems();
+	    	}
+	    }
+	 
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	 //Reset the whole cart table function**************************************************************
+	 
+	 void resetCart()
+	 {
+	      this.cartService.resetCart();
+	       this.reloadAllItems();
+	       this.txtTotalPrice.setText("0");
+	 }
+	 
+//
+// 
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -241,9 +392,6 @@ public class MainFrame extends javax.swing.JFrame {
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    
-    
-    
     private void initComponents() {
 
         dialogin = new javax.swing.JDialog();
@@ -275,6 +423,16 @@ public class MainFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblCart = new javax.swing.JTable();
         pnlButtons = new javax.swing.JPanel();
+        lblTotalPrice = new javax.swing.JLabel();
+        txtTotalPrice = new javax.swing.JTextField();
+        lblPaid = new javax.swing.JLabel();
+        txtPaid = new javax.swing.JTextField();
+        lblChange = new javax.swing.JLabel();
+        txtChange = new javax.swing.JTextField();
+        btnPrint = new javax.swing.JButton();
+        btnReset = new javax.swing.JButton();
+        btnRemove = new javax.swing.JButton();
+        btnPaid = new javax.swing.JButton();
         pnlDateTime = new javax.swing.JPanel();
         lbldate = new javax.swing.JLabel();
         lbltime = new javax.swing.JLabel();
@@ -325,10 +483,11 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(txtusername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addGap(18, 18, 18)
-                .addGroup(dialoginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbleye, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtpassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
+                .addGroup(dialoginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbleye, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtpassword, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(dialoginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)))
                 .addGap(38, 38, 38)
                 .addComponent(btnlogin)
                 .addContainerGap(73, Short.MAX_VALUE))
@@ -417,7 +576,7 @@ public class MainFrame extends javax.swing.JFrame {
         );
         pnlMainItemLayout.setVerticalGroup(
             pnlMainItemLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 582, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout pnlMainTitleLayout = new javax.swing.GroupLayout(pnlMainTitle);
@@ -452,7 +611,7 @@ public class MainFrame extends javax.swing.JFrame {
         pnlpaginationLayout.setHorizontalGroup(
             pnlpaginationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlpaginationLayout.createSequentialGroup()
-                .addContainerGap(824, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnPrevPage)
                 .addGap(20, 20, 20)
                 .addComponent(lblPageNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -491,54 +650,144 @@ public class MainFrame extends javax.swing.JFrame {
 
         tblCart.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Id", "Items", "Quantity", "Total_Price"
+                "Id", "Items", "Price", "Quantity", "Total_Price"
             }
-        ));
-        jScrollPane1.setViewportView(tblCart);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+            };
 
-        pnlButtons.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, null, java.awt.Color.gray, java.awt.Color.lightGray, null));
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblCart);
+        if (tblCart.getColumnModel().getColumnCount() > 0) {
+            tblCart.getColumnModel().getColumn(0).setMaxWidth(25);
+            tblCart.getColumnModel().getColumn(1).setMaxWidth(300);
+            tblCart.getColumnModel().getColumn(2).setMaxWidth(100);
+            tblCart.getColumnModel().getColumn(3).setMaxWidth(60);
+            tblCart.getColumnModel().getColumn(4).setMaxWidth(150);
+        }
+
+        pnlButtons.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED, null, new java.awt.Color(102, 102, 102)));
+
+        lblTotalPrice.setText("Total Price");
+
+        txtTotalPrice.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTotalPriceActionPerformed(evt);
+            }
+        });
+
+        lblPaid.setText("Paid");
+
+        lblChange.setText("Change");
+
+        txtChange.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtChangeActionPerformed(evt);
+            }
+        });
+
+        btnPrint.setText("Print");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
+
+        btnReset.setText("Reset");
+        btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetActionPerformed(evt);
+            }
+        });
+
+        btnRemove.setText("Remove");
+        btnRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoveActionPerformed(evt);
+            }
+        });
+
+        btnPaid.setText("Paid");
+        btnPaid.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPaidActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlButtonsLayout = new javax.swing.GroupLayout(pnlButtons);
         pnlButtons.setLayout(pnlButtonsLayout);
         pnlButtonsLayout.setHorizontalGroup(
             pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(pnlButtonsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lblPaid, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblTotalPrice, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE)
+                    .addComponent(lblChange, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(txtPaid, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)
+                    .addComponent(txtTotalPrice, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtChange))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnPaid)
+                .addGap(12, 12, 12)
+                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnPrint, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnReset, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnRemove, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
         pnlButtonsLayout.setVerticalGroup(
             pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 96, Short.MAX_VALUE)
+            .addGroup(pnlButtonsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblTotalPrice)
+                    .addComponent(txtTotalPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPrint))
+                .addGap(8, 8, 8)
+                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPaid)
+                    .addComponent(txtPaid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnReset))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblChange)
+                    .addComponent(txtChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnRemove)
+                    .addComponent(btnPaid))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         pnlDateTime.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(250, 250, 250)));
         pnlDateTime.setForeground(new java.awt.Color(255, 255, 255));
 
-        lbldate.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lbldate.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
 
-        lbltime.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lbltime.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
 
         javax.swing.GroupLayout pnlDateTimeLayout = new javax.swing.GroupLayout(pnlDateTime);
         pnlDateTime.setLayout(pnlDateTimeLayout);
         pnlDateTimeLayout.setHorizontalGroup(
             pnlDateTimeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlDateTimeLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lbltime, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lbldate, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lbldate, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         pnlDateTimeLayout.setVerticalGroup(
             pnlDateTimeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlDateTimeLayout.createSequentialGroup()
-                .addGroup(pnlDateTimeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lbldate, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbltime, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 22, Short.MAX_VALUE))
+            .addComponent(lbltime, javax.swing.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
+            .addComponent(lbldate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout lbnCartLayout = new javax.swing.GroupLayout(lbnCart);
@@ -618,6 +867,30 @@ public class MainFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtregirepassowrdActionPerformed
 
+    private void txtTotalPriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTotalPriceActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTotalPriceActionPerformed
+
+    private void txtChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtChangeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtChangeActionPerformed
+
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnPrintActionPerformed
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+       this.resetCart();
+    }//GEN-LAST:event_btnResetActionPerformed
+
+    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
+        this.removeItems();
+    }//GEN-LAST:event_btnRemoveActionPerformed
+
+    private void btnPaidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPaidActionPerformed
+        this.updateChange();
+    }//GEN-LAST:event_btnPaidActionPerformed
+
     private void btnloginActionPerformed(java.awt.event.ActionEvent evt) {                                         
     	this.login();
     }
@@ -689,7 +962,11 @@ public class MainFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnNextPage;
+    private javax.swing.JButton btnPaid;
     private javax.swing.JButton btnPrevPage;
+    private javax.swing.JButton btnPrint;
+    private javax.swing.JButton btnRemove;
+    private javax.swing.JButton btnReset;
     private javax.swing.JButton btnlogin;
     private javax.swing.JDialog dialogin;
     private javax.swing.JDialog diaregister;
@@ -704,7 +981,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblChange;
     private javax.swing.JLabel lblPageNumber;
+    private javax.swing.JLabel lblPaid;
+    private javax.swing.JLabel lblTotalPrice;
     private javax.swing.JLabel lbldate;
     private javax.swing.JLabel lbleye;
     private javax.swing.JLabel lblregieye;
@@ -718,6 +998,9 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel pnlMainTitle;
     private javax.swing.JPanel pnlpagination;
     private javax.swing.JTable tblCart;
+    private javax.swing.JTextField txtChange;
+    private javax.swing.JTextField txtPaid;
+    private javax.swing.JTextField txtTotalPrice;
     private javax.swing.JPasswordField txtpassword;
     private javax.swing.JPasswordField txtregipassowrd;
     private javax.swing.JPasswordField txtregirepassowrd;

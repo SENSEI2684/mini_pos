@@ -11,27 +11,27 @@ public class CartServiceImpl implements CartService {
 
 	CartDao cartdao = new CartDaoImpl();
 
-
-	
 	@Override
 	public boolean resetCart() {
 		return this.cartdao.resetCart();
 	}
 
-
-
 	@Override
 	public List<CartWithItems> showcartdata() {
-		
-		
-		return cartdao.selectCartWithItemName();
-	}
 
+		return cartdao.selectCartWithJoinItem();
+	}
 
 	@Override
 	public boolean addToCart(Cart cart) {
+
+		return this.cartdao.addtoCart(cart);
+	}
+
+	@Override
+	public boolean deleteItemsByCartId(Integer id) {
 		
-		return this.cartdao.saveCart(cart);
+		return this.cartdao.deleteItemsByCartId(id);
 	}
 
 }

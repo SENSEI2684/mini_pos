@@ -1345,6 +1345,7 @@ public class DashBoard extends javax.swing.JFrame {
 			txtarea.setText(txtarea.getText() + x + ". " + lbliphone15.getText() + "\t\t" + String.format("%.2f", price)
 					+ "\n");
 			dudate();
+			
 		} else {
 			btnadd1.setSelected(false);
 		}
