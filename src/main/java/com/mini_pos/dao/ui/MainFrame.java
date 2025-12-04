@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.print.PrinterException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -269,12 +270,12 @@ public class MainFrame extends javax.swing.JFrame {
         
         for(CartWithItems item : cartwithItem)
         {
-            Object [] row = new Object[5];
-            row[0] = item.cart().id();
-            row[1] = item.item_name();
-            row[2] = formatter.format(item.item_price());
-            row[3] = item.cart().quantity();
-            row[4] = formatter.format(item.total_price());
+            Object [] row = new Object[4];
+           
+            row[0] = item.item_name();
+            row[1] = formatter.format(item.item_price());
+            row[2] = item.cart().quantity();
+            row[3] = formatter.format(item.total_price());
          
            // add all columns in array and
             model.addRow(row); // put array in table
@@ -431,7 +432,7 @@ public class MainFrame extends javax.swing.JFrame {
 	       this.txtTotalPrice.setText("0");
 	       this.txtPaid.setText("");
 	       this.txtChange.setText("0");
-	       this.txtarea.setText(null);
+	       this.txtArea.setText(null);
 	       
 	       this.txtTotalPrice.setEditable(false);
 	       this.txtChange.setEditable(false);
@@ -485,11 +486,11 @@ public class MainFrame extends javax.swing.JFrame {
 	 public void outreceip() {
 		 	
 		 try {
-			 if(txtTotalPrice.getText().trim().isEmpty() |
+			 if(txtTotalPrice.getText().equals("0") |
 			            txtPaid.getText().trim().isEmpty() |
-			            txtChange.getText().trim().isEmpty()) 
+			            txtChange.getText().equals("0")) 
 			 {
-				 JOptionPane.showMessageDialog(this, "Please Put the Datas First","Missing Data",
+				 JOptionPane.showMessageDialog(this, "Please Make the Checkout Process Complete","Missing Data",
 		                    JOptionPane.WARNING_MESSAGE);
 				 return;
 			 }
@@ -507,7 +508,7 @@ public class MainFrame extends javax.swing.JFrame {
 				    
 				    StringBuilder sb = new StringBuilder();
 
-				    sb.append(" **********************************  IT STORE ***********************************\n");
+				    sb.append(" ***********************************  IT STORE ************************************\n");
 				    sb.append("                                           Tel: +959 92500 64228\n\n");
 				    sb.append(" Cashier ID:\t\t\t\t"+session.getUserId()).append("\n");
 				    sb.append(" Receipt ID:\t\t\t\t").append(session.getUserId()).append("\n");
@@ -531,13 +532,13 @@ public class MainFrame extends javax.swing.JFrame {
 				    sb.append(" ---------------------------------------------------------------------------------------------------\n");
 				    sb.append(" Date: ").append(currentDate)
 				    .append("\t\t             Time: ").append(currentTime).append("\n");
-				    sb.append(" **********************************************************************************\n");
+				    sb.append(" ************************************************************************************\n");
 				    sb.append("                                              	 THANK YOU\n");
-				    sb.append(" **********************************************************************************\n");
+				    sb.append(" ************************************************************************************\n");
 				    sb.append("                                      Program By Aung Khant Kyaw\n");
 				    sb.append("                                   Contact : akkyaw.dev@gmail.com\n");
 
-				    txtarea.setText(sb.toString());
+				    txtArea.setText(sb.toString());
 				    System.out.println( "TIME LABEL = " +lbldate.getText() + lbltime.getText());
 				 
 			 }
@@ -616,9 +617,9 @@ public class MainFrame extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         diareceip = new javax.swing.JDialog();
         pnlreceip = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        txtarea = new javax.swing.JTextArea();
-        jButton2 = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        txtArea = new javax.swing.JTextArea();
+        btnPrint = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         pnlMain = new javax.swing.JPanel();
         pnlMainItem = new javax.swing.JPanel();
@@ -637,7 +638,7 @@ public class MainFrame extends javax.swing.JFrame {
         txtPaid = new javax.swing.JTextField();
         lblChange = new javax.swing.JLabel();
         txtChange = new javax.swing.JTextField();
-        btnPrint = new javax.swing.JButton();
+        btnShowReceip = new javax.swing.JButton();
         btnReset = new javax.swing.JButton();
         btnRemove = new javax.swing.JButton();
         btnPaid = new javax.swing.JButton();
@@ -769,51 +770,53 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap(63, Short.MAX_VALUE))
         );
 
-        txtarea.setColumns(20);
-        txtarea.setRows(5);
-        jScrollPane2.setViewportView(txtarea);
-
-        jButton2.setText("jButton2");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout pnlreceipLayout = new javax.swing.GroupLayout(pnlreceip);
         pnlreceip.setLayout(pnlreceipLayout);
         pnlreceipLayout.setHorizontalGroup(
             pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlreceipLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(jButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(128, Short.MAX_VALUE))
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         pnlreceipLayout.setVerticalGroup(
             pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlreceipLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlreceipLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2)
-                .addGap(161, 161, 161))
+            .addGap(0, 580, Short.MAX_VALUE)
         );
+
+        txtArea.setColumns(20);
+        txtArea.setRows(5);
+        jScrollPane3.setViewportView(txtArea);
+
+        btnPrint.setText("Print");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout diareceipLayout = new javax.swing.GroupLayout(diareceip.getContentPane());
         diareceip.getContentPane().setLayout(diareceipLayout);
         diareceipLayout.setHorizontalGroup(
             diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(diareceipLayout.createSequentialGroup()
-                .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(101, Short.MAX_VALUE))
+                .addGroup(diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(diareceipLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 426, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(diareceipLayout.createSequentialGroup()
+                        .addGap(146, 146, 146)
+                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         diareceipLayout.setVerticalGroup(
             diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pnlreceip, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(diareceipLayout.createSequentialGroup()
+                .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(diareceipLayout.createSequentialGroup()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 512, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnPrint)
+                .addGap(19, 19, 19))
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -908,11 +911,11 @@ public class MainFrame extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Id", "Items", "Price", "Quantity", "Total_Price"
+                "Items", "Price", "Quantity", "Total_Price"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -921,37 +924,44 @@ public class MainFrame extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblCart);
         if (tblCart.getColumnModel().getColumnCount() > 0) {
-            tblCart.getColumnModel().getColumn(0).setMaxWidth(25);
-            tblCart.getColumnModel().getColumn(1).setMaxWidth(300);
-            tblCart.getColumnModel().getColumn(2).setMaxWidth(100);
-            tblCart.getColumnModel().getColumn(3).setMaxWidth(60);
-            tblCart.getColumnModel().getColumn(4).setMaxWidth(150);
+            tblCart.getColumnModel().getColumn(0).setMaxWidth(300);
+            tblCart.getColumnModel().getColumn(1).setMaxWidth(100);
+            tblCart.getColumnModel().getColumn(2).setMaxWidth(60);
+            tblCart.getColumnModel().getColumn(3).setMaxWidth(150);
         }
 
         pnlButtons.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED, null, new java.awt.Color(102, 102, 102)));
 
+        lblTotalPrice.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblTotalPrice.setText("Total Price");
 
+        txtTotalPrice.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         txtTotalPrice.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtTotalPriceActionPerformed(evt);
             }
         });
 
+        lblPaid.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblPaid.setText("Paid");
 
+        txtPaid.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+
+        lblChange.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblChange.setText("Change");
 
+        txtChange.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        txtChange.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         txtChange.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtChangeActionPerformed(evt);
             }
         });
 
-        btnPrint.setText("Show Receip");
-        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+        btnShowReceip.setText("Show Receip");
+        btnShowReceip.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPrintActionPerformed(evt);
+                btnShowReceipActionPerformed(evt);
             }
         });
 
@@ -982,23 +992,26 @@ public class MainFrame extends javax.swing.JFrame {
             pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlButtonsLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lblPaid, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblTotalPrice, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE)
-                    .addComponent(lblChange, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(txtPaid, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)
-                    .addComponent(txtTotalPrice, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtChange))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnPaid)
-                .addGap(12, 12, 12)
+                    .addGroup(pnlButtonsLayout.createSequentialGroup()
+                        .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(lblPaid, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblTotalPrice, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(25, 25, 25)
+                        .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txtPaid, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtTotalPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(pnlButtonsLayout.createSequentialGroup()
+                        .addComponent(lblChange, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtChange, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(47, 47, 47)
                 .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnPrint, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnPaid, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnShowReceip, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnReset, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnRemove, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE))
-                .addContainerGap(31, Short.MAX_VALUE))
+                    .addComponent(btnRemove, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlButtonsLayout.setVerticalGroup(
             pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1007,19 +1020,24 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTotalPrice)
                     .addComponent(txtTotalPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnPrint))
-                .addGap(8, 8, 8)
-                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblPaid)
-                    .addComponent(txtPaid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnReset))
+                    .addComponent(btnShowReceip))
+                .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlButtonsLayout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addComponent(btnReset)
+                        .addGap(16, 16, 16)
+                        .addComponent(btnRemove))
+                    .addGroup(pnlButtonsLayout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblPaid)
+                            .addComponent(txtPaid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(pnlButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblChange)
                     .addComponent(txtChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnRemove)
+                    .addComponent(lblChange)
                     .addComponent(btnPaid))
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pnlDateTime.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(250, 250, 250)));
@@ -1048,7 +1066,7 @@ public class MainFrame extends javax.swing.JFrame {
         lbnCart.setLayout(lbnCartLayout);
         lbnCartLayout.setHorizontalGroup(
             lbnCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addComponent(pnlButtons, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(lbnCartLayout.createSequentialGroup()
                 .addContainerGap()
@@ -1129,10 +1147,10 @@ public class MainFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtChangeActionPerformed
 
-    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+    private void btnShowReceipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowReceipActionPerformed
 //    	this.receipForm();
     	this.outreceip();
-    }//GEN-LAST:event_btnPrintActionPerformed
+    }//GEN-LAST:event_btnShowReceipActionPerformed
 
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
        this.resetCart();
@@ -1149,9 +1167,13 @@ public class MainFrame extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btnPaidActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:sdf
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+    	try {
+			txtArea.print();
+		} catch (PrinterException e) {
+			e.printStackTrace();
+		}
+    }//GEN-LAST:event_btnPrintActionPerformed
 
     private void btnloginActionPerformed(java.awt.event.ActionEvent evt) {                                         
     	this.login();
@@ -1232,12 +1254,12 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnRemove;
     private javax.swing.JButton btnReset;
+    private javax.swing.JButton btnShowReceip;
     private javax.swing.JButton btnlogin;
     private javax.swing.JDialog dialogin;
     private javax.swing.JDialog diareceip;
     private javax.swing.JDialog diaregister;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -1248,7 +1270,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel lblChange;
     private javax.swing.JLabel lblPageNumber;
     private javax.swing.JLabel lblPaid;
@@ -1267,10 +1289,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel pnlpagination;
     private javax.swing.JPanel pnlreceip;
     private javax.swing.JTable tblCart;
+    private javax.swing.JTextArea txtArea;
     private javax.swing.JTextField txtChange;
     private javax.swing.JTextField txtPaid;
     private javax.swing.JTextField txtTotalPrice;
-    private javax.swing.JTextArea txtarea;
     private javax.swing.JPasswordField txtpassword;
     private javax.swing.JPasswordField txtregipassowrd;
     private javax.swing.JPasswordField txtregirepassowrd;

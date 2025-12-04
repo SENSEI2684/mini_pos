@@ -18,7 +18,10 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 
 	@Override
 	public boolean addtoCart(Cart cart) {
-		String sql = "INSERT INTO cart (user_id,item_id,quantity) VALUES(?,?,?);";
+		String sql = "INSERT INTO cart (user_id,item_id,quantity)\r\n"
+				+ "VALUES (?, ?, ?)\r\n"
+				+ "ON DUPLICATE KEY UPDATE \r\n"
+				+ "quantity = quantity + VALUES(quantity);";
 		try(PreparedStatement stmt = this.getconnection().prepareStatement(sql)){
 			
 			stmt.setInt(1, cart.user_id());
@@ -39,7 +42,6 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 	public List<CartWithItems> selectCartWithJoinItem() {
 		List<CartWithItems> cart = new ArrayList<CartWithItems>();
 		String sql = "SELECT \r\n"
-				+ "    c.id, \r\n"
 				+ "    i.name, \r\n"
 				+ "    i.price, \r\n"
 				+ "    c.quantity, \r\n"
@@ -54,12 +56,12 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
-				Integer id = rs.getInt("id");
+				
 				String name =rs.getString("name");
 				Integer quantity = rs.getInt("quantity");
 				Integer price = rs.getInt("price");
 				Integer total_price = rs.getInt("totalprice");
-				Cart c = new Cart(id,null,null,quantity,null);
+				Cart c = new Cart(null,null,null,quantity,null);
 				CartWithItems item = new CartWithItems(c,name,price,total_price);
 				cart.add(item);
 			}
