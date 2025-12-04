@@ -28,12 +28,13 @@ import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.service.CartService;
 import com.mini_pos.dao.service.CartServiceImpl;
-import com.mini_pos.dao.session.Session;
+import com.mini_pos.helper_function.ImageCache;
+import com.mini_pos.helper_function.Session;
 
 public class ItemCard extends JPanel {
 	
-	MainFrame mf = new MainFrame();
-	private CartService cartService = new CartServiceImpl();
+	
+	private CartService cartService = CartServiceImpl.getInstance();
 	private Session session = Session.getInstance();
 
     public ItemCard(Items item, Runnable afterAdd) {
@@ -47,19 +48,16 @@ public class ItemCard extends JPanel {
         innerPanel.setLayout(new BorderLayout());
         innerPanel.setBackground(Color.WHITE);
         innerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
 
         // ================= IMAGE PANEL (LEFT) =================
         JLabel lblImg = new JLabel();
         lblImg.setHorizontalAlignment(SwingConstants.CENTER);
         try {
-            URL imgUrl = getClass().getClassLoader()
-                    .getResource("static/images/" + item.photo());
-
-            if (imgUrl != null) {
-                ImageIcon icon = new ImageIcon(imgUrl);
-                Image scaled = icon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
-                lblImg.setIcon(new ImageIcon(scaled));
-            }
+        	ImageIcon cached = ImageCache.get(item.photo());
+        	if (cached != null) {
+        	    lblImg.setIcon(cached);
+        	}
         } catch (Exception ignored) {}
 
         JPanel imgPanel = new JPanel(new BorderLayout());
@@ -93,16 +91,23 @@ public class ItemCard extends JPanel {
 
         // Quantity
         gbc.gridx = 0; gbc.gridy = 2;
+       
         info.add(new JLabel("Quantity:"), gbc);
 
         gbc.gridx = 1;
-        JSpinner spQty = new JSpinner(new SpinnerNumberModel(1, 1, 99, 1));
-        spQty.setPreferredSize(new Dimension(60, 25));
+        gbc.fill = GridBagConstraints.NONE;
+        JSpinner spQty = new JSpinner(new SpinnerNumberModel(1, 0, 99, 1));
+        ((JSpinner.DefaultEditor) spQty.getEditor()).getTextField().setColumns(3);
+        spQty.setPreferredSize(new Dimension(60, 28));
+        spQty.setMinimumSize(new Dimension(60, 28));
+        spQty.setMaximumSize(new Dimension(60, 28));
         info.add(spQty, gbc);
+        
 
         // Add-to-Cart Button
         gbc.gridx = 0; gbc.gridy = 3;
         gbc.gridwidth = 2;
+        gbc.weighty = 0.2;
         gbc.anchor = GridBagConstraints.CENTER;
 
         JButton btnAdd = new JButton("Add to Cart");
@@ -122,15 +127,15 @@ public class ItemCard extends JPanel {
             {
             	afterAdd.run(); // refresh UI , in here we dont need to use reloadAllItems of MainFrame method, this afterAdd buildin method auto refresh UI
             }
-            
+            spQty.setValue(1); // to reset the spinner value to 0 after click the button
 //            mf.reloadAllItems();
             
         });
         info.add(btnAdd, gbc);
 
         innerPanel.add(info, BorderLayout.CENTER);
-
-        // ================= HOVER EFFECT =================
+//
+//        // ================= HOVER EFFECT =================
         innerPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -177,5 +182,6 @@ public class ItemCard extends JPanel {
         public boolean isOpaque() {
             return false;
         }
+
     }
 }

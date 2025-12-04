@@ -9,6 +9,17 @@ import com.mini_pos.dao.CartDao;
 
 public class CartServiceImpl implements CartService {
 
+	 private static CartServiceImpl instance;
+
+	    private CartServiceImpl() {}
+
+	    public static CartServiceImpl getInstance() {
+	        if (instance == null) {
+	            instance = new CartServiceImpl();
+	        }
+	        return instance;
+	    }
+	
 	CartDao cartdao = new CartDaoImpl();
 
 	@Override

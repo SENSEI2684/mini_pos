@@ -26,7 +26,7 @@ public class AccountSettingFrame extends javax.swing.JFrame {
 		
 	    public AccountSettingFrame() {
 	        initComponents();
-	        initPasswordFeatures();
+//	        initPasswordFeatures();
 	    }
 
 	    

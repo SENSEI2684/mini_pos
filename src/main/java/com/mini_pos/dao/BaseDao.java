@@ -9,7 +9,7 @@ import java.util.Properties;
 
 public class BaseDao {
 
-	Connection conn; // to connect Database need connection concept like socket connection 
+	 private static Connection conn; // SINGLE shared connection for whole program
 	private static BaseDao singleton;
 	static // need to add DataBase Driver on Static initializer
 	{
@@ -23,21 +23,25 @@ public class BaseDao {
 	}
 		public BaseDao() {
 			try {
-	            Properties props = new Properties();
+				 // If connection already exists, reuse it
+				if(conn != null && !conn.isClosed())return;
+	
+//				else {
+//	                System.out.println("❌ Connection failed!");
+//	            }
+					
+					 Properties props = new Properties();
 
-	            // Load config.properties
-	            InputStream in = getClass().getClassLoader().getResourceAsStream("config.properties");
-	            props.load(in);
+			            // Load config.properties
+			            InputStream in = getClass().getClassLoader().getResourceAsStream("config.properties");
+			            props.load(in);
 
-	            String url = props.getProperty("db.url");
-	            String user = props.getProperty("db.user");
-	            String pass = props.getProperty("db.password");
-	            this.conn = DriverManager.getConnection(url, user, pass);//that code make connection with DB
-				if (conn != null && !conn.isClosed()) {
-//	                System.out.println("✅ Database connected successfully!");
-	            } else {
-	                System.out.println("❌ Connection failed!");
-	            }
+			            String url = props.getProperty("db.url");
+			            String user = props.getProperty("db.user");
+			            String pass = props.getProperty("db.password");
+			            this.conn = DriverManager.getConnection(url, user, pass);//that code make connection with DB
+				
+	            
 			}//jdbc:mysq == protocal , 3306 = mysql port no, ecommerce_db = DBname , DB acc name , pw;
 			catch(Exception e) {
 				 System.err.println("❌ Failed to connect to database!");

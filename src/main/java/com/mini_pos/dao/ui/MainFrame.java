@@ -1,3 +1,4 @@
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
@@ -9,26 +10,18 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
-import java.net.URL;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.CartWithItems;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.Users;
@@ -38,8 +31,7 @@ import com.mini_pos.dao.service.ItemsService;
 import com.mini_pos.dao.service.ItemsServiceImpl;
 import com.mini_pos.dao.service.UserService;
 import com.mini_pos.dao.service.UserServiceImpl;
-import com.mini_pos.dao.session.Session;
-import com.mini_pos.dao.ui.ItemCard;
+import com.mini_pos.helper_function.Session;
 
 /**
  *
@@ -66,18 +58,23 @@ public class MainFrame extends javax.swing.JFrame {
 
 	// DAO to load items
 	private ItemsService itemService = new ItemsServiceImpl();
-	private CartService cartService = new CartServiceImpl();
+	private CartService cartService = CartServiceImpl.getInstance();
 	private UserService userService = new UserServiceImpl();
 	private Session session = Session.getInstance();
 	NumberFormat formatter = NumberFormat.getInstance();
+	private List<ItemCard> allCards = new ArrayList<>();
+	private List<Items> allItems = new ArrayList<>();
 	
 	
     public MainFrame() {
         initComponents();
+//       loadAllItemsOnce();
+//       loadCartTable();
         initPasswordFeatures();   // Enable eye toggle
         setTime();
-        this.loadCartTable();
-        this.valueSelect();
+//        this.loadCartTable();
+//        this.valueSelect();
+     
     }
  
 //    
@@ -91,6 +88,15 @@ public class MainFrame extends javax.swing.JFrame {
     	Point location = dialogin.getLocation();
     	dialogin.setLocation(location.x + 10, location.y + 10); // shift
     	dialogin.setVisible(true);
+    }
+    
+    public void receipForm() { //setup dlglogin box 
+    	diareceip.pack();
+    	diareceip.setLocationRelativeTo(this); // center
+    	Point location = diareceip.getLocation();
+    	diareceip.setLocation(location.x + 10, location.y + 10); // shift
+    	diareceip.setVisible(true);
+//    	this.outreceip();
     }
     
  //login function ***************************************************************
@@ -120,8 +126,9 @@ public class MainFrame extends javax.swing.JFrame {
     			this.dialogin.setVisible(false);
     			
     			totalItems = itemService.getTotalItems();// this code need to write in login function bec after login success it will work with pagination next and previous button
-    		    loadItemsToPanel(); //Main UI code 
-    		    updatePageLabel();
+    		    this.loadItemsToPanel(); //Main UI code 
+    		    this.updatePageLabel();
+    		    this.resetCart();
     		}
     		else
     		{
@@ -135,6 +142,7 @@ public class MainFrame extends javax.swing.JFrame {
     	}
 	}
 
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
  //password hide and show function***************************************************************
     
@@ -174,6 +182,47 @@ public class MainFrame extends javax.swing.JFrame {
     
 //MainFrame UI***************************************************************
     
+//    public void loadAllItemsOnce() {
+//        try {
+//            allItems = itemService.getAllItems();   // GET ALL items only once
+//            allCards.clear();
+//
+//            // Create ItemCards just ONCE
+//            for (Items item : allItems) {
+//                allCards.add(new ItemCard(item, () -> {
+//                    loadCartTable();
+//                }));
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//    
+//    public void loadItemsToPanel() {
+//        try {
+//            pnlMainItem.removeAll();
+//            pnlMainItem.setPreferredSize(new Dimension(1000, 350));
+//            pnlMainItem.setMinimumSize(new Dimension(1000, 350));
+//            pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
+//
+//            int start = (currentPage - 1) * itemsPerPage;
+//            int end = Math.min(start + itemsPerPage, allCards.size());
+//
+//            // USE EXISTING ItemCards — DO NOT recreate
+//            for (int i = start; i < end; i++) {
+//                pnlMainItem.add(allCards.get(i));
+//            }
+//
+//            pnlMainItem.revalidate();
+//            pnlMainItem.repaint();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    
     public void loadItemsToPanel() {
         try {
             pnlMainItem.removeAll();
@@ -185,22 +234,6 @@ public class MainFrame extends javax.swing.JFrame {
    
             for (Items item : items) {
 
-//                ItemCard card = new ItemCard(item, () -> {
-//
-//                    Integer qty = 1; // default
-//
-//                    // TODO: you can read qty from card later
-//                	System.out.println("Current user " + session.getUsername() + session.getUser());
-//                    System.out.println("Add to cart clicked: " + item.name());
-//
-//                    // Add to cart logic
-//                    Integer userId = session.getUserId();
-//                    
-//                    Cart cart = new Cart(cartId,userId,item.id(),qty,null);
-//                    cartService.addToCart(cart);
-//
-//                    loadCartTable();
-//                });
             	ItemCard card = new ItemCard(item, () -> { //inthis card there are function for adding items into cart via spinner and button
             	    loadCartTable();   // refresh after each add
             	});
@@ -229,6 +262,8 @@ public class MainFrame extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel)this.tblCart.getModel();// create table in this method
         
         model.setRowCount(0); // without this code when add new items to cart previous data insert duplicate
+        
+
         
         total = 0;
         
@@ -263,23 +298,40 @@ public class MainFrame extends javax.swing.JFrame {
  //money give back change function***************************************************************   
  
     private void updateChange() {
+    	
+    	
         total = Integer.parseInt(txtTotalPrice.getText().replaceAll(",", ""));
-        String paidText = txtPaid.getText();
-
+        String totalText = txtTotalPrice.getText().trim().replaceAll(",", "");
+        
+        String paidText = txtPaid.getText().trim();
+        
+        if (txtTotalPrice.getText().equals("0") ) {
+            JOptionPane.showMessageDialog(this, "Please add items first");
+            return;
+        }
+        
+        if (txtPaid.getText().trim().isEmpty() & !txtTotalPrice.getText().equals("0")) {
+            JOptionPane.showMessageDialog(this, "Please Enter The Paid Amount");
+            
+            return;
+        }
+       
+       
         if (!paidText.isEmpty()) {
             try {
                 int paid = Integer.parseInt(paidText);
 
-                if (paid >= total) {
-                    int change = paid - total;
-                    txtChange.setText(formatter.format(change));
+               
+                if(paid >= total ) {
+            		int change = paid - total;
+                    txtChange.setText(formatter.format(change));   
                 } else {
-                	JOptionPane.showMessageDialog(this, "Insufficient Balance");
+                	JOptionPane.showMessageDialog(this, "Insufficient Paid Balance");
                     txtChange.setText("0");
                 }
 
             } catch (NumberFormatException e) {
-                txtChange.setText("0");
+            	 JOptionPane.showMessageDialog(this, "Invalid Paid Amount");
             }
         }
     }
@@ -295,17 +347,16 @@ public class MainFrame extends javax.swing.JFrame {
 			public void run() {
 				while (true) {
 					try {
-						Thread.sleep(0);
+						Date date = new Date();
+						Thread.sleep(1000);
+						SimpleDateFormat tf = new SimpleDateFormat("h:mm:ss aa");
+		                SimpleDateFormat df = new SimpleDateFormat("EEE, yyyy-MM-dd");
+
+		                lbltime.setText(tf.format(date));
+		                lbldate.setText(df.format(date));
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					Date date = new Date();
-					SimpleDateFormat tf = new SimpleDateFormat("h:m:ss aa");
-					SimpleDateFormat df = new SimpleDateFormat("EEE, dd-MM-yyyy");
-					String time = tf.format(date);
-					lbltime.setText(time.split(" ")[0] + " " + time.split(" ")[1]);
-					lbldate.setText(df.format(date));
-
 				}
 
 			}
@@ -317,59 +368,56 @@ public class MainFrame extends javax.swing.JFrame {
     
  //Select row function******************************************************************************
     
-	public void valueSelect() {
-		this.tblCart.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent event) {
-				// do some actions here, for example
-				// print first column value from selected row
-				if (!event.getValueIsAdjusting()) {// getValueIsAdjusting() is true while the selection is still
-													// changing, so skipping when true avoids weird duplicate
-													// selections.
-					int row = tblCart.getSelectedRow();
-					if (row != -1) {
-						Integer id = (Integer) tblCart.getValueAt(row, 0);
-						selectedID = id;
-						String items = (String) tblCart.getValueAt(row, 1);
-						Integer qty = (Integer) tblCart.getValueAt(row, 2);
-						Integer price = (Integer) tblCart.getValueAt(row, 3);
-					}
-					System.out.println("Table row" + row);
-				} // this code is for role selected put into constructor bec want to select even
-					// after program start run
-			}
-		});
-	}
-    
+//	public void valueSelect() {
+//		this.tblCart.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+//			public void valueChanged(ListSelectionEvent event) {
+//				// do some actions here, for example
+//				// print first column value from selected row
+//				if (!event.getValueIsAdjusting()) {// getValueIsAdjusting() is true while the selection is still
+//													// changing, so skipping when true avoids weird duplicate
+//													// selections.
+////					int row = tblCart.getSelectedRow();
+////					if (row != -1) {
+////						Integer id = (Integer) tblCart.getValueAt(row, 0);
+////						selectedID = id;
+////						String items = (String) tblCart.getValueAt(row, 1);
+////						Integer qty = (Integer) tblCart.getValueAt(row, 2);
+////						Integer price = (Integer) tblCart.getValueAt(row, 3);
+////					}
+////					System.out.println("Table row" + row);
+//				} // this code is for role selected put into constructor bec want to select even
+//					// after program start run
+//			}
+//		});
+//	}
+//    
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 // Reset Item in Cart function***************************************************************************
 	
 	 void removeItems()
 	    {
-	    	int row = tblCart.getSelectedRow();
-	    	if(row != -1) {
-	    		
-	    		Integer id = (Integer)tblCart.getValueAt(row, 0);
-	    		
-//	    		int result = JOptionPane.showConfirmDialog(
-//	    		        this,
-//	    		        "Confirm that you want to Delete this item " + id ,
-//	    		        "Delete",
-//	    		        JOptionPane.YES_NO_OPTION,
-//	    		        JOptionPane.WARNING_MESSAGE
-//	    		);
-
-//	    		if (result == JOptionPane.YES_OPTION) {
-//	    		    // user clicked YES
-//	    			this.itemsService.deleteItemsByCartId(id);
-//	    			this.reloadAllItems();
-//	    		} else {
-//	    		    // user clicked NO or closed
-//	    		    System.out.println("Delete canceled");
-//	    		}
-	    		this.cartService.deleteItemsByCartId(id);
-	    		this.reloadAllItems();
-	    	}
+		 
+		 //for single select row remove
+//	    	int row = tblCart.getSelectedRow();
+//	    	if(row != -1) {
+//	    		
+//	    		Integer id = (Integer)tblCart.getValueAt(row, 0);
+//	    		this.cartService.deleteItemsByCartId(id);
+//	    		this.reloadAllItems();
+		 
+		 
+		 //for multi select select row remove
+		 int[] selectedRows = tblCart.getSelectedRows();
+		 if(selectedRows.length != 0) {
+			 for(int i = selectedRows.length -1; i >= 0; i--) {
+				 int row = selectedRows[i];
+				 Integer id =(Integer)tblCart.getValueAt(row, 0);
+				 this.cartService.deleteItemsByCartId(id);
+				 this.reloadAllItems();
+			 }
+		 }
+	    	
 	    }
 	 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -381,7 +429,162 @@ public class MainFrame extends javax.swing.JFrame {
 	      this.cartService.resetCart();
 	       this.reloadAllItems();
 	       this.txtTotalPrice.setText("0");
+	       this.txtPaid.setText("");
+	       this.txtChange.setText("0");
+	       this.txtarea.setText(null);
+	       
+	       this.txtTotalPrice.setEditable(false);
+	       this.txtChange.setEditable(false);
 	 }
+	 
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+//	 public void outreceip() {
+//		 
+//		 List<CartWithItems> cartwithItem = this.cartService.showcartdata();
+//		 String paid = formatter.format(txtPaid.getText());
+//		 for(CartWithItems item : cartwithItem)
+//	        {
+//	            Object [] row = new Object[5];
+//	            row[0] = item.cart().id();
+//	            row[1] = item.item_name();
+//	            row[2] = formatter.format(item.item_price());
+//	            row[3] = item.cart().quantity();
+//	            row[4] = formatter.format(item.total_price());
+//	        
+//		 
+//			int id = 13400 + (int) (Math.random() * 2000);
+//			txtarea.setText(
+//			
+//			"********************************* IT STORE ***********************************\n" +
+//			"                                             Tel: +959 92500 64228\n\n" +
+//
+//			"Cashier ID:\t\t\t\t" + session.getUserId() + "\n" +
+//			
+//
+//			"--------------------------------------------------------------------------------------------------\n" +
+//			"Item\t\tPrice             Quantity\tAmount\n" +
+//			
+//			"--------------------------------------------------------------------------------------------------\n" +
+//			item.item_name() +"\t" + formatter.format(item.item_price()) + "\t" + item.cart().quantity() +"\t" + formatter.format(item.total_price()) +"\n"+
+//			"---------------------------------------------------------------------------------------------------\n\n" +
+//
+//			"SUB TOTAL:                                " + txtTotalPrice.getText() + "\n" +
+//			"PAID:                                          " + paid + "\n" +
+//			"CHANGE:                                   " + txtChange.getText() + "\n\n" +
+//
+//			"--------------------------------------------------------------------------------------------------\n" +
+//			"Date: " + lbldate.getText() + "\t\t                                Time: " + lbltime.getText() + "\n" +
+//			"*******************************************************************************\n" +
+//			"                                     THANK YOU\n" +
+//			"*******************************************************************************\n" +
+//			"                             Program By Aung Khant Kyaw\n" +
+//			"                          Contact : akkyaw.dev@gmail.com\n");
+//	        }
+//	        
+//		}
+	 public void outreceip() {
+		 	
+		 try {
+			 if(txtTotalPrice.getText().trim().isEmpty() |
+			            txtPaid.getText().trim().isEmpty() |
+			            txtChange.getText().trim().isEmpty()) 
+			 {
+				 JOptionPane.showMessageDialog(this, "Please Put the Datas First","Missing Data",
+		                    JOptionPane.WARNING_MESSAGE);
+				 return;
+			 }
+			 
+			 else {
+				 this.receipForm();
+				 List<CartWithItems> cartwithItem = this.cartService.showcartdata();
+				    String paid = formatter.format(Double.parseDouble(txtPaid.getText()));
+
+				    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+				    SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm:ss a");
+
+				    String currentDate = sdfDate.format(new Date());
+				    String currentTime = sdfTime.format(new Date());
+				    
+				    StringBuilder sb = new StringBuilder();
+
+				    sb.append(" **********************************  IT STORE ***********************************\n");
+				    sb.append("                                           Tel: +959 92500 64228\n\n");
+				    sb.append(" Cashier ID:\t\t\t\t"+session.getUserId()).append("\n");
+				    sb.append(" Receipt ID:\t\t\t\t").append(session.getUserId()).append("\n");
+				    sb.append(" ---------------------------------------------------------------------------------------------------\n");
+				    sb.append(" Item\t\tPrice\tQty\tAmount\n");
+				    sb.append(" ---------------------------------------------------------------------------------------------------\n");
+
+				    // ADD ALL ITEMS
+				    for (CartWithItems item : cartwithItem) {
+				        sb.append(" " +item.item_name()).append("\t")
+				          .append(" " +formatter.format(item.item_price())).append("\t")
+				          .append(" " +item.cart().quantity()).append("\t")
+				          .append(" " +formatter.format(item.total_price())).append("\n");
+				    }
+
+				    sb.append(" ---------------------------------------------------------------------------------------------------\n");
+				    sb.append(" SUB TOTAL:\t\t\t\t").append(txtTotalPrice.getText()).append("\n");
+				    sb.append(" PAID:\t\t\t\t").append(paid).append("\n");
+				    sb.append(" CHANGE:\t\t\t\t").append(txtChange.getText()).append("\n\n");
+
+				    sb.append(" ---------------------------------------------------------------------------------------------------\n");
+				    sb.append(" Date: ").append(currentDate)
+				    .append("\t\t             Time: ").append(currentTime).append("\n");
+				    sb.append(" **********************************************************************************\n");
+				    sb.append("                                              	 THANK YOU\n");
+				    sb.append(" **********************************************************************************\n");
+				    sb.append("                                      Program By Aung Khant Kyaw\n");
+				    sb.append("                                   Contact : akkyaw.dev@gmail.com\n");
+
+				    txtarea.setText(sb.toString());
+				    System.out.println( "TIME LABEL = " +lbldate.getText() + lbltime.getText());
+				 
+			 }
+			 
+		 }
+		 catch(Exception e) {
+			 e.printStackTrace();
+		 }
+		    
+		}
+
+	 
+//	    String receipt = String.format(
+//	            "************************ IT Store*****************************\n" +
+//	            "                   Tel: +959 92500 64228 \n" +
+//	            "Cashier: %-80s\n" +
+//	            "Manager: %-80s\n\n" +
+//	            "-------------------------------------------------------------------------------------------\n" +
+//	            "Items\t\tPrice\tQty\t\t Amount\n" +
+//	            "-------------------------------------------------------------------------------------------\n" +
+//	            "%-40s\t%-10s\t%-5s\t%-10s\n" +
+//	            "-------------------------------------------------------------------------------------------\n\n" +
+//	            "Sub Total\t\t\t\t\t\t\t\t%s\n" +
+//	            "Paid\t\t\t\t\t\t\t\t%s\n" +
+//	            "CHANGE\t\t\t\t\t\t\t\t%s\n\n" +
+//	            "------------------------------------------------------------------------------------------\n\n" +
+//	            "Date : %s\t\t\t\t\tTime: %s\n" +
+//	            "************************************************************\n" +
+//	            "                Thank You\n" +
+//	            "************************************************************\n" +
+//	            "                Program By Aung Khant Kyaw\n" +
+//	            "                Contact : akkyaw.dev@gmail.com\n",
+//	            cashierCode,
+//	            managerCode,
+//	            itemName, itemPrice, itemQty, itemAmount,
+//	            subTotal, paid, change,
+//	            date, time
+//	        );
+
+//	        System.out.println(receipt);
+	 
+	 
+	 
+	 
+	 
+	 
+	 
 	 
 //
 // 
@@ -411,6 +614,11 @@ public class MainFrame extends javax.swing.JFrame {
         lblregieye = new javax.swing.JLabel();
         lblregieye1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        diareceip = new javax.swing.JDialog();
+        pnlreceip = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtarea = new javax.swing.JTextArea();
+        jButton2 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         pnlMain = new javax.swing.JPanel();
         pnlMainItem = new javax.swing.JPanel();
@@ -561,6 +769,53 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap(63, Short.MAX_VALUE))
         );
 
+        txtarea.setColumns(20);
+        txtarea.setRows(5);
+        jScrollPane2.setViewportView(txtarea);
+
+        jButton2.setText("jButton2");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlreceipLayout = new javax.swing.GroupLayout(pnlreceip);
+        pnlreceip.setLayout(pnlreceipLayout);
+        pnlreceipLayout.setHorizontalGroup(
+            pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlreceipLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(128, Short.MAX_VALUE))
+        );
+        pnlreceipLayout.setVerticalGroup(
+            pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlreceipLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 598, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlreceipLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton2)
+                .addGap(161, 161, 161))
+        );
+
+        javax.swing.GroupLayout diareceipLayout = new javax.swing.GroupLayout(diareceip.getContentPane());
+        diareceip.getContentPane().setLayout(diareceipLayout);
+        diareceipLayout.setHorizontalGroup(
+            diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(diareceipLayout.createSequentialGroup()
+                .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(101, Short.MAX_VALUE))
+        );
+        diareceipLayout.setVerticalGroup(
+            diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(pnlreceip, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         pnlMain.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(200, 200, 200), 3));
@@ -693,7 +948,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        btnPrint.setText("Print");
+        btnPrint.setText("Show Receip");
         btnPrint.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnPrintActionPerformed(evt);
@@ -781,8 +1036,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(pnlDateTimeLayout.createSequentialGroup()
                 .addComponent(lbltime, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lbldate, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(lbldate, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         pnlDateTimeLayout.setVerticalGroup(
             pnlDateTimeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -876,7 +1130,8 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_txtChangeActionPerformed
 
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
-        // TODO add your handling code here:
+//    	this.receipForm();
+    	this.outreceip();
     }//GEN-LAST:event_btnPrintActionPerformed
 
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
@@ -888,8 +1143,15 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRemoveActionPerformed
 
     private void btnPaidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPaidActionPerformed
-        this.updateChange();
+        
+    	this.updateChange();
+        
+        
     }//GEN-LAST:event_btnPaidActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:sdf
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void btnloginActionPerformed(java.awt.event.ActionEvent evt) {                                         
     	this.login();
@@ -930,12 +1192,15 @@ public class MainFrame extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+       
 
+        // Build receipt
+    
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-            	 // 1. Create the login dialog (modal)
-                MainFrame mainFrame = new MainFrame(); // create instance to pass as parent
+            	  //1. Create the login dialog (modal)
+                MainFrame mainFrame = new MainFrame(); 
                
                 mainFrame.loginForm();
                 
@@ -969,8 +1234,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnlogin;
     private javax.swing.JDialog dialogin;
+    private javax.swing.JDialog diareceip;
     private javax.swing.JDialog diaregister;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -981,6 +1248,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblChange;
     private javax.swing.JLabel lblPageNumber;
     private javax.swing.JLabel lblPaid;
@@ -997,10 +1265,12 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel pnlMainItem;
     private javax.swing.JPanel pnlMainTitle;
     private javax.swing.JPanel pnlpagination;
+    private javax.swing.JPanel pnlreceip;
     private javax.swing.JTable tblCart;
     private javax.swing.JTextField txtChange;
     private javax.swing.JTextField txtPaid;
     private javax.swing.JTextField txtTotalPrice;
+    private javax.swing.JTextArea txtarea;
     private javax.swing.JPasswordField txtpassword;
     private javax.swing.JPasswordField txtregipassowrd;
     private javax.swing.JPasswordField txtregirepassowrd;
