@@ -15,7 +15,9 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -46,7 +48,7 @@ public class MainFrame extends javax.swing.JFrame {
 	
 	// Pagination variables
 	private int currentPage = 1; //for pagination
-	private int itemsPerPage = 9; // 3x3 grid , for pagination
+	private int itemsPerPage = 12; // 3x3 grid , for pagination
 	private int totalItems = 0;  // for items JDBC
 	private boolean loginSucceeded = false; // for login
     private ImageIcon eyeIcon;   // for login eyelogo
@@ -66,6 +68,7 @@ public class MainFrame extends javax.swing.JFrame {
 	private List<ItemCard> allCards = new ArrayList<>();
 	private List<Items> allItems = new ArrayList<>();
 	
+	private Map<Integer, ItemCard> cardCache = new HashMap<>();
 	
     public MainFrame() {
         initComponents();
@@ -73,6 +76,7 @@ public class MainFrame extends javax.swing.JFrame {
 //       loadCartTable();
         initPasswordFeatures();   // Enable eye toggle
         setTime();
+        preloadItemCards();
 //        this.loadCartTable();
 //        this.valueSelect();
      
@@ -183,36 +187,64 @@ public class MainFrame extends javax.swing.JFrame {
     
 //MainFrame UI***************************************************************
     
-//    public void loadAllItemsOnce() {
+//    public void loadItemsToPanel() {
 //        try {
-//            allItems = itemService.getAllItems();   // GET ALL items only once
-//            allCards.clear();
+//            pnlMainItem.removeAll();
+//            pnlMainItem.setPreferredSize(new Dimension(1000, 350));
+//            pnlMainItem.setMinimumSize(new Dimension(1000, 350));
+//            pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));  // 3 rows x 3 cols
+//           
+//            List<Items> items = itemService.getItemsEachPage(currentPage, itemsPerPage);//for pagination function call JDBC code
+//   
+//            for (Items item : items) {
 //
-//            // Create ItemCards just ONCE
-//            for (Items item : allItems) {
-//                allCards.add(new ItemCard(item, () -> {
-//                    loadCartTable();
-//                }));
+//            	ItemCard card = new ItemCard(item, () -> { //inthis card there are function for adding items into cart via spinner and button
+//            	    loadCartTable();   // refresh after each add
+//            	});
+//            	
+//                pnlMainItem.add(card); // put all pagination keys and items data on MainItem panal
 //            }
-//
+//            pnlMainItem.revalidate();
+//            pnlMainItem.repaint();
+//         
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
 //    }
-//    
+    //in out pnlMainItem when each item block create 1 ItemCard obj so when we run the program it show first page and create 12 obj
+    //we next to page 2 also create 12 obj and page 3 also create 12 obj, if we previous to page 2 again create 12 obj, we face performance issue bec of create obj many times
+   // above old code every time pagination (next,previous) page work ItemCard obj create for each items  
+    
+    
+   // in here new code obj is create only for first time if there is total 47 items obj create for only 47,
+   // we start page 1 create 12 obj for each time go to page 2 create another 12 obj, if we go back to page 1 obj does not create again !!!!!
+    //reuse data from cardCache HashMap good more performance
+   
 //    public void loadItemsToPanel() {
+//
 //        try {
 //            pnlMainItem.removeAll();
 //            pnlMainItem.setPreferredSize(new Dimension(1000, 350));
 //            pnlMainItem.setMinimumSize(new Dimension(1000, 350));
 //            pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
 //
-//            int start = (currentPage - 1) * itemsPerPage;
-//            int end = Math.min(start + itemsPerPage, allCards.size());
+//            List<Items> items = itemService.getItemsEachPage(currentPage, itemsPerPage);
 //
-//            // USE EXISTING ItemCards — DO NOT recreate
-//            for (int i = start; i < end; i++) {
-//                pnlMainItem.add(allCards.get(i));
+//            for (Items item : items) {
+//
+//                // If card exists, reuse it
+//                ItemCard card = cardCache.get(item.id());
+//
+//                if (card == null) {
+//                    // Create only once
+//                    card = new ItemCard(item, () -> {
+//                        loadCartTable();
+//                    });
+//
+//                    cardCache.put(item.id(), card);
+//                }
+//
+//                pnlMainItem.add(card);
 //            }
 //
 //            pnlMainItem.revalidate();
@@ -222,37 +254,47 @@ public class MainFrame extends javax.swing.JFrame {
 //            e.printStackTrace();
 //        }
 //    }
+    
+    private void updatePageLabel() {
+        lblPageNumber.setText("Page " + currentPage);
+    }
+    
+    
+    // here this code is same as the above code only create obj = total items count, different things is obj are not create when we make next,previous
+    // all objs for items are created since the program run 
+    public void preloadItemCards() {
+        List<Items> allItems = itemService.getAllItems(); // without LIMIT
 
+        for (Items item : allItems) {
+            if (!cardCache.containsKey(item.id())) {
+
+                ItemCard card = new ItemCard(item, () -> loadCartTable());
+
+                cardCache.put(item.id(), card);
+            }
+        }
+    }
     
     public void loadItemsToPanel() {
         try {
             pnlMainItem.removeAll();
             pnlMainItem.setPreferredSize(new Dimension(1000, 350));
             pnlMainItem.setMinimumSize(new Dimension(1000, 350));
-            pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));  // 3 rows x 3 cols
-           
-            List<Items> items = itemService.getItemsEachPage(currentPage, itemsPerPage);//for pagination function call JDBC code
-   
-            for (Items item : items) {
+            pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
 
-            	ItemCard card = new ItemCard(item, () -> { //inthis card there are function for adding items into cart via spinner and button
-            	    loadCartTable();   // refresh after each add
-            	});
-            	
-                pnlMainItem.add(card); // put all pagination keys and items data on MainItem panal
+            List<Items> items = itemService.getItemsEachPage(currentPage, itemsPerPage);
+
+            for (Items item : items) {
+                ItemCard card = cardCache.get(item.id());
+                pnlMainItem.add(card); // reuse existing card
             }
+
             pnlMainItem.revalidate();
             pnlMainItem.repaint();
-         
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    private void updatePageLabel() {
-        lblPageNumber.setText("Page " + currentPage);
-    }
-    
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
     
   //Show Item Card data in table Function***************************************************************

@@ -38,7 +38,8 @@ public class ItemCard extends JPanel {
 	private Session session = Session.getInstance();
 
     public ItemCard(Items item, Runnable afterAdd) {
-
+    	
+    	System.out.println("Print Item Card Obj create");
         setLayout(new BorderLayout());
         setBackground(new Color(245, 245, 245));
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // smaller padding to remove top space
