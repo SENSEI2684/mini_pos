@@ -42,6 +42,7 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 	public List<CartWithItems> selectCartWithJoinItem() {
 		List<CartWithItems> cart = new ArrayList<CartWithItems>();
 		String sql = "SELECT \r\n"
+				+ "    c.item_id,\r\n"
 				+ "    i.name, \r\n"
 				+ "    i.price, \r\n"
 				+ "    c.quantity, \r\n"
@@ -56,12 +57,12 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
-				
+				Integer item_id = rs.getInt("item_id");
 				String name =rs.getString("name");
 				Integer quantity = rs.getInt("quantity");
 				Integer price = rs.getInt("price");
 				Integer total_price = rs.getInt("totalprice");
-				Cart c = new Cart(null,null,null,quantity,null);
+				Cart c = new Cart(null,null,item_id,quantity,null);
 				CartWithItems item = new CartWithItems(c,name,price,total_price);
 				cart.add(item);
 			}
@@ -71,10 +72,10 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 		}
 		return cart;
 	}
-	
+	 	
 	@Override
-	public boolean deleteItemsByCartId(Integer id) {
-		String sql = "Delete from cart where id = ?";
+	public boolean deleteItemsByCartItem_Id(Integer id) {
+		String sql = "Delete from cart where item_id = ?";
 		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 

@@ -9,6 +9,6 @@ public interface CartDao {
 	public boolean addtoCart(Cart cart);
 	List <CartWithItems> selectCartWithJoinItem();
 	public boolean resetCart();
-	public boolean deleteItemsByCartId(Integer id);
+	public boolean deleteItemsByCartItem_Id(Integer id);
 	
 }

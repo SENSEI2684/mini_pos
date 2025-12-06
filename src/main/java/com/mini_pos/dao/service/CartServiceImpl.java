@@ -40,9 +40,9 @@ public class CartServiceImpl implements CartService {
 	}
 
 	@Override
-	public boolean deleteItemsByCartId(Integer id) {
+	public boolean deleteItemsByCartItem_Id(Integer id) {
 		
-		return this.cartdao.deleteItemsByCartId(id);
+		return this.cartdao.deleteItemsByCartItem_Id(id);
 	}
 
 }

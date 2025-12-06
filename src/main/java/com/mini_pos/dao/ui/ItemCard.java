@@ -120,7 +120,7 @@ public class ItemCard extends JPanel {
         	Integer qty =(Integer) spQty.getValue(); // ← get quantity
 
         	Cart cart = new Cart(0,user_id,item_id,qty,null); // Java UI table cannot refresh auto, that why need to write refresh function
-
+//        	System.out.println(user_id + " " + item_id );
             this.cartService.addToCart(cart);  // ← send to 
             System.out.println("add to cart button wor;!!!");
             

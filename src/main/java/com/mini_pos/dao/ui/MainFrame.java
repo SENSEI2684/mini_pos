@@ -27,6 +27,7 @@ import javax.swing.table.DefaultTableModel;
 
 import com.mini_pos.dao.etinity.CartWithItems;
 import com.mini_pos.dao.etinity.Items;
+import com.mini_pos.dao.etinity.ItemsWithCategories;
 import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.service.CartService;
 import com.mini_pos.dao.service.CartServiceImpl;
@@ -66,9 +67,15 @@ public class MainFrame extends javax.swing.JFrame {
 	private Session session = Session.getInstance();
 	NumberFormat formatter = NumberFormat.getInstance();
 	private List<ItemCard> allCards = new ArrayList<>();
-	private List<Items> allItems = new ArrayList<>();
 	
+	private List<Items> allItems = new ArrayList<>();
+	private List<Items> filteredItems = new ArrayList<>();
 	private Map<Integer, ItemCard> cardCache = new HashMap<>();
+	
+	private enum SearchMode { NONE, NAME, CATEGORY }
+	private SearchMode searchMode = SearchMode.NONE;
+	private List<Items> currentSearchItems = new ArrayList<>();
+
 	
     public MainFrame() {
         initComponents();
@@ -264,6 +271,7 @@ public class MainFrame extends javax.swing.JFrame {
     // all objs for items are created since the program run 
     public void preloadItemCards() {
         List<Items> allItems = itemService.getAllItems(); // without LIMIT
+//        filteredItems = new ArrayList<>(allItems);
 
         for (Items item : allItems) {
             if (!cardCache.containsKey(item.id())) {
@@ -295,6 +303,65 @@ public class MainFrame extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
+    
+//    public void loadItemsToPanel() {
+//        
+//        pnlMainItem.removeAll();
+//        pnlMainItem.setPreferredSize(new Dimension(1000, 350));
+//        pnlMainItem.setMinimumSize(new Dimension(1000, 350));
+//        pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
+//
+//        List<Items> sourceList;
+//
+//        // Decide which list to show
+//        switch (searchMode) {
+//            case NAME:
+//            case CATEGORY:
+//                sourceList = currentSearchItems;
+//                break;
+//
+//            default: // NONE, normal pagination
+//                sourceList = itemService.getItemsEachPage(currentPage, itemsPerPage);
+//                break;
+//        }
+//        
+//        int start = (currentPage - 1) * itemsPerPage;
+//        int end = Math.min(start + itemsPerPage, filteredItems.size());
+//
+//        for (int i = start; i < end; i++) {
+//            Items item = filteredItems.get(i);
+//            pnlMainItem.add(cardCache.get(item.id()));
+//        }
+//
+//        pnlMainItem.revalidate();
+//        pnlMainItem.repaint();
+//    }
+ 
+ //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+  
+ //Search Item with name and Category   
+    
+    public void applySearchFilter(String nameKeyword, Integer categoryId) {
+        
+        filteredItems.clear();
+        
+        for (Items item : allItems) {
+
+            boolean matchName = item.name().toLowerCase()
+                  .contains(nameKeyword.toLowerCase());
+
+            boolean matchCategory = (categoryId == null || categoryId == 0)
+                  || item.category_id() == categoryId;
+
+            if (matchName && matchCategory) {
+                filteredItems.add(item);
+            }
+        }
+
+        currentPage = 1; // reset to first page
+        loadItemsToPanel();
+    }
+    
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
     
   //Show Item Card data in table Function***************************************************************
@@ -307,17 +374,16 @@ public class MainFrame extends javax.swing.JFrame {
         model.setRowCount(0); // without this code when add new items to cart previous data insert duplicate
         
 
-        
         total = 0;
         
         for(CartWithItems item : cartwithItem)
         {
-            Object [] row = new Object[4];
-           
-            row[0] = item.item_name();
-            row[1] = formatter.format(item.item_price());
-            row[2] = item.cart().quantity();
-            row[3] = formatter.format(item.total_price());
+            Object [] row = new Object[5];
+            row[0] = item.cart().item_id();
+            row[1] = item.item_name();
+            row[2] = formatter.format(item.item_price());
+            row[3] = item.cart().quantity();
+            row[4] = formatter.format(item.total_price());
          
            // add all columns in array and
             model.addRow(row); // put array in table
@@ -411,29 +477,29 @@ public class MainFrame extends javax.swing.JFrame {
     
  //Select row function******************************************************************************
     
-//	public void valueSelect() {
-//		this.tblCart.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-//			public void valueChanged(ListSelectionEvent event) {
-//				// do some actions here, for example
-//				// print first column value from selected row
-//				if (!event.getValueIsAdjusting()) {// getValueIsAdjusting() is true while the selection is still
+	public void valueSelect() {
+		this.tblCart.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent event) {
+				// do some actions here, for example
+				// print first column value from selected row
+				if (!event.getValueIsAdjusting()) {// getValueIsAdjusting() is true while the selection is still
 //													// changing, so skipping when true avoids weird duplicate
 //													// selections.
-////					int row = tblCart.getSelectedRow();
-////					if (row != -1) {
-////						Integer id = (Integer) tblCart.getValueAt(row, 0);
-////						selectedID = id;
-////						String items = (String) tblCart.getValueAt(row, 1);
-////						Integer qty = (Integer) tblCart.getValueAt(row, 2);
-////						Integer price = (Integer) tblCart.getValueAt(row, 3);
-////					}
-////					System.out.println("Table row" + row);
-//				} // this code is for role selected put into constructor bec want to select even
+					int row = tblCart.getSelectedRow();
+					if (row != -1) {
+						Integer id = (Integer) tblCart.getValueAt(row, 0);
+						selectedID = id;
+						String items = (String) tblCart.getValueAt(row, 1);
+						Integer qty = (Integer) tblCart.getValueAt(row, 2);
+						Integer price = (Integer) tblCart.getValueAt(row, 3);
+					}
+//					System.out.println("Table row" + row);
+				} // this code is for role selected put into constructor bec want to select even
 //					// after program start run
-//			}
-//		});
-//	}
-//    
+			}
+		});
+	}
+    
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 // Reset Item in Cart function***************************************************************************
@@ -456,7 +522,7 @@ public class MainFrame extends javax.swing.JFrame {
 			 for(int i = selectedRows.length -1; i >= 0; i--) {
 				 int row = selectedRows[i];
 				 Integer id =(Integer)tblCart.getValueAt(row, 0);
-				 this.cartService.deleteItemsByCartId(id);
+				 this.cartService.deleteItemsByCartItem_Id(id);
 				 this.reloadAllItems();
 			 }
 		 }
@@ -666,6 +732,11 @@ public class MainFrame extends javax.swing.JFrame {
         pnlMain = new javax.swing.JPanel();
         pnlMainItem = new javax.swing.JPanel();
         pnlMainTitle = new javax.swing.JPanel();
+        txtItemName = new javax.swing.JTextField();
+        btnSearch = new javax.swing.JButton();
+        lblCategories = new javax.swing.JLabel();
+        comCategories = new javax.swing.JComboBox<>();
+        btnShowAll = new javax.swing.JButton();
         pnlpagination = new javax.swing.JPanel();
         btnPrevPage = new javax.swing.JButton();
         btnNextPage = new javax.swing.JButton();
@@ -879,15 +950,58 @@ public class MainFrame extends javax.swing.JFrame {
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
+        txtItemName.setText("Item Name");
+
+        btnSearch.setText("Search");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
+        lblCategories.setText("Categories :");
+
+        comCategories.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Phone", ":aptop", "HeadPhone", " " }));
+        comCategories.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comCategoriesActionPerformed(evt);
+            }
+        });
+
+        btnShowAll.setText("Show All");
+        btnShowAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShowAllActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlMainTitleLayout = new javax.swing.GroupLayout(pnlMainTitle);
         pnlMainTitle.setLayout(pnlMainTitleLayout);
         pnlMainTitleLayout.setHorizontalGroup(
             pnlMainTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(pnlMainTitleLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtItemName, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(53, 53, 53)
+                .addComponent(lblCategories, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(comCategories, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnShowAll, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         pnlMainTitleLayout.setVerticalGroup(
             pnlMainTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 34, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMainTitleLayout.createSequentialGroup()
+                .addGap(0, 12, Short.MAX_VALUE)
+                .addGroup(pnlMainTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtItemName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSearch)
+                    .addComponent(lblCategories, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(comCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnShowAll)))
         );
 
         btnPrevPage.setText("Previous");
@@ -953,11 +1067,11 @@ public class MainFrame extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Items", "Price", "Quantity", "Total_Price"
+                "Item_id", "Items", "Price", "Quantity", "Total_Price"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -966,10 +1080,13 @@ public class MainFrame extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblCart);
         if (tblCart.getColumnModel().getColumnCount() > 0) {
-            tblCart.getColumnModel().getColumn(0).setMaxWidth(300);
-            tblCart.getColumnModel().getColumn(1).setMaxWidth(100);
-            tblCart.getColumnModel().getColumn(2).setMaxWidth(60);
-            tblCart.getColumnModel().getColumn(3).setMaxWidth(150);
+            tblCart.getColumnModel().getColumn(0).setMinWidth(50);
+            tblCart.getColumnModel().getColumn(0).setPreferredWidth(0);
+            tblCart.getColumnModel().getColumn(0).setMaxWidth(50);
+            tblCart.getColumnModel().getColumn(1).setMaxWidth(300);
+            tblCart.getColumnModel().getColumn(2).setMaxWidth(100);
+            tblCart.getColumnModel().getColumn(3).setMaxWidth(60);
+            tblCart.getColumnModel().getColumn(4).setMaxWidth(150);
         }
 
         pnlButtons.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED, null, new java.awt.Color(102, 102, 102)));
@@ -1217,6 +1334,40 @@ public class MainFrame extends javax.swing.JFrame {
 		}
     }//GEN-LAST:event_btnPrintActionPerformed
 
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+    	 String keyword = txtItemName.getText().trim();
+
+    	    searchMode = SearchMode.NAME;
+
+    	    currentSearchItems = itemService.searchItemsWithName(keyword);
+
+    	    currentPage = 1;
+    	    loadItemsToPanel();
+    }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void comCategoriesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comCategoriesActionPerformed
+    	 Integer categoryId = (Integer) comCategories.getSelectedItem();
+
+    	    searchMode = SearchMode.CATEGORY;
+
+    	    // Convert ItemsWithCategories → List<Items>
+    	    List<ItemsWithCategories> data = itemService.getItemsBaseOnCategoryID(categoryId);
+
+    	    currentSearchItems.clear();
+    	    for (ItemsWithCategories wc : data) {
+    	        currentSearchItems.add(wc.item()); 
+    	    }
+
+    	    currentPage = 1;
+    	    loadItemsToPanel();
+    }//GEN-LAST:event_comCategoriesActionPerformed
+
+    private void btnShowAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowAllActionPerformed
+    	searchMode = SearchMode.NONE;
+        currentPage = 1;
+        loadItemsToPanel();
+    }//GEN-LAST:event_btnShowAllActionPerformed
+
     private void btnloginActionPerformed(java.awt.event.ActionEvent evt) {                                         
     	this.login();
     }
@@ -1296,8 +1447,11 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnRemove;
     private javax.swing.JButton btnReset;
+    private javax.swing.JButton btnSearch;
+    private javax.swing.JButton btnShowAll;
     private javax.swing.JButton btnShowReceip;
     private javax.swing.JButton btnlogin;
+    private javax.swing.JComboBox<String> comCategories;
     private javax.swing.JDialog dialogin;
     private javax.swing.JDialog diareceip;
     private javax.swing.JDialog diaregister;
@@ -1313,6 +1467,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel lblCategories;
     private javax.swing.JLabel lblChange;
     private javax.swing.JLabel lblPageNumber;
     private javax.swing.JLabel lblPaid;
@@ -1333,6 +1488,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JTable tblCart;
     private javax.swing.JTextArea txtArea;
     private javax.swing.JTextField txtChange;
+    private javax.swing.JTextField txtItemName;
     private javax.swing.JTextField txtPaid;
     private javax.swing.JTextField txtTotalPrice;
     private javax.swing.JPasswordField txtpassword;
