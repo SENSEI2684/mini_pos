@@ -19,8 +19,8 @@ public class ItemsServiceImpl implements ItemsService{
 	}
 
 	@Override
-	public List<Items> getItemsByCategoryCode(String code) {
-		return itemsdao.getItemsByCategoryCode(code);
+	public List<Items> getItemsByCategoryCode(Integer id) {
+		return itemsdao.getItemsByCategoryCode(id);
 	}
 
 	@Override

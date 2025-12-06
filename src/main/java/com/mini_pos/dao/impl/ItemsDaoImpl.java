@@ -74,17 +74,17 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	// .prepareStatement() instead
 
 	@Override
-	public List<Items> getItemsByCategoryCode(String code) {
+	public List<Items> getItemsByCategoryCode(Integer id) {
 		List<Items> items = new ArrayList<Items>();
 		String sql = "Select * from items where category_id = ?;";
 		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
-			stmt.setString(1, code); // set parameter now ? become 1
+			stmt.setInt(1, id); // set parameter now ? become 1
 			System.out.println("SQL" + sql);
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
-				Integer id = rs.getInt("id");
+				Integer ids = rs.getInt("id");
 				String item_code = rs.getString("item_code");
 				String name = rs.getString("name");
 				Integer price = rs.getInt("price");
@@ -92,7 +92,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				String photo = rs.getString("photo");
 				Integer category_id = rs.getInt("category_id");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-				Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
+				Items item = new Items(ids,item_code, name, price,quantity, photo,category_id, created_at);
 				items.add(item);
 			}
 			rs.close();

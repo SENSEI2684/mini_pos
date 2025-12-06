@@ -26,6 +26,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import com.mini_pos.dao.etinity.CartWithItems;
+import com.mini_pos.dao.etinity.Categories;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.ItemsWithCategories;
 import com.mini_pos.dao.etinity.Users;
@@ -72,9 +73,7 @@ public class MainFrame extends javax.swing.JFrame {
 	private List<Items> filteredItems = new ArrayList<>();
 	private Map<Integer, ItemCard> cardCache = new HashMap<>();
 	
-	private enum SearchMode { NONE, NAME, CATEGORY }
-	private SearchMode searchMode = SearchMode.NONE;
-	private List<Items> currentSearchItems = new ArrayList<>();
+	
 
 	
     public MainFrame() {
@@ -270,8 +269,8 @@ public class MainFrame extends javax.swing.JFrame {
     // here this code is same as the above code only create obj = total items count, different things is obj are not create when we make next,previous
     // all objs for items are created since the program run 
     public void preloadItemCards() {
-        List<Items> allItems = itemService.getAllItems(); // without LIMIT
-//        filteredItems = new ArrayList<>(allItems);
+         allItems = itemService.getAllItems(); // we make allItems as parent List, that list never change the same
+        filteredItems = new ArrayList<>(allItems); // and filteredItems list will change on search function
 
         for (Items item : allItems) {
             if (!cardCache.containsKey(item.id())) {
@@ -281,86 +280,70 @@ public class MainFrame extends javax.swing.JFrame {
                 cardCache.put(item.id(), card);
             }
         }
-    }
-    
-    public void loadItemsToPanel() {
-        try {
-            pnlMainItem.removeAll();
-            pnlMainItem.setPreferredSize(new Dimension(1000, 350));
-            pnlMainItem.setMinimumSize(new Dimension(1000, 350));
-            pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
-
-            List<Items> items = itemService.getItemsEachPage(currentPage, itemsPerPage);
-
-            for (Items item : items) {
-                ItemCard card = cardCache.get(item.id());
-                pnlMainItem.add(card); // reuse existing card
-            }
-
-            pnlMainItem.revalidate();
-            pnlMainItem.repaint();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        loadItemsToPanel();
     }
     
 //    public void loadItemsToPanel() {
-//        
-//        pnlMainItem.removeAll();
-//        pnlMainItem.setPreferredSize(new Dimension(1000, 350));
-//        pnlMainItem.setMinimumSize(new Dimension(1000, 350));
-//        pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
+//        try {
+//            pnlMainItem.removeAll();
+//            pnlMainItem.setPreferredSize(new Dimension(1000, 350));
+//            pnlMainItem.setMinimumSize(new Dimension(1000, 350));
+//            pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
 //
-//        List<Items> sourceList;
+//            List<Items> items = itemService.getItemsEachPage(currentPage, itemsPerPage);
 //
-//        // Decide which list to show
-//        switch (searchMode) {
-//            case NAME:
-//            case CATEGORY:
-//                sourceList = currentSearchItems;
-//                break;
+//            for (Items item : items) {
+//                ItemCard card = cardCache.get(item.id());
+//                pnlMainItem.add(card); // reuse existing card
+//            }
 //
-//            default: // NONE, normal pagination
-//                sourceList = itemService.getItemsEachPage(currentPage, itemsPerPage);
-//                break;
+//            pnlMainItem.revalidate();
+//            pnlMainItem.repaint();
+//        } catch (Exception e) {
+//            e.printStackTrace();
 //        }
-//        
-//        int start = (currentPage - 1) * itemsPerPage;
-//        int end = Math.min(start + itemsPerPage, filteredItems.size());
-//
-//        for (int i = start; i < end; i++) {
-//            Items item = filteredItems.get(i);
-//            pnlMainItem.add(cardCache.get(item.id()));
-//        }
-//
-//        pnlMainItem.revalidate();
-//        pnlMainItem.repaint();
 //    }
- 
+    
+    public void loadItemsToPanel() {
+        pnlMainItem.removeAll(); // this code really need bec Java Swing UI cannot auto reload, without this items ui will duplicate
+        pnlMainItem.setPreferredSize(new Dimension(1000, 350));
+        pnlMainItem.setMinimumSize(new Dimension(1000, 350));
+        pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
+
+        
+        if (filteredItems == null || filteredItems.isEmpty()) {
+            pnlMainItem.revalidate(); // when user typed something that finds  0 items and not match anythings refresh the empty panel and exit
+            pnlMainItem.repaint();    // without this code our ui will freeze 
+            return;
+        }
+        
+        int start = (currentPage - 1) * itemsPerPage;
+        int end = Math.min(start + itemsPerPage, filteredItems.size());
+
+        if (start >= filteredItems.size()) { // without this code my program can try to access more index than the actual exist in list of size
+            start = 0;
+            currentPage = 1;
+            updatePageLabel();
+        }
+
+        List<Items> pageItems = filteredItems.subList(start, end);
+
+        for (Items item : pageItems) {
+            ItemCard card = cardCache.get(item.id());
+            pnlMainItem.add(card);
+        }
+
+        pnlMainItem.revalidate();
+        pnlMainItem.repaint();
+    }
+
+    
+// 
  //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
   
  //Search Item with name and Category   
     
-    public void applySearchFilter(String nameKeyword, Integer categoryId) {
-        
-        filteredItems.clear();
-        
-        for (Items item : allItems) {
-
-            boolean matchName = item.name().toLowerCase()
-                  .contains(nameKeyword.toLowerCase());
-
-            boolean matchCategory = (categoryId == null || categoryId == 0)
-                  || item.category_id() == categoryId;
-
-            if (matchName && matchCategory) {
-                filteredItems.add(item);
-            }
-        }
-
-        currentPage = 1; // reset to first page
-        loadItemsToPanel();
-    }
+    
     
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
     
@@ -732,7 +715,7 @@ public class MainFrame extends javax.swing.JFrame {
         pnlMain = new javax.swing.JPanel();
         pnlMainItem = new javax.swing.JPanel();
         pnlMainTitle = new javax.swing.JPanel();
-        txtItemName = new javax.swing.JTextField();
+        txtSearch = new javax.swing.JTextField();
         btnSearch = new javax.swing.JButton();
         lblCategories = new javax.swing.JLabel();
         comCategories = new javax.swing.JComboBox<>();
@@ -950,7 +933,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
-        txtItemName.setText("Item Name");
+        txtSearch.setText("Item Name");
 
         btnSearch.setText("Search");
         btnSearch.addActionListener(new java.awt.event.ActionListener() {
@@ -959,9 +942,9 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        lblCategories.setText("Categories :");
+        lblCategories.setText("Categories:");
 
-        comCategories.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Phone", ":aptop", "HeadPhone", " " }));
+        comCategories.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None", "Phone", "Laptop", "HeadPhone", " " }));
         comCategories.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comCategoriesActionPerformed(evt);
@@ -981,7 +964,7 @@ public class MainFrame extends javax.swing.JFrame {
             pnlMainTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlMainTitleLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(txtItemName, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(53, 53, 53)
@@ -997,7 +980,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMainTitleLayout.createSequentialGroup()
                 .addGap(0, 12, Short.MAX_VALUE)
                 .addGroup(pnlMainTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtItemName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSearch)
                     .addComponent(lblCategories, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(comCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1080,9 +1063,9 @@ public class MainFrame extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblCart);
         if (tblCart.getColumnModel().getColumnCount() > 0) {
-            tblCart.getColumnModel().getColumn(0).setMinWidth(50);
+            tblCart.getColumnModel().getColumn(0).setMinWidth(0);
             tblCart.getColumnModel().getColumn(0).setPreferredWidth(0);
-            tblCart.getColumnModel().getColumn(0).setMaxWidth(50);
+            tblCart.getColumnModel().getColumn(0).setMaxWidth(0);
             tblCart.getColumnModel().getColumn(1).setMaxWidth(300);
             tblCart.getColumnModel().getColumn(2).setMaxWidth(100);
             tblCart.getColumnModel().getColumn(3).setMaxWidth(60);
@@ -1335,37 +1318,41 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPrintActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-    	 String keyword = txtItemName.getText().trim();
+//    	
+    	 String text = txtSearch.getText().trim().toLowerCase();
+    	 int catId = comCategories.getSelectedIndex(); 
 
-    	    searchMode = SearchMode.NAME;
-
-    	    currentSearchItems = itemService.searchItemsWithName(keyword);
+    	    filteredItems = allItems.stream()
+    	            .filter(i -> i.name().toLowerCase().contains(text))
+    	            .toList();
+    	    
+    	    filteredItems = allItems.stream()
+    	    				        .filter(i ->  i.name().toLowerCase().contains(text) && i.category_id().equals(catId)) 	    				       
+    	    				        .toList();
+    	          
+    	            
 
     	    currentPage = 1;
+    	    updatePageLabel();
     	    loadItemsToPanel();
+    	
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void comCategoriesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comCategoriesActionPerformed
-    	 Integer categoryId = (Integer) comCategories.getSelectedItem();
-
-    	    searchMode = SearchMode.CATEGORY;
-
-    	    // Convert ItemsWithCategories → List<Items>
-    	    List<ItemsWithCategories> data = itemService.getItemsBaseOnCategoryID(categoryId);
-
-    	    currentSearchItems.clear();
-    	    for (ItemsWithCategories wc : data) {
-    	        currentSearchItems.add(wc.item()); 
-    	    }
-
-    	    currentPage = 1;
-    	    loadItemsToPanel();
+    	
+   
     }//GEN-LAST:event_comCategoriesActionPerformed
 
     private void btnShowAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowAllActionPerformed
-    	searchMode = SearchMode.NONE;
+
+    	filteredItems = allItems;
+        txtSearch.setText("");
+        comCategories.setSelectedIndex(0);
+
         currentPage = 1;
+        updatePageLabel();
         loadItemsToPanel();
+    	
     }//GEN-LAST:event_btnShowAllActionPerformed
 
     private void btnloginActionPerformed(java.awt.event.ActionEvent evt) {                                         
@@ -1488,8 +1475,8 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JTable tblCart;
     private javax.swing.JTextArea txtArea;
     private javax.swing.JTextField txtChange;
-    private javax.swing.JTextField txtItemName;
     private javax.swing.JTextField txtPaid;
+    private javax.swing.JTextField txtSearch;
     private javax.swing.JTextField txtTotalPrice;
     private javax.swing.JPasswordField txtpassword;
     private javax.swing.JPasswordField txtregipassowrd;

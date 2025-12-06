@@ -23,10 +23,10 @@ public class CategoriesDaoImpl extends BaseDao implements CategoriesDao{
 			ResultSet rs = stmt.executeQuery(sql);
 			
 			while(rs.next()) {
-				
+				Integer id = rs.getInt("id");
 				String category_name = rs.getString("category_name");
 			
-				Categories cate = new Categories(category_name);
+				Categories cate = new Categories(id,category_name);
 				cates.add(cate);
 			}
 		}

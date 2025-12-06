@@ -9,7 +9,7 @@ import com.mini_pos.dao.etinity.ItemsWithCategories;
 
 public interface ItemsService  {
 	List<Items> getAllItems();
-	List<Items> getItemsByCategoryCode(String code);
+	List<Items> getItemsByCategoryCode(Integer id);
 	boolean saveItems(Items items);
 	boolean updateItems(Integer price,String items);
 	boolean deleteItemsByItemCode(String code);

@@ -8,7 +8,7 @@ import com.mini_pos.dao.etinity.ItemsWithCategories;
 
 public interface ItemsDao {
 	List<Items> getAllItems();
-	List<Items> getItemsByCategoryCode(String code);
+	List<Items> getItemsByCategoryCode(Integer code);
 	boolean saveItems(Items items);
 	boolean updateItems(Integer price,String items);
 	boolean deleteItemsByItemCode(String code);
