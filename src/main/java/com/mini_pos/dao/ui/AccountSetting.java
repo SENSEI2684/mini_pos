@@ -5,100 +5,257 @@
 package com.mini_pos.dao.ui;
 
 import java.awt.Image;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+
+import com.mini_pos.dao.etinity.Role;
+import com.mini_pos.dao.etinity.Users;
+import com.mini_pos.dao.service.UserService;
+import com.mini_pos.dao.service.UserServiceImpl;
+
 
 /**
  *
  * @author User
  */
-public class AccountSettingFrame extends javax.swing.JFrame {
+public class AccountSetting extends javax.swing.JFrame {
 
-    /**
-     * Creates new form AccountSettingFrame
-     */
-	   private ImageIcon eyeIcon;
-	    private ImageIcon eyeHideIcon;
-	    private ImageIcon eyeIcon1;
-	    private ImageIcon eyeHideIcon1;
-	    private boolean passwordHidden = true;
-	    private boolean repasswordHidden = true;
+	/**
+	 * Creates new form AccountSettingFrame
+	 */
+	private ImageIcon eyeIcon;
+	private ImageIcon eyeHideIcon;
+	private ImageIcon eyeIcon1;
+	private ImageIcon eyeHideIcon1;
+	private boolean passwordHidden = true;
+	private boolean repasswordHidden = true;
+
+	Integer selectedID;
+
+	UserService userService = new UserServiceImpl();
+
+	public AccountSetting() {
+		initComponents();
+		initPasswordFeatures();
+		reloadAllItems();
+		valueSelect();
+	}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//password hide and show function***************************************************************
+
+	private ImageIcon resizeIcon(ImageIcon icon, int w, int h) {
+		Image img = icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+		return new ImageIcon(img);
+	}
+
+	public void initPasswordFeatures() {
+		eyeIcon = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
+		eyeHideIcon = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
+
+		eyeIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
+		eyeHideIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
+
+		lbleyeicon.setIcon(eyeHideIcon); // start with password hidden
+		txtPassword.setEchoChar('•'); // hide password
+
+		lbleyeicon.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				togglePassword();
+			}
+		});
+
+		lbleyeicon1.setIcon(eyeHideIcon1); // start with password hidden
+		txtrepassword.setEchoChar('•'); // hide password
+
+		lbleyeicon1.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				toggleRePassword();
+			}
+		});
+	}
+
+	private void togglePassword() {
+		if (passwordHidden) {
+			txtPassword.setEchoChar((char) 0);
+			lbleyeicon.setIcon(eyeIcon);
+			passwordHidden = false;
+		} else {
+			txtPassword.setEchoChar('•');
+			lbleyeicon.setIcon(eyeHideIcon);
+			passwordHidden = true;
+		}
+	}
+
+	private void toggleRePassword() {
+		if (repasswordHidden) {
+			txtrepassword.setEchoChar((char) 0);
+			lbleyeicon1.setIcon(eyeIcon1);
+			repasswordHidden = false;
+		} else {
+			txtrepassword.setEchoChar('•');
+			lbleyeicon1.setIcon(eyeHideIcon1);
+			repasswordHidden = true;
+		}
+	}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	    
+
+	// Select row
+	// function******************************************************************************
+
+	public void valueSelect() {
+		this.tblAccounts.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent event) {
+				// do some actions here, for example
+				// print first column value from selected row
+				if (!event.getValueIsAdjusting()) {// getValueIsAdjusting() is true while the selection is still
+//														// changing, so skipping when true avoids weird duplicate
+//														// selections.
+					int row = tblAccounts.getSelectedRow();
+					if (row != -1) {
+//						Integer id = (Integer) tblAccounts.getValueAt(row, 0);
+//						selectedID = id;
+						String username = (String) tblAccounts.getValueAt(row, 0);
+						txtUsername.setText(username);
+						String password = (String) tblAccounts.getValueAt(row, 1);
+						txtPassword.setText(password);
+//						String rolestr = (String) tblAccounts.getValueAt(row, 2);
+//						comAccountType.setSelectedItem(rolestr);
+						
+						Role role = (Role) tblAccounts.getValueAt(row, 2);
+						comAccountType.setSelectedItem(role.name().toString());
+						
+					
+				
+					}
+//						System.out.println("Table row" + row);
+				} // this code is for role selected put into constructor bec want to select even
+//						// after program start run
+			}
+		});
+	}
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	   	    
+
+	// Show Items data in table
+	// Function***************************************************************
+
+	void LoadallItemsData() {
+		List<Users> users = this.userService.getAllUsers();
+		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
+		for (Users user : users) {
+			Object[] row = new Object[5];
+			
+			row[0] = user.username();
+			row[1] = user.password();
+			row[2] = user.role();
+			row[3] = user.approved();
+			row[4] = user.created_at();
+			model.addRow(row);
+		}
+	}
+
+	void reloadAllItems() {
+		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
+		model.setRowCount(0);
+		this.LoadallItemsData();
+	}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------		 
+	// CRUD Functions
+
+	private void addItems()// use CRUD savemethod and ui add section
+	{
+		String username = this.txtUsername.getText();
+		String password = new String(txtPassword.getPassword());
+		String roleStr = (String) this.comAccountType.getSelectedItem();
 		
-	    public AccountSettingFrame() {
-	        initComponents();
-//	        initPasswordFeatures();
-	    }
+		Role role = Role.valueOf(roleStr.toUpperCase());
 
-	    
-	    
-	    private ImageIcon resizeIcon(ImageIcon icon, int w, int h) {
-	        Image img = icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
-	        return new ImageIcon(img);
-	    }
-	    
-	    
+		Users users = new Users(0, username, password, role, true, null);
+		
+		try {
+			this.userService.registerUser(users);
+			JOptionPane.showMessageDialog(this, "Items Save Successfully");// for to show popup message
+			this.reloadAllItems();
+			this.clearItemsInput();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Failed to save user");
+		}
 
-	    public void initPasswordFeatures() {
-	    	   eyeIcon = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
-	    	    eyeHideIcon = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
-	    	    
-	    		   eyeIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
-	       	    eyeHideIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
+	}
 
-	        lbleyeicon.setIcon(eyeHideIcon);     // start with password hidden
-	        txtPassword.setEchoChar('•');    // hide password
+	private void deleteItems() {
+		int row = tblAccounts.getSelectedRow();
+		if (row != -1) {
 
-	        lbleyeicon.addMouseListener(new java.awt.event.MouseAdapter() {
-	            @Override
-	            public void mouseClicked(java.awt.event.MouseEvent e) {
-	                togglePassword();
-	            }
-	        });
-	        
-	        
-	        lbleyeicon1.setIcon(eyeHideIcon1);     // start with password hidden
-	        txtrepassword.setEchoChar('•');    // hide password
+			String username = (String) tblAccounts.getValueAt(row, 1);
+			txtUsername.setText(username);
 
-	        lbleyeicon1.addMouseListener(new java.awt.event.MouseAdapter() {
-	            @Override
-	            public void mouseClicked(java.awt.event.MouseEvent e) {
-	                toggleRePassword();
-	            }
-	        });
-	    }
-	    
-	    private void togglePassword() {
-	        if (passwordHidden) {
-	            txtPassword.setEchoChar((char) 0);
-	            lbleyeicon.setIcon(eyeIcon);
-	            passwordHidden = false;
-	        } else {
-	            txtPassword.setEchoChar('•');
-	            lbleyeicon.setIcon(eyeHideIcon);
-	            passwordHidden = true;
-	        }
-	    }
-	        
-	    private void toggleRePassword() {
-	        if (repasswordHidden) {
-	            txtrepassword.setEchoChar((char) 0);
-	            lbleyeicon1.setIcon(eyeIcon1);
-	            repasswordHidden = false;
-	        } else {
-	            txtrepassword.setEchoChar('•');
-	            lbleyeicon1.setIcon(eyeHideIcon1);
-	            repasswordHidden = true;
-	        }
-	    }
-	    
-	    
+			int result = JOptionPane.showConfirmDialog(this, "Confirm that you want to Delete item_code " + username,
+					"Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
+			if (result == JOptionPane.YES_OPTION) {
+				// user clicked YES
+				this.userService.deleteaAccWithUsername(username);
+				this.reloadAllItems();
+			} else {
+				// user clicked NO or closed
+				System.out.println("Delete canceled");
+			}
+		}
+		
+
+		}
+
+	
+	private void updateAccount() {
+		String username = this.txtUsername.getText();
+		String password = new String(txtPassword.getPassword()); 
+		
+//		Integer cat_id = Integer.parseInt(this.cboCategory_id.getSelectedItem().toString());// need to change to Integer
+
+		String rolestr = (String) comAccountType.getSelectedItem();
+		Role role = Role.valueOf(rolestr); 
+		
+		this.userService.updateUser(username, password, role);
+		
+
+		this.reloadAllItems();
+		JOptionPane.showMessageDialog(this, "Account Update Successfully!!");// for to show popup message
+		this.clearItemsInput();
+	}
+//
+	void clearItemsInput()
+	{
+		this.txtUsername.setText("");
+		this.txtPassword.setText("");
+		this.txtrepassword.setText("");
+		this.comAccountType.setSelectedIndex(0);
+	}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------		
+	/**
+	 * This method is called from within the constructor to initialize the form.
+	 * WARNING: Do NOT modify this code. The content of this method is always
+	 * regenerated by the Form Editor.
+	 */
+	@SuppressWarnings("unchecked")
+	// <editor-fold defaultstate="collapsed" desc="Generated
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -123,10 +280,7 @@ public class AccountSettingFrame extends javax.swing.JFrame {
         btnDelete = new javax.swing.JButton();
         pnlAcctable = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1300, 600));
+        tblAccounts = new javax.swing.JTable();
 
         pnlAccSettingMainForm.setBackground(new java.awt.Color(153, 153, 153));
 
@@ -164,7 +318,8 @@ public class AccountSettingFrame extends javax.swing.JFrame {
 
         jLabel1.setText("Account Type");
 
-        comAccountType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Admin", "User", " " }));
+        comAccountType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ADMIN", "USER" }));
+        comAccountType.setToolTipText("");
         comAccountType.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comAccountTypeActionPerformed(evt);
@@ -172,8 +327,18 @@ public class AccountSettingFrame extends javax.swing.JFrame {
         });
 
         btnRegister.setText("Register");
+        btnRegister.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegisterActionPerformed(evt);
+            }
+        });
 
         btnApproved.setText("Approved");
+        btnApproved.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnApprovedActionPerformed(evt);
+            }
+        });
 
         btnUpdate.setText("Update");
         btnUpdate.addActionListener(new java.awt.event.ActionListener() {
@@ -183,6 +348,11 @@ public class AccountSettingFrame extends javax.swing.JFrame {
         });
 
         btnDelete.setText("Delete");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnlinputdataLayout = new javax.swing.GroupLayout(pnlinputdata);
         pnlinputdata.setLayout(pnlinputdataLayout);
@@ -269,75 +439,98 @@ public class AccountSettingFrame extends javax.swing.JFrame {
         pnlAcctable.setBackground(new java.awt.Color(153, 153, 153));
         pnlAcctable.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 51, 51)));
 
-        jTable1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(230, 230, 230), 2, true));
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblAccounts.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(230, 230, 230), 2, true));
+        tblAccounts.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Id", "username", "password", "role", "approved", "created_at"
+                "username", "password", "role", "approved", "created_at"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblAccounts);
+        if (tblAccounts.getColumnModel().getColumnCount() > 0) {
+            tblAccounts.getColumnModel().getColumn(0).setMinWidth(200);
+            tblAccounts.getColumnModel().getColumn(0).setMaxWidth(200);
+            tblAccounts.getColumnModel().getColumn(2).setMinWidth(100);
+            tblAccounts.getColumnModel().getColumn(2).setMaxWidth(100);
+            tblAccounts.getColumnModel().getColumn(3).setMinWidth(65);
+            tblAccounts.getColumnModel().getColumn(3).setMaxWidth(65);
+        }
 
         javax.swing.GroupLayout pnlAcctableLayout = new javax.swing.GroupLayout(pnlAcctable);
         pnlAcctable.setLayout(pnlAcctableLayout);
@@ -398,48 +591,67 @@ public class AccountSettingFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void comAccountTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comAccountTypeActionPerformed
+    private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
+        this.addItems();
+    }//GEN-LAST:event_btnRegisterActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        this.deleteItems();
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnApprovedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApprovedActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_comAccountTypeActionPerformed
+    }//GEN-LAST:event_btnApprovedActionPerformed
 
-    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnUpdateActionPerformed
+	private void comAccountTypeActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_comAccountTypeActionPerformed
+		// TODO add your handling code here:
+	}// GEN-LAST:event_comAccountTypeActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AccountSettingFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AccountSettingFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AccountSettingFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AccountSettingFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+	private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_btnUpdateActionPerformed
+		this.updateAccount();
+	}// GEN-LAST:event_btnUpdateActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AccountSettingFrame().setVisible(true);
-            }
-        });
-    }
+	/**
+	 * @param args the command line arguments
+	 */
+	public static void main(String args[]) {
+		/* Set the Nimbus look and feel */
+		// <editor-fold defaultstate="collapsed" desc=" Look and feel setting code
+		// (optional) ">
+		/*
+		 * If Nimbus (introduced in Java SE 6) is not available, stay with the default
+		 * look and feel. For details see
+		 * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+		 */
+		try {
+			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException ex) {
+			java.util.logging.Logger.getLogger(AccountSetting.class.getName()).log(java.util.logging.Level.SEVERE,
+					null, ex);
+		} catch (InstantiationException ex) {
+			java.util.logging.Logger.getLogger(AccountSetting.class.getName()).log(java.util.logging.Level.SEVERE,
+					null, ex);
+		} catch (IllegalAccessException ex) {
+			java.util.logging.Logger.getLogger(AccountSetting.class.getName()).log(java.util.logging.Level.SEVERE,
+					null, ex);
+		} catch (javax.swing.UnsupportedLookAndFeelException ex) {
+			java.util.logging.Logger.getLogger(AccountSetting.class.getName()).log(java.util.logging.Level.SEVERE,
+					null, ex);
+		}
+		// </editor-fold>
+
+		/* Create and display the form */
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				new AccountSetting().setVisible(true);
+			}
+		});
+	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApproved;
@@ -450,7 +662,6 @@ public class AccountSettingFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblAccountSetting;
     private javax.swing.JLabel lblPassword;
     private javax.swing.JLabel lbleyeicon;
@@ -461,6 +672,7 @@ public class AccountSettingFrame extends javax.swing.JFrame {
     private javax.swing.JPanel pnlAccSettingMainForm;
     private javax.swing.JPanel pnlAcctable;
     private javax.swing.JPanel pnlinputdata;
+    private javax.swing.JTable tblAccounts;
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsername;
     private javax.swing.JPasswordField txtrepassword;

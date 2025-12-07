@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService{
 		boolean isExisting = userdao.isUserExist(users.username()); // that is business logic code only reqister when there is no same username;
 		
 		
-		if(isExisting)
+		if(isExisting  )
 		{
 			throw new Exception("User already existed");
 		}
@@ -80,9 +80,10 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public boolean updateUser(String username, String password) {
+	public boolean updateUser(String username, String password, Role role) {
 		// TODO Auto-generated method stub
-		return userdao.updateUser(username, password);
+		
+		return userdao.updateUser(username, password,role);
 	}
 
 	@Override

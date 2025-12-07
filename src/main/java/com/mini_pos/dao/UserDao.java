@@ -11,7 +11,7 @@ public interface UserDao {
 	public boolean loginUser(String username, String password);
 	public boolean isUserExist(String username );
 	public boolean deleteaAccWithUsername(String username);
-	public boolean updateUser(String username, String password);
+	public boolean updateUser(String username, String password, Role role);
 	public List<Users> getAllUsers();
 	public  Users getUserByUsernameAndPassword(String username, String password);
 }

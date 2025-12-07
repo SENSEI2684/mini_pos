@@ -158,14 +158,15 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	}
 	
 	@Override
-	public boolean updateUser(String username, String password) {
-	    String sql = "UPDATE users SET password = SHA2(CONCAT(?, ?), 256) WHERE username = ?";
+	public boolean updateUser(String username, String password, Role role) {
+	    String sql = "UPDATE users SET password = SHA2(CONCAT(?, ?), 256), role = ? WHERE username = ?";
 
 	    try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
 
-	        stmt.setString(1, SALT);        // salt
-	        stmt.setString(2, password);    // new password
-	        stmt.setString(3, username);    // which user to update
+	        stmt.setString(1, SALT);        
+	        stmt.setString(2, password);    
+	        stmt.setString(3, role.name());
+	        stmt.setString(4, username);    
 
 	        int row = stmt.executeUpdate();
 	        return row>0;
