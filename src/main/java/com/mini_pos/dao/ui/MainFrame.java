@@ -320,10 +320,14 @@ public class MainFrame extends javax.swing.JFrame {
         int start = (currentPage - 1) * itemsPerPage;
         int end = Math.min(start + itemsPerPage, filteredItems.size());
 
-        if (start >= filteredItems.size()) { // without this code my program can try to access more index than the actual exist in list of size
-            start = 0;
-            currentPage = 1;
-            updatePageLabel();
+//        if (start >= filteredItems.size()) { // without this code my program can try to access more index than the actual exist in list of size
+//            start = 0;
+//            currentPage = 1;
+//            updatePageLabel();
+//        }
+        
+        if (start >= filteredItems.size()) {
+            return; // do not reset that reset cause pagination bug in search filter
         }
 
         List<Items> pageItems = filteredItems.subList(start, end);
@@ -1268,14 +1272,7 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnNextPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextPageActionPerformed
-        // TODO add your handling code here:
-    	if (currentPage * itemsPerPage < totalItems) {
-            currentPage++;
-            loadItemsToPanel();
-            updatePageLabel();
-        }
-    }//GEN-LAST:event_btnNextPageActionPerformed
+   
 
     private void txtregirepassowrdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtregirepassowrdActionPerformed
         // TODO add your handling code here:
@@ -1321,17 +1318,12 @@ public class MainFrame extends javax.swing.JFrame {
 //    	
     	 String text = txtSearch.getText().trim().toLowerCase();
     	 int catId = comCategories.getSelectedIndex(); 
-
-    	    filteredItems = allItems.stream()
-    	            .filter(i -> i.name().toLowerCase().contains(text))
-    	            .toList();
-    	    
+ 
     	    filteredItems = allItems.stream()
     	    				        .filter(i ->  i.name().toLowerCase().contains(text) && i.category_id().equals(catId)) 	    				       
     	    				        .toList();
     	          
-    	            
-
+    	     
     	    currentPage = 1;
     	    updatePageLabel();
     	    loadItemsToPanel();
@@ -1359,6 +1351,21 @@ public class MainFrame extends javax.swing.JFrame {
     	this.login();
     }
 
+    private void btnNextPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextPageActionPerformed
+        // TODO add your handling code here:
+//    	if (currentPage * itemsPerPage < totalItems) {
+//            currentPage++;
+//            loadItemsToPanel();
+//            updatePageLabel();
+//        }
+    	
+    	if (currentPage * itemsPerPage < filteredItems.size()) { // now i should compare with filteredItems not totalItems
+            currentPage++;
+            loadItemsToPanel();
+            updatePageLabel();
+        }
+    }//GEN-LAST:event_btnNextPageActionPerformed
+    
     private void btnPrevPageActionPerformed(java.awt.event.ActionEvent evt) {
         if (currentPage > 1) {
             currentPage--;
