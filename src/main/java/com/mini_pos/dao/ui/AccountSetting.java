@@ -20,6 +20,7 @@ import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.service.UserService;
 import com.mini_pos.dao.service.UserServiceImpl;
+import com.mini_pos.helper_function.PasswordHide;
 
 
 /**
@@ -58,6 +59,7 @@ public class AccountSetting extends javax.swing.JFrame {
 		return new ImageIcon(img);
 	}
 
+
 	public void initPasswordFeatures() {
 		eyeIcon = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
 		eyeHideIcon = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
@@ -65,51 +67,13 @@ public class AccountSetting extends javax.swing.JFrame {
 		eyeIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
 		eyeHideIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
 
-		lbleyeicon.setIcon(eyeHideIcon); // start with password hidden
-		txtPassword.setEchoChar('•'); // hide password
+	    boolean[] passHidden = { true };
+	    boolean[] rePassHidden = { true };
 
-		lbleyeicon.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent e) {
-				togglePassword();
-			}
-		});
+	    PasswordHide.setupPasswordToggle(lbleyeicon, txtPassword, eyeIcon, eyeHideIcon, passHidden);
+	    PasswordHide.setupPasswordToggle(lbleyeicon1, txtrepassword, eyeIcon, eyeHideIcon, rePassHidden);
 
-		lbleyeicon1.setIcon(eyeHideIcon1); // start with password hidden
-		txtrepassword.setEchoChar('•'); // hide password
-
-		lbleyeicon1.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent e) {
-				toggleRePassword();
-			}
-		});
 	}
-
-	private void togglePassword() {
-		if (passwordHidden) {
-			txtPassword.setEchoChar((char) 0);
-			lbleyeicon.setIcon(eyeIcon);
-			passwordHidden = false;
-		} else {
-			txtPassword.setEchoChar('•');
-			lbleyeicon.setIcon(eyeHideIcon);
-			passwordHidden = true;
-		}
-	}
-
-	private void toggleRePassword() {
-		if (repasswordHidden) {
-			txtrepassword.setEchoChar((char) 0);
-			lbleyeicon1.setIcon(eyeIcon1);
-			repasswordHidden = false;
-		} else {
-			txtrepassword.setEchoChar('•');
-			lbleyeicon1.setIcon(eyeHideIcon1);
-			repasswordHidden = true;
-		}
-	}
-
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	    
 
 	// Select row
@@ -217,6 +181,7 @@ public class AccountSetting extends javax.swing.JFrame {
 				// user clicked NO or closed
 				System.out.println("Delete canceled");
 			}
+			this.clearItemsInput();
 		}
 		
 
@@ -238,6 +203,27 @@ public class AccountSetting extends javax.swing.JFrame {
 		this.reloadAllItems();
 		JOptionPane.showMessageDialog(this, "Account Update Successfully!!");// for to show popup message
 		this.clearItemsInput();
+	}
+	
+	private void approve() {
+		
+		
+		String username = this.txtUsername.getText();
+		
+		if (username == null || username.trim().isEmpty()) 
+		{
+		    JOptionPane.showMessageDialog(this, "Please select a user first!");
+		    return;
+		}
+		else
+		{
+			this.userService.approveUser(true, username);
+			this.reloadAllItems();
+			JOptionPane.showMessageDialog(this, "Account Approve Successfully!!");// for to show popup message
+			this.clearItemsInput();
+		}
+		
+		
 	}
 //
 	void clearItemsInput()
@@ -274,7 +260,7 @@ public class AccountSetting extends javax.swing.JFrame {
         lbleyeicon1 = new javax.swing.JLabel();
         lbleyeicon = new javax.swing.JLabel();
         comAccountType = new javax.swing.JComboBox<>();
-        btnRegister = new javax.swing.JButton();
+        btnCreateAccount = new javax.swing.JButton();
         btnApproved = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
@@ -326,10 +312,10 @@ public class AccountSetting extends javax.swing.JFrame {
             }
         });
 
-        btnRegister.setText("Register");
-        btnRegister.addActionListener(new java.awt.event.ActionListener() {
+        btnCreateAccount.setText("Create Account");
+        btnCreateAccount.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRegisterActionPerformed(evt);
+                btnCreateAccountActionPerformed(evt);
             }
         });
 
@@ -381,7 +367,7 @@ public class AccountSetting extends javax.swing.JFrame {
                         .addComponent(btnDelete, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnApproved, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
-                        .addComponent(btnRegister, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(btnCreateAccount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap(52, Short.MAX_VALUE))
         );
         pnlinputdataLayout.setVerticalGroup(
@@ -409,7 +395,7 @@ public class AccountSetting extends javax.swing.JFrame {
                             .addComponent(comAccountType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(lbleyeicon, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(btnRegister)
+                .addComponent(btnCreateAccount)
                 .addGap(26, 26, 26)
                 .addComponent(btnUpdate)
                 .addGap(26, 26, 26)
@@ -591,16 +577,16 @@ public class AccountSetting extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
+    private void btnCreateAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateAccountActionPerformed
         this.addItems();
-    }//GEN-LAST:event_btnRegisterActionPerformed
+    }//GEN-LAST:event_btnCreateAccountActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         this.deleteItems();
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnApprovedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApprovedActionPerformed
-        // TODO add your handling code here:
+       this.approve();
     }//GEN-LAST:event_btnApprovedActionPerformed
 
 	private void comAccountTypeActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_comAccountTypeActionPerformed
@@ -655,8 +641,8 @@ public class AccountSetting extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnApproved;
+    private javax.swing.JButton btnCreateAccount;
     private javax.swing.JButton btnDelete;
-    private javax.swing.JButton btnRegister;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JComboBox<String> comAccountType;
     private javax.swing.JLabel jLabel1;

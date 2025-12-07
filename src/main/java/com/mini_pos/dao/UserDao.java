@@ -14,4 +14,5 @@ public interface UserDao {
 	public boolean updateUser(String username, String password, Role role);
 	public List<Users> getAllUsers();
 	public  Users getUserByUsernameAndPassword(String username, String password);
+	public boolean approveUser(Boolean p ,String username);
 }

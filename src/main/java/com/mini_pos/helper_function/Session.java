@@ -1,6 +1,7 @@
 package com.mini_pos.helper_function;
 
 
+import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
 
 public class Session {
@@ -20,7 +21,14 @@ public class Session {
     public void setUser(Users user) {
         this.currentUser = user;
     }
-
+    
+    public Role getAccountType() {
+        if (currentUser == null) {
+            throw new IllegalStateException("No user logged in");
+        }
+        return currentUser.role();
+    }
+    
     public Users getUser() {
         return currentUser;
     }

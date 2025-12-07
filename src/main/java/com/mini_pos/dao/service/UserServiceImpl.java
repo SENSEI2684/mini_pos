@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
-	public void registerUser(Users users) throws Exception { 
+	public boolean registerUser(Users users) throws Exception { 
 		boolean isExisting = userdao.isUserExist(users.username()); // that is business logic code only reqister when there is no same username;
 		
 		
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService{
 		{
 			this.userdao.saveUser(users);
 		}
-		
+		return true;
 	}
 
 	@Override
@@ -97,5 +97,13 @@ public class UserServiceImpl implements UserService{
 		return userdao.getUserByUsernameAndPassword(username, password);
 		
 	}
+
+	@Override
+	public boolean approveUser(Boolean p, String username) {
+		
+		return userdao.approveUser(p, username);
+	}
+
+
 
 }

@@ -192,7 +192,7 @@
                                   <Component id="btnDelete" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnUpdate" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnApproved" alignment="0" pref="179" max="32767" attributes="0"/>
-                                  <Component id="btnRegister" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnCreateAccount" alignment="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace pref="52" max="32767" attributes="0"/>
@@ -231,7 +231,7 @@
                               <Component id="lbleyeicon" alignment="0" min="-2" pref="22" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="btnRegister" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnCreateAccount" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                           <Component id="btnUpdate" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
@@ -291,12 +291,12 @@
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
                   </AuxValues>
                 </Component>
-                <Component class="javax.swing.JButton" name="btnRegister">
+                <Component class="javax.swing.JButton" name="btnCreateAccount">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Register"/>
+                    <Property name="text" type="java.lang.String" value="Create Account"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegisterActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCreateAccountActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnApproved">

@@ -177,6 +177,25 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	    }
 	}
 	
+	@Override
+	public boolean approveUser(Boolean b,String username) {
+		String sql = "UPDATE users SET approved = ? WHERE username = ?;";
+		
+		  try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+
+		        stmt.setBoolean(1, b);        		   
+		        stmt.setString(2, username);    
+
+		        int row = stmt.executeUpdate();
+		        return row>0;
+
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return false;
+		    }
+		}
+	
+	
 	public static void main(String [] args) {
 		
 		UserDao userdao = new UserDaoImpl();
@@ -187,6 +206,10 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 		userdao.saveUser(user);
 //		userdao.deleteaAccWithUsername("Admin");
 	}
+
+
+
+
 
 
 

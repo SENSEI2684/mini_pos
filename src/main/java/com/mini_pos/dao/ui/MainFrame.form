@@ -28,7 +28,10 @@
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="197" max="-2" attributes="0"/>
-                          <Component id="btnlogin" min="-2" pref="110" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="btnlogin" pref="110" max="32767" attributes="0"/>
+                              <Component id="btnRegistration" max="32767" attributes="0"/>
+                          </Group>
                       </Group>
                   </Group>
                   <EmptySpace pref="38" max="32767" attributes="0"/>
@@ -47,13 +50,13 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="lbleye" alignment="1" min="-2" pref="29" max="-2" attributes="0"/>
                       <Component id="txtpassword" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
                   <Component id="btnlogin" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="73" max="32767" attributes="0"/>
+                  <EmptySpace pref="26" max="32767" attributes="0"/>
+                  <Component id="btnRegistration" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -83,9 +86,17 @@
         </Component>
         <Component class="javax.swing.JPasswordField" name="txtpassword">
         </Component>
+        <Component class="javax.swing.JButton" name="btnRegistration">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Registration"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegistrationActionPerformed"/>
+          </Events>
+        </Component>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JDialog" name="diaregister">
+    <Container class="javax.swing.JDialog" name="diaRegistration">
 
       <Layout>
         <DimensionLayout dim="0">
@@ -100,14 +111,14 @@
                           </Group>
                           <EmptySpace min="-2" pref="86" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="txtregiusername" max="32767" attributes="0"/>
-                              <Component id="txtregipassowrd" pref="163" max="32767" attributes="0"/>
+                              <Component id="txtRegUserName" max="32767" attributes="0"/>
+                              <Component id="txtRegPassword" pref="163" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel5" min="-2" pref="107" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
-                          <Component id="txtregirepassowrd" pref="163" max="32767" attributes="0"/>
+                          <Component id="txtRegRePassword" pref="163" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -119,7 +130,7 @@
               </Group>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="219" max="-2" attributes="0"/>
-                  <Component id="jButton1" min="-2" pref="140" max="-2" attributes="0"/>
+                  <Component id="btnRegister" min="-2" pref="140" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -133,25 +144,25 @@
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="txtregiusername" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="txtRegUserName" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="txtregipassowrd" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="txtRegPassword" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="lblregieye" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="txtregirepassowrd" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="txtRegRePassword" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
                   <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
-                  <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnRegister" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="63" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -170,26 +181,29 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel5">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Reenter Password"/>
+            <Property name="text" type="java.lang.String" value="RePassword"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="txtregiusername">
+        <Component class="javax.swing.JTextField" name="txtRegUserName">
         </Component>
-        <Component class="javax.swing.JPasswordField" name="txtregipassowrd">
+        <Component class="javax.swing.JPasswordField" name="txtRegPassword">
         </Component>
-        <Component class="javax.swing.JPasswordField" name="txtregirepassowrd">
+        <Component class="javax.swing.JPasswordField" name="txtRegRePassword">
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtregirepassowrdActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtRegRePasswordActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="lblregieye">
         </Component>
         <Component class="javax.swing.JLabel" name="lblregieye1">
         </Component>
-        <Component class="javax.swing.JButton" name="jButton1">
+        <Component class="javax.swing.JButton" name="btnRegister">
           <Properties>
             <Property name="text" type="java.lang.String" value="Register"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegisterActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -862,9 +876,9 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="lbltime" min="-2" pref="139" max="-2" attributes="0"/>
-                          <EmptySpace pref="85" max="32767" attributes="0"/>
-                          <Component id="lbldate" min="-2" pref="183" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="lbldate" min="-2" pref="207" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
