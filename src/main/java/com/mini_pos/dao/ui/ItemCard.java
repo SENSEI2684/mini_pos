@@ -48,7 +48,7 @@ public class ItemCard extends JPanel {
         JPanel innerPanel = new RoundedPanel();
         innerPanel.setLayout(new BorderLayout());
         innerPanel.setBackground(Color.WHITE);
-        innerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        innerPanel.setBorder(BorderFactory.createEmptyBorder(11, 11, 11, 11));
         
 
         // ================= IMAGE PANEL (LEFT) =================
