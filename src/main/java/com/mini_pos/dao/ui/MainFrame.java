@@ -87,7 +87,7 @@ public class MainFrame extends javax.swing.JFrame {
 	private Map<Integer, ItemCard> cardCache = new HashMap<>();
 	
 	AccountSetting accountsetting = new AccountSetting();
-
+	ItemStorage itemStorage = new ItemStorage();
 	
     public MainFrame() {
         initComponents();
@@ -99,10 +99,13 @@ public class MainFrame extends javax.swing.JFrame {
         preloadItemCards();
 //        this.loadCartTable();
 //        this.valueSelect();
-     
+        setupUI();
     }
  
-//    
+   private void setupUI() {
+    txtArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+  
+    }
  //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
  //loginUI ***************************************************************
@@ -148,9 +151,12 @@ public class MainFrame extends javax.swing.JFrame {
     			
     			Users user = userService.getUserByUsernameAndPassword(username, password); // write this method
     			
-    			if (user == null) {
+    			if (user == null) 
+    			{
     			    System.out.println("Login failed!");
-    			} else {
+    			} 
+    			else 
+    			{
     			    session.getInstance().setUser(user);   // save to session
     			    System.out.println("Saved to session: " + session.getInstance().getUsername());
     			}
@@ -189,11 +195,13 @@ public class MainFrame extends javax.swing.JFrame {
 
 			Users user = new Users(0, username, password, Role.USER, false, null);
 
-			if (password.equals(repassword)) {
+			if (password.equals(repassword)) 
+			{
 
 				boolean registrationResult = userService.registerUser(user);
 
-				if (registrationResult) {
+				if (registrationResult) 
+				{
 					JOptionPane.showMessageDialog(this, "Registration Success Wait for Admin Approve", "Success",
 							JOptionPane.CLOSED_OPTION);
 					this.diaRegistration.setVisible(false);
@@ -210,7 +218,7 @@ public class MainFrame extends javax.swing.JFrame {
 			}
 
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(this, "Invalid Registration", "Warnning", JOptionPane.CLOSED_OPTION);
+			JOptionPane.showMessageDialog(this, " UserName Already Exist!\n Please Try Another Name", "Warnning", JOptionPane.CLOSED_OPTION);
 			e.printStackTrace();
 		}
 
@@ -340,8 +348,10 @@ public class MainFrame extends javax.swing.JFrame {
          allItems = itemService.getAllItems(); // we make allItems as parent List, that list never change the same
         filteredItems = new ArrayList<>(allItems); // and filteredItems list will change on search function
 
-        for (Items item : allItems) {
-            if (!cardCache.containsKey(item.id())) {
+        for (Items item : allItems) 
+        {
+            if (!cardCache.containsKey(item.id())) 
+            {
 
                 ItemCard card = new ItemCard(item, () -> loadCartTable());
 
@@ -379,7 +389,8 @@ public class MainFrame extends javax.swing.JFrame {
         pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
 
         
-        if (filteredItems == null || filteredItems.isEmpty()) {
+        if (filteredItems == null || filteredItems.isEmpty()) 
+        {
             pnlMainItem.revalidate(); // when user typed something that finds  0 items and not match anythings refresh the empty panel and exit
             pnlMainItem.repaint();    // without this code our ui will freeze 
             return;
@@ -394,13 +405,15 @@ public class MainFrame extends javax.swing.JFrame {
 //            updatePageLabel();
 //        }
         
-        if (start >= filteredItems.size()) {
+        if (start >= filteredItems.size()) 
+        {
             return; // do not reset that reset cause pagination bug in search filter
         }
 
         List<Items> pageItems = filteredItems.subList(start, end);
 
-        for (Items item : pageItems) {
+        for (Items item : pageItems) 
+        {
             ItemCard card = cardCache.get(item.id());
             pnlMainItem.add(card);
         }
@@ -463,32 +476,38 @@ public class MainFrame extends javax.swing.JFrame {
         
         String paidText = txtPaid.getText().trim();
         
-        if (txtTotalPrice.getText().equals("0") ) {
+        if (txtTotalPrice.getText().equals("0") ) 
+        {
             JOptionPane.showMessageDialog(this, "Please add items first");
             return;
         }
         
         if (txtPaid.getText().trim().isEmpty() & !txtTotalPrice.getText().equals("0")) {
-            JOptionPane.showMessageDialog(this, "Please Enter The Paid Amount");
-            
+            JOptionPane.showMessageDialog(this, "Please Enter The Paid Amount");       
             return;
         }
        
        
-        if (!paidText.isEmpty()) {
+        if (!paidText.isEmpty()) 
+        {
             try {
                 int paid = Integer.parseInt(paidText);
 
                
-                if(paid >= total ) {
+                if(paid >= total ) 
+                {
             		int change = paid - total;
                     txtChange.setText(formatter.format(change));   
-                } else {
+                } 
+                else 
+                {
                 	JOptionPane.showMessageDialog(this, "Insufficient Paid Balance");
                     txtChange.setText("0");
                 }
 
-            } catch (NumberFormatException e) {
+            } 
+            catch (NumberFormatException e) 
+            {
             	 JOptionPane.showMessageDialog(this, "Invalid Paid Amount");
             }
         }
@@ -503,8 +522,10 @@ public class MainFrame extends javax.swing.JFrame {
 
 			@Override
 			public void run() {
-				while (true) {
-					try {
+				while (true) 
+				{
+					try 
+					{
 						Date date = new Date();
 						Thread.sleep(1000);
 						SimpleDateFormat tf = new SimpleDateFormat("h:mm:ss aa");
@@ -512,7 +533,9 @@ public class MainFrame extends javax.swing.JFrame {
 
 		                lbltime.setText(tf.format(date));
 		                lbldate.setText(df.format(date));
-					} catch (InterruptedException e) {
+					} 
+					catch (InterruptedException e) 
+					{
 						e.printStackTrace();
 					}
 				}
@@ -526,28 +549,30 @@ public class MainFrame extends javax.swing.JFrame {
     
  //Select row function******************************************************************************
     
-    private void valueSelect() {
-		this.tblCart.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent event) {
-				// do some actions here, for example
-				// print first column value from selected row
-				if (!event.getValueIsAdjusting()) {// getValueIsAdjusting() is true while the selection is still
-//													// changing, so skipping when true avoids weird duplicate
-//													// selections.
-					int row = tblCart.getSelectedRow();
-					if (row != -1) {
-						Integer id = (Integer) tblCart.getValueAt(row, 0);
-						selectedID = id;
-						String items = (String) tblCart.getValueAt(row, 1);
-						Integer qty = (Integer) tblCart.getValueAt(row, 2);
-						Integer price = (Integer) tblCart.getValueAt(row, 3);
-					}
-//					System.out.println("Table row" + row);
-				} // this code is for role selected put into constructor bec want to select even
-//					// after program start run
-			}
-		});
-	}
+//    private void valueSelect() {
+//		this.tblCart.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+//			public void valueChanged(ListSelectionEvent event) {
+//				// do some actions here, for example
+//				// print first column value from selected row
+//				if (!event.getValueIsAdjusting()) 
+//				{// getValueIsAdjusting() is true while the selection is still
+////													// changing, so skipping when true avoids weird duplicate
+////													// selections.
+//					int row = tblCart.getSelectedRow();
+//					if (row != -1) 
+//					{
+//						Integer id = (Integer) tblCart.getValueAt(row, 0);
+//						selectedID = id;
+//						String items = (String) tblCart.getValueAt(row, 1);
+//						Integer qty = (Integer) tblCart.getValueAt(row, 2);
+//						Integer price = (Integer) tblCart.getValueAt(row, 3);
+//					}
+////					System.out.println("Table row" + row);
+//				} // this code is for role selected put into constructor bec want to select even
+////					// after program start run
+//			}
+//		});
+//	}
     
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
@@ -567,8 +592,10 @@ public class MainFrame extends javax.swing.JFrame {
 		 
 		 //for multi select select row remove
 		 int[] selectedRows = tblCart.getSelectedRows();
-		 if(selectedRows.length != 0) {
-			 for(int i = selectedRows.length -1; i >= 0; i--) {
+		 if(selectedRows.length != 0) 
+		 {
+			 for(int i = selectedRows.length -1; i >= 0; i--) 
+			 {
 				 int row = selectedRows[i];
 				 Integer id =(Integer)tblCart.getValueAt(row, 0);
 				 this.cartService.deleteItemsByCartItem_Id(id);
@@ -636,18 +663,21 @@ public class MainFrame extends javax.swing.JFrame {
 		    
 				   
 				    
-				    for (CartWithItems item : cartwithItem) {
+				    for (CartWithItems item : cartwithItem) 
+				    {
 				    	
 				    	    String name = item.item_name();
 				    	    //  Trim item name if it's too long
-				    	    if (name.length() > 25) {
+				    	    if (name.length() > 25) 
+				    	    {
 				    	        name = name.substring(0, 25);
 				    	    }
 				    	    
 				    	    int price = item.item_price();
 				    	    String pricestr = String.valueOf(price);
 				    	    // trim if too long
-				    	    if (pricestr.length() > 15) {
+				    	    if (pricestr.length() > 15) 
+				    	    {
 				    	    	pricestr = pricestr.substring(0, 15);
 				    	    }
 				    	
@@ -758,6 +788,7 @@ public class MainFrame extends javax.swing.JFrame {
         lbltime = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         mnuMainStore = new javax.swing.JMenu();
+        mnu_Item_storage = new javax.swing.JMenuItem();
         mnuMainSetting = new javax.swing.JMenu();
         mnuAccountSetting = new javax.swing.JMenuItem();
 
@@ -907,10 +938,9 @@ public class MainFrame extends javax.swing.JFrame {
             pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 580, Short.MAX_VALUE)
         );
-        
+
         txtArea.setColumns(20);
         txtArea.setRows(5);
-        txtArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         jScrollPane3.setViewportView(txtArea);
 
         btnPrint.setText("Print");
@@ -1296,10 +1326,18 @@ public class MainFrame extends javax.swing.JFrame {
         );
 
         mnuMainStore.setText("Stores");
+
+        mnu_Item_storage.setText("Item Storage");
+        mnu_Item_storage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mnu_Item_storageActionPerformed(evt);
+            }
+        });
+        mnuMainStore.add(mnu_Item_storage);
+
         jMenuBar1.add(mnuMainStore);
 
         mnuMainSetting.setText("Setting");
-       
 
         mnuAccountSetting.setText("Account Setting");
         mnuAccountSetting.addActionListener(new java.awt.event.ActionListener() {
@@ -1364,6 +1402,8 @@ public class MainFrame extends javax.swing.JFrame {
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
     	try {
 			txtArea.print();
+			this.resetCart();
+			this.diareceip.setVisible(false);
 		} catch (PrinterException e) {
 			e.printStackTrace();
 		}
@@ -1454,6 +1494,22 @@ public class MainFrame extends javax.swing.JFrame {
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
        this.registration();
     }//GEN-LAST:event_btnRegisterActionPerformed
+
+    private void mnu_Item_storageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnu_Item_storageActionPerformed
+      	if (Session.getInstance().getAccountType() == Role.ADMIN) 
+    	{
+    	    this.itemStorage.setVisible(true);
+    	} 
+    	else 
+    	{
+    	    JOptionPane.showMessageDialog(
+    	        this, 
+    	        "You have no permission to access this", 
+    	        "Warning", 
+    	        JOptionPane.WARNING_MESSAGE
+    	    );
+    	}
+    }//GEN-LAST:event_mnu_Item_storageActionPerformed
     
     private void btnPrevPageActionPerformed(java.awt.event.ActionEvent evt) {
         if (currentPage > 1) {
@@ -1565,6 +1621,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem mnuAccountSetting;
     private javax.swing.JMenu mnuMainSetting;
     private javax.swing.JMenu mnuMainStore;
+    private javax.swing.JMenuItem mnu_Item_storage;
     private javax.swing.JPanel pnlButtons;
     private javax.swing.JPanel pnlDateTime;
     private javax.swing.JPanel pnlMain;

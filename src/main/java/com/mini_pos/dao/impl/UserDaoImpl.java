@@ -1,5 +1,6 @@
 package com.mini_pos.dao.impl;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +27,8 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	public List<Users> getAllUsers() {
 		List<Users> users = new ArrayList<>();
 		String sql = "Select * from users;";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk to sql
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk to sql
 			
 			ResultSet rs = stmt.executeQuery(sql);
 
@@ -52,7 +54,8 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	@Override
 	public boolean saveUser(Users users) {
 		String sql = "INSERT INTO users(username,password,role,approved) VALUES (?,SHA2(CONCAT(?,?), 256),?,?);";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 
 			stmt.setString(1, users.username());
@@ -76,17 +79,19 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	{
 		String sql = "SELECT * FROM users WHERE username = ? AND password = SHA2(CONCAT(?,?),256) AND approved = 1";
 		System.out.println("SQL " + sql);
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk to sql
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk to sql
 
 			stmt.setString(1, username);
 			stmt.setString(2, SALT);
 			stmt.setString(3, password);
 			
 			
-			ResultSet res = stmt.executeQuery();
+			ResultSet rs = stmt.executeQuery();
 	
-			return res.next();
-		} catch (Exception e) {
+			return rs.next();
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return false;
@@ -96,7 +101,8 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	public boolean isUserExist(String username) { // this code is need for (Register)Business Logic Request
 		String sql = "SELECT * FROM USERS WHERE username = ?";
 		System.out.println("SQL " + sql);
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk to sql
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk to sql
 
 			stmt.setString(1, username);			
 			ResultSet res = stmt.executeQuery();
@@ -112,7 +118,8 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 		 String sql = "SELECT id, username, password, role, approved, created_at " +
                  "FROM users WHERE username = ? AND password = SHA2(CONCAT(?,?),256) AND approved = 1";
 		System.out.println("SQL " + sql);
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk to sql
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk to sql
 
 			
 			stmt.setString(1, username);
@@ -143,7 +150,8 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	@Override
 	public boolean deleteaAccWithUsername(String username) {
 		String sql = "Delete from users where username = ?";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 
 			stmt.setString(1, username); // level
@@ -161,7 +169,8 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	public boolean updateUser(String username, String password, Role role) {
 	    String sql = "UPDATE users SET password = SHA2(CONCAT(?, ?), 256), role = ? WHERE username = ?";
 
-	    try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+	    try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {
 
 	        stmt.setString(1, SALT);        
 	        stmt.setString(2, password);    
@@ -178,10 +187,11 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	}
 	
 	@Override
-	public boolean approveUser(Boolean b,String username) {
+	public boolean approve(Boolean b,String username) {
 		String sql = "UPDATE users SET approved = ? WHERE username = ?;";
 		
-		  try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+		  try (Connection con = getConnection();
+		             PreparedStatement stmt = con.prepareStatement(sql)) {
 
 		        stmt.setBoolean(1, b);        		   
 		        stmt.setString(2, username);    
@@ -195,6 +205,26 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 		    }
 		}
 	
+	@Override
+	public boolean isUserApproved(String username) {
+	    String sql = "SELECT approved FROM users WHERE username = ?";
+	    
+	    try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {
+	    	
+	        stmt.setString(1, username);
+	        
+	        ResultSet rs = stmt.executeQuery();
+	        
+	        if (rs.next()) {
+	            return rs.getBoolean("approved");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+
 	
 	public static void main(String [] args) {
 		

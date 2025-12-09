@@ -1,5 +1,10 @@
 package com.mini_pos.dao.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,11 +12,15 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+
+import javax.swing.ImageIcon;
 
 import com.mini_pos.dao.BaseDao;
 import com.mini_pos.dao.ItemsDao;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.ItemsWithCategories;
+import com.mysql.cj.jdbc.Blob;
 
 
 
@@ -20,8 +29,11 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	@Override
 	public List<Items> getAllItems() {
 		List<Items> items = new ArrayList<>();
-		try (Statement stmt = this.getconnection().createStatement()) {// this Statement is created for talk to sql
-			String sql = "Select * from items;";
+		
+		String sql = "Select * from items;";
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {
+			
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
@@ -41,6 +53,48 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 			e.printStackTrace();
 		}
 		return items;
+	}
+	
+	@Override
+	public List<ItemsWithCategories> getAllItemsWithCategoryName() {
+		List<ItemsWithCategories> itemWCat = new ArrayList<>();
+		String sql = "SELECT i.id ,i.item_code, i.name, i.price, i.quantity, i.photo, c.category_name, i.created_at FROM items i JOIN categories c on i.category_id = c.id ORDER BY id ;";
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {
+			
+			
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				Integer id = rs.getInt("id");
+				String item_code = rs.getString("item_code");
+				String name = rs.getString("name");
+				Integer price = rs.getInt("price");
+				Integer quantity = rs.getInt("quantity");
+				String photo = rs.getString("photo");
+				
+//				Blob image = rs.getBlob("photo");
+//				String path = "/mini_pos_program/src/main/resources/static/images";
+//				byte[] imageByte = image.getBytes(1, (int)image.length());
+//				FileOutputStream fout = new FileOutputStream(path);
+//				fout.write(imageByte);
+//				ImageIcon icon = new ImageIcon(imageByte);
+//				lblIcon.setIcon(icon);
+				
+				
+//				Integer category_name = rs.getInt("category_id");
+				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
+				Items item = new Items(id,item_code, name, price,quantity, photo,null, created_at);
+
+				String cat_name = rs.getString("category_name");
+				ItemsWithCategories item_cat = new ItemsWithCategories(item, cat_name);
+				itemWCat.add(item_cat);
+			}
+			rs.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return itemWCat;
 	}
 
 //	@Override
@@ -77,7 +131,8 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	public List<Items> getItemsByCategoryCode(Integer id) {
 		List<Items> items = new ArrayList<Items>();
 		String sql = "Select * from items where category_id = ?;";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 			stmt.setInt(1, id); // set parameter now ? become 1
 			System.out.println("SQL" + sql);
@@ -96,6 +151,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				items.add(item);
 			}
 			rs.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -121,19 +177,22 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 //	}
 
 	@Override
-	public boolean saveItems(Items item) {
+	public boolean saveItems(Items item,String path2) {
 
 //		String itemCode = generateNextItemCode();
 
 		String sql = "insert into items(item_code,name,price,quantity,photo,category_id) values(?,?,?,?,?,?);";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 
 			stmt.setString(1, item.item_code());
 			stmt.setString(2, item.name());
 			stmt.setInt(3, item.price());
 			stmt.setInt(4, item.quantity());
-			stmt.setString(5, item.photo());
+			stmt.setString(5, path2);
+//			InputStream ins = new FileInputStream(new File(path2));
+//			stmt.setBlob(5, ins);
 			stmt.setInt(6, item.category_id());
 
 			int row = stmt.executeUpdate();// this must use .executeUpdate bec we make insert changes
@@ -148,7 +207,8 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	@Override
 	public boolean updateItems(Integer price, String item_code) {
 		String sql = "Update items set price = ? where item_code =?;";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 
 			stmt.setInt(1, price); // for price
@@ -166,7 +226,8 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	@Override
 	public boolean deleteItemsByItemCode(String code) {
 		String sql = "Delete from items where item_code = ?";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 
 			stmt.setString(1, code); // level
@@ -184,7 +245,8 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	public List<ItemsWithCategories> getItemsBaseOnCategoryID(Integer ids) {
 		List<ItemsWithCategories> itemWCat = new ArrayList<>();
 		String sql = "select i.*, c.category_name from items i join categories c on i.category_id = c.id where i.category_id = ?;";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {
 			stmt.setInt(1, ids);
 			System.out.println("SQL" + sql);
 			ResultSet rs = stmt.executeQuery();
@@ -217,7 +279,8 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 
 	        int offset = (page - 1) * itemsPerPage;
 	        String sql = "SELECT * FROM items ORDER BY id LIMIT ? OFFSET ?;";
-	        try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+	        try (Connection con = getConnection();
+		             PreparedStatement stmt = con.prepareStatement(sql)) {
 
 	            stmt.setInt(1, itemsPerPage);
 	            stmt.setInt(2, offset);
@@ -235,7 +298,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 					Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
 					items.add(item);
 	            }
-
+				rs.close();
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	        }
@@ -247,7 +310,8 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	public List<Items> searchItemsWithName(String name) {
         List<Items> items = new ArrayList<>();
         String sql = "SELECT * FROM items WHERE name LIKE ? ORDER BY id;";
-		 try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+		 try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {
 
 	            stmt.setString(1, "%" + name + "%");	
 	            ResultSet rs = stmt.executeQuery();
@@ -264,7 +328,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 					Items item = new Items(id,item_code, names, price,quantity, photo,category_id, created_at);
 					items.add(item);
 	            }
-
+	            rs.close();
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	        }
@@ -276,12 +340,14 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	@Override
 	public int getTotalItems() {
 		String sql = "SELECT COUNT(*) FROM items;";
-        try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {       	
+        try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {       	
             ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
             	return rs.getInt(1);
             }
+            rs.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -13,7 +13,8 @@ public interface UserService {
 	public List<Users> getAllUsers();
 	public boolean isUserExist(String username);
 	public  Users getUserByUsernameAndPassword(String username, String password);
-	public boolean approveUser(Boolean p ,String username);
+	
+	public boolean UserApproved(String username) throws Exception;
 	
 	
 }

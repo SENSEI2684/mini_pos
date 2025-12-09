@@ -1,5 +1,6 @@
 package com.mini_pos.dao.impl;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
@@ -22,7 +23,8 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 				+ "VALUES (?, ?, ?)\r\n"
 				+ "ON DUPLICATE KEY UPDATE \r\n"
 				+ "quantity = quantity + VALUES(quantity);";
-		try(PreparedStatement stmt = this.getconnection().prepareStatement(sql)){
+		try(Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)){
 			
 			stmt.setInt(1, cart.user_id());
 			stmt.setInt(2, cart.item_id());
@@ -50,7 +52,8 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 				+ "FROM cart c\r\n"
 				+ "JOIN items i ON c.item_id = i.id;";
 		
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 		
 //			System.out.println("SQL" + sql);
@@ -76,7 +79,8 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 	@Override
 	public boolean deleteItemsByCartItem_Id(Integer id) {
 		String sql = "Delete from cart where item_id = ?";
-		try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {// this Statement is created for talk
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 
 			stmt.setInt(1, id); // level
@@ -93,7 +97,8 @@ public class CartDaoImpl extends BaseDao implements CartDao{
 	@Override
 	public boolean resetCart() {
 		String sql = "TRUNCATE TABLE cart";
-	    try (PreparedStatement stmt = this.getconnection().prepareStatement(sql)) {
+	    try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {
 	        stmt.executeUpdate(); // no need to check return value
 	        return true; // if no exception, truncate succeeded
 	    } catch (Exception e) {

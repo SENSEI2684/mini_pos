@@ -17,6 +17,12 @@ public class ItemsServiceImpl implements ItemsService{
 	public List<Items> getAllItems() {
 		return itemsdao.getAllItems();
 	}
+	
+	@Override
+	public List<ItemsWithCategories> getAllItemsWithCategoryName() {
+		
+		return itemsdao.getAllItemsWithCategoryName();
+	}
 
 	@Override
 	public List<Items> getItemsByCategoryCode(Integer id) {
@@ -24,8 +30,8 @@ public class ItemsServiceImpl implements ItemsService{
 	}
 
 	@Override
-	public boolean saveItems(Items items) {
-		return itemsdao.saveItems(items);
+	public boolean saveItems(Items items,String path2) {
+		return itemsdao.saveItems(items,path2);
 	}
 
 	@Override
@@ -57,5 +63,7 @@ public class ItemsServiceImpl implements ItemsService{
 	public int getTotalItems() {
 		return itemsdao.getTotalItems();
 	}
+
+
 
 }

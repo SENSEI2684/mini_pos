@@ -6,8 +6,10 @@ package com.mini_pos.dao.ui;
 
 import java.awt.Image;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -82,11 +84,9 @@ public class AccountSetting extends javax.swing.JFrame {
 	public void valueSelect() {
 		this.tblAccounts.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent event) {
-				// do some actions here, for example
-				// print first column value from selected row
-				if (!event.getValueIsAdjusting()) {// getValueIsAdjusting() is true while the selection is still
-//														// changing, so skipping when true avoids weird duplicate
-//														// selections.
+
+				if (!event.getValueIsAdjusting()) 
+				{
 					int row = tblAccounts.getSelectedRow();
 					if (row != -1) {
 //						Integer id = (Integer) tblAccounts.getValueAt(row, 0);
@@ -118,7 +118,8 @@ public class AccountSetting extends javax.swing.JFrame {
 	void LoadallItemsData() {
 		List<Users> users = this.userService.getAllUsers();
 		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
-		for (Users user : users) {
+		for (Users user : users) 
+		{
 			Object[] row = new Object[5];
 			
 			row[0] = user.username();
@@ -129,10 +130,14 @@ public class AccountSetting extends javax.swing.JFrame {
 			model.addRow(row);
 		}
 	}
+	
+	
 
 	void reloadAllItems() {
 		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
 		model.setRowCount(0);
+		
+		
 		this.LoadallItemsData();
 	}
 
@@ -143,6 +148,7 @@ public class AccountSetting extends javax.swing.JFrame {
 	{
 		String username = this.txtUsername.getText();
 		String password = new String(txtPassword.getPassword());
+		String rePassword = new String(txtrepassword.getPassword());
 		String roleStr = (String) this.comAccountType.getSelectedItem();
 		
 		Role role = Role.valueOf(roleStr.toUpperCase());
@@ -150,81 +156,150 @@ public class AccountSetting extends javax.swing.JFrame {
 		Users users = new Users(0, username, password, role, true, null);
 		
 		try {
-			this.userService.registerUser(users);
-			JOptionPane.showMessageDialog(this, "Items Save Successfully");// for to show popup message
-			this.reloadAllItems();
-			this.clearItemsInput();
 			
-		} catch (Exception e) {
+			if(username.trim().isEmpty() | password.trim().isEmpty()) 
+			{
+				JOptionPane.showMessageDialog(this, "Please Input Username and Password!");
+			}
+			else if(!password.trim().equals(rePassword.trim()))
+			{
+				JOptionPane.showMessageDialog(this, "Please try again to match Password!");
+			}
+			else 
+			{
+				this.userService.registerUser(users);
+				JOptionPane.showMessageDialog(this, "User Save Successfully");// for to show popup message
+				this.reloadAllItems();
+				this.clearItemsInput();
+			}
+					
+		} 
+		catch (Exception e) 
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Failed to save user");
+			JOptionPane.showMessageDialog(this, "UserName Already Exist");
 		}
 
 	}
 
 	private void deleteItems() {
-		int row = tblAccounts.getSelectedRow();
-		if (row != -1) {
+		try {
+			int row = tblAccounts.getSelectedRow();
+			if (row == -1 |  txtUsername.getText().trim().isEmpty()) 
+			{
+				JOptionPane.showMessageDialog(this, "Please Input Username that u want to Delete!");
+			} 
+			
+			String username = (String) tblAccounts.getValueAt(row, 0);
+	        txtUsername.setText(username);        
 
-			String username = (String) tblAccounts.getValueAt(row, 1);
-			txtUsername.setText(username);
-
-			int result = JOptionPane.showConfirmDialog(this, "Confirm that you want to Delete item_code " + username,
-					"Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-			if (result == JOptionPane.YES_OPTION) {
-				// user clicked YES
-				this.userService.deleteaAccWithUsername(username);
-				this.reloadAllItems();
-			} else {
-				// user clicked NO or closed
-				System.out.println("Delete canceled");
-			}
-			this.clearItemsInput();
+	        // ✅ Block master admin account
+	        if (username.equalsIgnoreCase("Admin") ) 
+	        {
+	            JOptionPane.showMessageDialog(this, "This account is protected and cannot be deleted!");
+	            return;
+	        }
+	        
+	        int result = JOptionPane.showConfirmDialog(
+	                this,
+	                "Confirm that you want to delete " + username + "?",
+	                "Delete",
+	                JOptionPane.YES_NO_OPTION,
+	                JOptionPane.WARNING_MESSAGE
+	        );
+	        if (result == JOptionPane.YES_OPTION)
+	        {
+	            userService.deleteaAccWithUsername(username);
+	            JOptionPane.showMessageDialog(this, "User deleted successfully");
+	            reloadAllItems();
+	            clearItemsInput();
+	        }
+			
+		} 
+		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(this, "Failed to Delete user");
+			e.printStackTrace();
 		}
-		
-
-		}
+	}
 
 	
 	private void updateAccount() {
-		String username = this.txtUsername.getText();
-		String password = new String(txtPassword.getPassword()); 
-		
-//		Integer cat_id = Integer.parseInt(this.cboCategory_id.getSelectedItem().toString());// need to change to Integer
+		try 
+		{
+				String username = txtUsername.getText();
+			    String password = new String(txtPassword.getPassword());
+			    String repassword = new String(txtrepassword.getPassword());
+			    String rolestr = (String) comAccountType.getSelectedItem();
+			    
+			    Role role = Role.valueOf(rolestr);
+			    
+			    
+			    
+			    if (password.trim().isEmpty() || username.trim().isEmpty()) 
+			    {
+			        JOptionPane.showMessageDialog(this, "Please enter Username & Password that you want to Update!");
+			        return;
+			    }
+			    if(!password.trim().equals(repassword.trim()))
+				{
+					JOptionPane.showMessageDialog(this, "Please try again to match Password!");
+					return;
+				}
+			   
+			    int result = JOptionPane.showConfirmDialog(this, "Confirm that you want to Update  " ,
+						"Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
-		String rolestr = (String) comAccountType.getSelectedItem();
-		Role role = Role.valueOf(rolestr); 
-		
-		this.userService.updateUser(username, password, role);
-		
-
-		this.reloadAllItems();
-		JOptionPane.showMessageDialog(this, "Account Update Successfully!!");// for to show popup message
-		this.clearItemsInput();
+				if (result == JOptionPane.YES_OPTION) 
+				{
+					
+					userService.updateUser(username, password, role);
+				    reloadAllItems();
+				    JOptionPane.showMessageDialog(this, "Account Updated Successfully!");
+				    clearItemsInput();
+				}
+		    
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(this, "Failed to Update User");
+			e.printStackTrace();
+		}
 	}
 	
 	private void approve() {
-		
-		
-		String username = this.txtUsername.getText();
-		
-		if (username == null || username.trim().isEmpty()) 
+		try 
 		{
-		    JOptionPane.showMessageDialog(this, "Please select a user first!");
-		    return;
-		}
-		else
+			String username = this.txtUsername.getText();
+
+			if (username == null || username.trim().isEmpty()) 
+			{
+				JOptionPane.showMessageDialog(this, "Please select a user first!");
+				return;
+			}
+
+			boolean success = userService.UserApproved(username);
+
+			if (!success) 
+			{
+				clearItemsInput();
+				JOptionPane.showMessageDialog(this, "This user is already approved!");
+				return;
+			}
+
+			reloadAllItems();
+			JOptionPane.showMessageDialog(this, "Account Approved Successfully!!");
+			clearItemsInput();
+		} 
+		catch (Exception e) 
 		{
-			this.userService.approveUser(true, username);
-			this.reloadAllItems();
-			JOptionPane.showMessageDialog(this, "Account Approve Successfully!!");// for to show popup message
-			this.clearItemsInput();
+			clearItemsInput();
+			JOptionPane.showMessageDialog(this, "User Already Approve", "Warnning", JOptionPane.CLOSED_OPTION);
+			e.printStackTrace();
 		}
-		
-		
 	}
+	
 //
 	void clearItemsInput()
 	{
@@ -264,6 +339,10 @@ public class AccountSetting extends javax.swing.JFrame {
         btnApproved = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
         pnlAcctable = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblAccounts = new javax.swing.JTable();
@@ -340,6 +419,14 @@ public class AccountSetting extends javax.swing.JFrame {
             }
         });
 
+        jLabel3.setText("Update Password and Account Type");
+
+        jLabel4.setText("Create New Account");
+
+        jLabel5.setText("Delete Account");
+
+        jLabel6.setText("Approve Register Accounts");
+
         javax.swing.GroupLayout pnlinputdataLayout = new javax.swing.GroupLayout(pnlinputdata);
         pnlinputdata.setLayout(pnlinputdataLayout);
         pnlinputdataLayout.setHorizontalGroup(
@@ -347,27 +434,37 @@ public class AccountSetting extends javax.swing.JFrame {
             .addGroup(pnlinputdataLayout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblusername, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(56, 56, 56)
-                .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlinputdataLayout.createSequentialGroup()
-                        .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtPassword)
-                            .addComponent(txtUsername)
-                            .addComponent(txtrepassword, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lbleyeicon1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lbleyeicon, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(comAccountType, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(btnDelete, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnApproved, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
-                        .addComponent(btnCreateAccount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(lblusername, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(71, 71, 71)
+                        .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(pnlinputdataLayout.createSequentialGroup()
+                                .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtPassword)
+                                    .addComponent(txtUsername)
+                                    .addComponent(txtrepassword, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lbleyeicon1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lbleyeicon, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(comAccountType, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(pnlinputdataLayout.createSequentialGroup()
+                        .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(40, 40, 40)
+                        .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnCreateAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnApproved, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(52, Short.MAX_VALUE))
         );
         pnlinputdataLayout.setVerticalGroup(
@@ -394,15 +491,23 @@ public class AccountSetting extends javax.swing.JFrame {
                             .addComponent(jLabel1)
                             .addComponent(comAccountType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(lbleyeicon, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(btnCreateAccount)
+                .addGap(29, 29, 29)
+                .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnCreateAccount)
+                    .addComponent(jLabel4))
+                .addGap(29, 29, 29)
+                .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(btnUpdate))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnDelete)
+                    .addComponent(jLabel5))
                 .addGap(26, 26, 26)
-                .addComponent(btnUpdate)
-                .addGap(26, 26, 26)
-                .addComponent(btnDelete)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                .addComponent(btnApproved)
-                .addGap(75, 75, 75))
+                .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnApproved)
+                    .addComponent(jLabel6))
+                .addGap(70, 70, 70))
         );
 
         javax.swing.GroupLayout pnlAccSettingLayout = new javax.swing.GroupLayout(pnlAccSetting);
@@ -524,7 +629,7 @@ public class AccountSetting extends javax.swing.JFrame {
             pnlAcctableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlAcctableLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 857, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 842, Short.MAX_VALUE)
                 .addContainerGap())
         );
         pnlAcctableLayout.setVerticalGroup(
@@ -578,6 +683,7 @@ public class AccountSetting extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCreateAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateAccountActionPerformed
+    	
         this.addItems();
     }//GEN-LAST:event_btnCreateAccountActionPerformed
 
@@ -647,6 +753,10 @@ public class AccountSetting extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> comAccountType;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblAccountSetting;
     private javax.swing.JLabel lblPassword;

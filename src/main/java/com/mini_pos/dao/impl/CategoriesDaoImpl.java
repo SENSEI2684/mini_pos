@@ -1,6 +1,7 @@
 package com.mini_pos.dao.impl;
 
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -18,7 +19,8 @@ public class CategoriesDaoImpl extends BaseDao implements CategoriesDao{
 	@Override
 	public List<Categories> getAllCategories() {
 		List<Categories> cates = new ArrayList<Categories>();
-		try(Statement stmt = this.getconnection().createStatement()) {
+		try(Connection con = getConnection();
+	            var stmt = con.createStatement()) {
 			String sql = "Select * from categories";
 			ResultSet rs = stmt.executeQuery(sql);
 			
@@ -38,8 +40,9 @@ public class CategoriesDaoImpl extends BaseDao implements CategoriesDao{
 
 	@Override
 	public boolean saveCategories(Categories cate) {
-		String str = "insert into categories (category_name) values(?);";
-		try(PreparedStatement stmt = this.getconnection().prepareStatement(str)){
+		String sql = "insert into categories (category_name) values(?);";
+		try(Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)){
 			
 			
 			stmt.setString(1, cate.category_name());
@@ -57,8 +60,9 @@ public class CategoriesDaoImpl extends BaseDao implements CategoriesDao{
 
 	@Override
 	public boolean updateItems(Integer id, String name) {
-		String str =  "Update categories set category_name = ? where id = ?";
-		try(PreparedStatement stmt = this.getconnection().prepareStatement(str)){
+		String sql =  "Update categories set category_name = ? where id = ?";
+		try(Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)){
 			
 			stmt.setString(1, name);
 			stmt.setInt(2, id);

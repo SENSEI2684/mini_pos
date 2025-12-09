@@ -26,6 +26,7 @@ import javax.swing.SwingConstants;
 
 import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.Items;
+import com.mini_pos.dao.etinity.ItemsWithCategories;
 import com.mini_pos.dao.service.CartService;
 import com.mini_pos.dao.service.CartServiceImpl;
 import com.mini_pos.helper_function.ImageCache;

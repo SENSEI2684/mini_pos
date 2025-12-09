@@ -165,34 +165,49 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="lblusername" alignment="0" min="-2" pref="104" max="-2" attributes="0"/>
-                              <Component id="lblPassword" alignment="0" min="-2" pref="104" max="-2" attributes="0"/>
-                              <Component id="jLabel2" alignment="0" min="-2" pref="104" max="-2" attributes="0"/>
-                              <Component id="jLabel1" alignment="0" min="-2" pref="79" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace min="-2" pref="56" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                      <Component id="txtPassword" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="txtUsername" alignment="0" max="32767" attributes="0"/>
-                                      <Component id="txtrepassword" alignment="0" pref="229" max="32767" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
+                              <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="lbleyeicon1" alignment="0" min="-2" pref="49" max="-2" attributes="0"/>
-                                      <Component id="lbleyeicon" alignment="0" min="-2" pref="49" max="-2" attributes="0"/>
+                                      <Component id="lblusername" alignment="0" min="-2" pref="104" max="-2" attributes="0"/>
+                                      <Component id="lblPassword" alignment="0" min="-2" pref="104" max="-2" attributes="0"/>
+                                      <Component id="jLabel2" alignment="0" min="-2" pref="104" max="-2" attributes="0"/>
+                                      <Component id="jLabel1" alignment="0" min="-2" pref="79" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="-2" pref="71" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                              <Component id="txtPassword" alignment="0" max="32767" attributes="0"/>
+                                              <Component id="txtUsername" alignment="0" max="32767" attributes="0"/>
+                                              <Component id="txtrepassword" alignment="0" pref="229" max="32767" attributes="0"/>
+                                          </Group>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="lbleyeicon1" alignment="0" min="-2" pref="49" max="-2" attributes="0"/>
+                                              <Component id="lbleyeicon" alignment="0" min="-2" pref="49" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                      <Component id="comAccountType" alignment="0" min="-2" pref="139" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <Component id="comAccountType" alignment="0" min="-2" pref="139" max="-2" attributes="0"/>
-                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="btnDelete" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="btnUpdate" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="btnApproved" alignment="0" pref="179" max="32767" attributes="0"/>
-                                  <Component id="btnCreateAccount" alignment="0" max="32767" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jLabel3" min="-2" pref="198" max="-2" attributes="0"/>
+                                      <Component id="jLabel4" min="-2" pref="138" max="-2" attributes="0"/>
+                                      <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                          <Component id="jLabel6" alignment="0" max="32767" attributes="0"/>
+                                          <Component id="jLabel5" alignment="0" max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                                  <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="btnCreateAccount" min="-2" pref="141" max="-2" attributes="0"/>
+                                      <Component id="btnUpdate" min="-2" pref="141" max="-2" attributes="0"/>
+                                      <Component id="btnDelete" alignment="0" min="-2" pref="141" max="-2" attributes="0"/>
+                                      <Component id="btnApproved" alignment="0" min="-2" pref="141" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
                           </Group>
                           <EmptySpace pref="52" max="32767" attributes="0"/>
@@ -230,15 +245,27 @@
                               </Group>
                               <Component id="lbleyeicon" alignment="0" min="-2" pref="22" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Component id="btnCreateAccount" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="btnCreateAccount" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="btnUpdate" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace pref="29" max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="btnDelete" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                          <Component id="btnUpdate" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                          <Component id="btnDelete" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="28" max="32767" attributes="0"/>
-                          <Component id="btnApproved" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="75" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="btnApproved" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -323,6 +350,26 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDeleteActionPerformed"/>
                   </Events>
                 </Component>
+                <Component class="javax.swing.JLabel" name="jLabel3">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Update Password and Account Type"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel4">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Create New Account"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel5">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Delete Account"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel6">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Approve Register Accounts"/>
+                  </Properties>
+                </Component>
               </SubComponents>
             </Container>
           </SubComponents>
@@ -346,7 +393,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="857" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="842" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>

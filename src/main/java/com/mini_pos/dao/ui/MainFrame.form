@@ -291,14 +291,21 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Stores"/>
           </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="mnu_Item_storage">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Item Storage"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnu_Item_storageActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="mnuMainSetting">
           <Properties>
             <Property name="text" type="java.lang.String" value="Setting"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mnuMainSettingActionPerformed"/>
-          </Events>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="mnuAccountSetting">
               <Properties>

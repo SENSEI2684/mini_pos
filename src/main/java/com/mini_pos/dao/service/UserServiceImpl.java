@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService{
 		
 		if(isExisting  )
 		{
-			throw new Exception("User already existed");
+			throw new Exception("UserName already existed");
 		}
 		else
 		{
@@ -34,36 +34,34 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public boolean loginUser(String username, String password ) throws Exception{
-		Boolean loginOK = this.userdao.loginUser(username, password);
-		
-		
-		
-		
+		boolean loginOK = this.userdao.loginUser(username, password);
+	
 		if(!loginOK)
 		{
 			System.out.println(username + password);
-			   throw new Exception("Invalid username/password OR user not approved by admin");
+			throw new Exception("Invalid username/password OR user not approved by admin");
 		}
 		else {
 			return loginOK;
 		}
 	}
 	
-//	@Override
-//	public boolean loginUser(String username, String password) throws Exception {
-//	    
-//	    Users user = this.userdao.loginUser(username, password);
-//
-//	    if (user == null) {
-//	        throw new Exception("Invalid Username or Password");
-//	    }
-//
-//	    if (!user.isApproved()) {  // <- use isApproved() for class
-//	        throw new Exception("User not approved by Admin");
-//	    }
-//
-//	    return true;
-//	}
+
+	@Override
+	public boolean UserApproved( String username) throws Exception {
+		 boolean alreadyApproved = userdao.isUserApproved(username);
+
+		    if (alreadyApproved) 
+		    {
+		    	throw new Exception("User Already Approve");
+		    }
+		    else
+		    {
+		    	 return userdao.approve(true, username);
+		    }
+		   
+		}
+
 
 
 
@@ -98,11 +96,6 @@ public class UserServiceImpl implements UserService{
 		
 	}
 
-	@Override
-	public boolean approveUser(Boolean p, String username) {
-		
-		return userdao.approveUser(p, username);
-	}
 
 
 
