@@ -108,10 +108,12 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 			ResultSet res = stmt.executeQuery();
 	
 			return res.next();
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return false;}
+		return false;
+		}
 	
 	@Override
 	 public  Users getUserByUsernameAndPassword(String username, String password) {

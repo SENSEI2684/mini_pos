@@ -34,10 +34,13 @@ import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.service.CartService;
 import com.mini_pos.dao.service.CartServiceImpl;
+import com.mini_pos.dao.service.CategoriesService;
+import com.mini_pos.dao.service.CategoriesServiceImpl;
 import com.mini_pos.dao.service.ItemsService;
 import com.mini_pos.dao.service.ItemsServiceImpl;
 import com.mini_pos.dao.service.UserService;
 import com.mini_pos.dao.service.UserServiceImpl;
+import com.mini_pos.helper_function.DaoException;
 import com.mini_pos.helper_function.ItemCard;
 import com.mini_pos.helper_function.PasswordHide;
 import com.mini_pos.helper_function.Session;
@@ -77,6 +80,7 @@ public class MainFrame extends javax.swing.JFrame {
 	// DAO to load items
 	private ItemsService itemService = new ItemsServiceImpl();
 	private CartService cartService = CartServiceImpl.getInstance();
+	private CategoriesService catService = new CategoriesServiceImpl();
 	private UserService userService = new UserServiceImpl();
 	private Session session = Session.getInstance();
 	NumberFormat formatter = NumberFormat.getInstance();
@@ -100,6 +104,7 @@ public class MainFrame extends javax.swing.JFrame {
 //        this.loadCartTable();
 //        this.valueSelect();
         setupUI();
+        reloadCategoriesComboBox();
     }
  
    private void setupUI() {
@@ -345,19 +350,28 @@ public class MainFrame extends javax.swing.JFrame {
     // here this code is same as the above code only create obj = total items count, different things is obj are not create when we make next,previous
     // all objs for items are created since the program run 
     private void preloadItemCards() {
-         allItems = itemService.getAllItems(); // we make allItems as parent List, that list never change the same
-        filteredItems = new ArrayList<>(allItems); // and filteredItems list will change on search function
+    	
+         try {
+			allItems = itemService.getAllItems();// we make allItems as parent List, that list never change the same		
+	        filteredItems = new ArrayList<>(allItems); // and filteredItems list will change on search function
 
-        for (Items item : allItems) 
-        {
-            if (!cardCache.containsKey(item.id())) 
-            {
+	        for (Items item : allItems) 
+	        {
+	            if (!cardCache.containsKey(item.id())) 
+	            {
 
-                ItemCard card = new ItemCard(item, () -> loadCartTable());
+	                ItemCard card = new ItemCard(item, () -> loadCartTable());
 
-                cardCache.put(item.id(), card);
-            }
-        }
+	                cardCache.put(item.id(), card);
+	            }
+	        }
+		 } catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
+		 } catch (Exception e) {
+	          JOptionPane.showMessageDialog(this, "Unexpected error while loading items!", "Error", JOptionPane.ERROR_MESSAGE);
+	          e.printStackTrace();
+	        }
 //        loadItemsToPanel();
     }
     
@@ -718,6 +732,24 @@ public class MainFrame extends javax.swing.JFrame {
 		}
 
 	 
+	 
+	 public void reloadCategoriesComboBox() {
+		    comCategories.removeAllItems();
+		    comCategories.addItem(new Categories(0, "None"));
+		    try {
+		        List<Categories> categories = catService.getAllCategories();
+		        for (Categories cat : categories) {
+		        	comCategories.addItem(cat);
+		        }
+		    } catch (DaoException de) {
+		        JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+		        de.printStackTrace();
+		    } catch (Exception e) {
+		        JOptionPane.showMessageDialog(this, "Unexpected error while loading Categories!", "Error", JOptionPane.ERROR_MESSAGE);
+		        e.printStackTrace();
+		    }
+		}
+	 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	 
 //
@@ -1008,7 +1040,6 @@ public class MainFrame extends javax.swing.JFrame {
         lblCategories.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblCategories.setText("Categories :");
 
-        comCategories.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "None", "Phone", "Laptop", "HeadPhone" }));
         comCategories.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comCategoriesActionPerformed(evt);
@@ -1384,9 +1415,10 @@ public class MainFrame extends javax.swing.JFrame {
     	this.outreceip();
     }//GEN-LAST:event_btnShowReceipActionPerformed
 
-    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {                                         
        this.resetCart();
-    }//GEN-LAST:event_btnResetActionPerformed
+       reloadCategoriesComboBox();
+    }                                           
 
     private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
         this.removeItems();
@@ -1592,7 +1624,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnShowAll;
     private javax.swing.JButton btnShowReceip;
     private javax.swing.JButton btnlogin;
-    private javax.swing.JComboBox<String> comCategories;
+    private javax.swing.JComboBox<Categories> comCategories;
     private javax.swing.JDialog diaRegistration;
     private javax.swing.JDialog dialogin;
     private javax.swing.JDialog diareceip;

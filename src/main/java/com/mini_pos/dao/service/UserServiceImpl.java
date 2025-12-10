@@ -7,8 +7,10 @@ import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.impl.UserDaoImpl;
 
+
 public class UserServiceImpl implements UserService{
 
+		
 	UserDao userdao = new UserDaoImpl();
 	
 	public UserServiceImpl() {

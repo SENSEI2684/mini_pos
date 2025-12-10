@@ -56,7 +56,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	}
 	
 	@Override
-	public List<ItemsWithCategories> getAllItemsWithCategoryName() {
+	public List<ItemsWithCategories> getAllItemsAndCategoryName() {
 		List<ItemsWithCategories> itemWCat = new ArrayList<>();
 		String sql = "SELECT i.id ,i.item_code, i.name, i.price, i.quantity, i.photo, c.category_name, i.created_at FROM items i JOIN categories c on i.category_id = c.id ORDER BY id ;";
 		try (Connection con = getConnection();
@@ -242,7 +242,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	}
 
 	@Override
-	public List<ItemsWithCategories> getItemsBaseOnCategoryID(Integer ids) {
+	public List<ItemsWithCategories> getAllItemsAndCategoryNameByCat_Id(Integer ids) {
 		List<ItemsWithCategories> itemWCat = new ArrayList<>();
 		String sql = "select i.*, c.category_name from items i join categories c on i.category_id = c.id where i.category_id = ?;";
 		try (Connection con = getConnection();
@@ -354,7 +354,27 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 
         return 0;
     }
+	
+	@Override
+	public boolean isItemExist(String item_code,String name) { // this code is need for (Register)Business Logic Request
+		String sql = "SELECT COUNT(*) FROM items WHERE item_code = ? AND name = ?";
+		System.out.println("SQL " + sql);
+		try (Connection con = getConnection();
+	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk to sql
 
+			stmt.setString(1, item_code);
+			stmt.setString(2, name);	
+			ResultSet res = stmt.executeQuery();
+	
+			if (res.next()) {
+	            int count = res.getInt(1);  // get the COUNT(*) value
+	            return count > 0;           // true if name exists for another id
+	        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+		}
 	
 
 	public static void main(String[] args) {
@@ -380,8 +400,8 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 //		List<Movie> movies = moviedao.getAllMovie();
 //		movies.forEach(System.out::println);
 
-		List<ItemsWithCategories> items = itemsdao.getItemsBaseOnCategoryID(3);
-		items.forEach(System.out::println);
+//		List<ItemsWithCategories> items = itemsdao.getItemsBaseOnCategoryID(3);
+//		items.forEach(System.out::println);
 
 	}
 
