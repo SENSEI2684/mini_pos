@@ -5,6 +5,8 @@ import java.util.List;
 import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.CartWithItems;
 import com.mini_pos.dao.impl.CartDaoImpl;
+import com.mini_pos.helper_function.DaoException;
+import com.mini_pos.helper_function.ValidationException;
 import com.mini_pos.dao.CartDao;
 
 public class CartServiceImpl implements CartService {
@@ -23,26 +25,54 @@ public class CartServiceImpl implements CartService {
 	CartDao cartdao = new CartDaoImpl();
 
 	@Override
-	public boolean resetCart() {
-		return this.cartdao.resetCart();
+	public void resetCart() throws DaoException {
+		
+		 try {
+		         cartdao.resetCart();
+		    } catch (Exception e) {
+		        throw new DaoException("Failed to reset Cart Items from database", e);
+		    }
+		
 	}
 
 	@Override
-	public List<CartWithItems> showcartdata() {
+	public List<CartWithItems> showcartdata() throws DaoException {
 
-		return cartdao.selectCartWithJoinItem();
+		 try {
+		        return cartdao.selectCartWithJoinItem();
+		    } catch (Exception e) {
+		        throw new DaoException("Failed to fetch Cart Items from database", e);
+		    }
+		
 	}
 
 	@Override
 	public boolean addToCart(Cart cart) {
-
+		
 		return this.cartdao.addtoCart(cart);
 	}
 
 	@Override
-	public boolean deleteItemsByCartItem_Id(Integer id) {
+	public void deleteItemsByCartItem_Id(Integer id)throws ValidationException, DaoException {
 		
-		return this.cartdao.deleteItemsByCartItem_Id(id);
+		if(id == null || id < 0) {
+			throw new ValidationException("Please Select Items!");
+		}
+		try {
+			boolean deleteOk = cartdao.deleteItemsByCartItem_Id(id);
+			if(!deleteOk) {
+				throw new DaoException("Failed to delete cart row .", null);
+			}
+		} catch (Exception e) {
+	        throw new DaoException("Failed to delete Cart row from database", e);
+	    }
+		
 	}
+
+	
+
+
+
+	
 
 }

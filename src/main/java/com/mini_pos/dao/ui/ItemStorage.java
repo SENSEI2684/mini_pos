@@ -195,7 +195,6 @@ public class ItemStorage extends javax.swing.JFrame {
 							Integer price = (Integer) tblItems.getValueAt(row, 3);
 							txtPrice.setText(String.valueOf(price));
 
-
 //							String photoPath = (String) tblItems.getValueAt(row, 5);
 //							if (photoPath != null && !photoPath.isEmpty()) {
 //
@@ -206,14 +205,14 @@ public class ItemStorage extends javax.swing.JFrame {
 
 							String photoFileName = (String) tblItems.getValueAt(row, 4);
 							if (photoFileName != null && !photoFileName.isEmpty()) {
-							    ImageIcon icon = ImageCache.get(photoFileName); // <-- get from cache/project folder
-							    if (icon != null) {
-							        lbl_photo.setIcon(icon);
-							    } else {
-							        lbl_photo.setIcon(null);
-							    }
+								ImageIcon icon = ImageCache.get(photoFileName); // <-- get from cache/project folder
+								if (icon != null) {
+									lbl_photo.setIcon(icon);
+								} else {
+									lbl_photo.setIcon(null);
+								}
 							}
-							
+
 							Object categoryObj = tblItems.getValueAt(row, 5);
 							if (categoryObj != null) {
 								// Iterate through all combo box items
@@ -234,9 +233,7 @@ public class ItemStorage extends javax.swing.JFrame {
 //			     		}
 
 						}
-						System.out.println("Table row" + row);
-					} // this code is for role selected put into constructor bec want to select even
-						// after program start run
+					} 
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -288,7 +285,7 @@ public class ItemStorage extends javax.swing.JFrame {
 		} catch (ValidationException ve) {
 			JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 		} catch (DaoException de) {
-			JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
 			de.printStackTrace();
 		}
 	}
@@ -319,55 +316,48 @@ public class ItemStorage extends javax.swing.JFrame {
 	    } catch (ValidationException ve) {
 	        JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 	    } catch (DaoException de) {
-	        JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
 	        de.printStackTrace();
 	    }
 	}
 
 	private void deleteItems() {
-		
-			int row = tblItems.getSelectedRow();
-			
-			// 1️⃣ Check if user has selected a row
-			if (row == -1 |  txtItem_code.getText().trim().isEmpty()) 
-			{
-				JOptionPane.showMessageDialog(this, "Please select an item to delete!", "Warning", JOptionPane.WARNING_MESSAGE);
-		        return;
-			} 
-			
-		
-		    String item_code;
-		    Object codeValue = tblItems.getValueAt(row, 1);
-		    if (codeValue == null || String.valueOf(codeValue).trim().isEmpty()) {
-		        JOptionPane.showMessageDialog(this, "Item Code is empty!", "Warning", JOptionPane.WARNING_MESSAGE);
-		        return;
-		    }
-		    item_code = String.valueOf(codeValue);
-		    
-		    
-		    
-	        int result = JOptionPane.showConfirmDialog(
-	                this,
-	                "Confirm that you want to delete " + item_code + "?",
-	                "Delete",
-	                JOptionPane.YES_NO_OPTION,
-	                JOptionPane.WARNING_MESSAGE
-	        );
-	        
-	    
-	        if (result == JOptionPane.YES_OPTION) {
-	        try {
-	            itemsService.deleteItemsByItemCode(item_code);
-	            JOptionPane.showMessageDialog(this, "Item deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-	            reloadAllItems();
-	            clearItemsInput();
-	        } catch (ValidationException ve) {
-	            JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
-	        } catch (DaoException de) {
-	            JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	            de.printStackTrace();
-	        }
-	    }
+
+		int row = tblItems.getSelectedRow();
+
+		if (row == -1 | txtItem_code.getText().trim().isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Please select an item_code to delete!", "Warning",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		String item_code = txtItem_code.getText();
+//		Object codeValue = tblItems.getValueAt(row, 1);
+//		if (codeValue == null || String.valueOf(codeValue).trim().isEmpty()) {
+//			JOptionPane.showMessageDialog(this, "Item Code is empty!", "Warning", JOptionPane.WARNING_MESSAGE);
+//			return;
+//		}
+//		item_code = String.valueOf(codeValue);
+
+		try {
+			int result = JOptionPane.showConfirmDialog(this, "Confirm that you want to delete " + item_code + "?",
+					"Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+			if (result == JOptionPane.YES_OPTION) {
+
+				itemsService.deleteItemsByItemCode(item_code);
+				JOptionPane.showMessageDialog(this, "Item deleted successfully!", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
+				reloadAllItems();
+				clearItemsInput();
+			}
+		} catch (ValidationException ve) {
+			JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+		} catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
+		}
+
 	}
 	
 	
@@ -406,7 +396,7 @@ public class ItemStorage extends javax.swing.JFrame {
 		}catch (ValidationException ve) {
 	        JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 	    } catch (DaoException de) {
-	        JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
 	        de.printStackTrace();
 	    }
 	}
@@ -437,7 +427,7 @@ public class ItemStorage extends javax.swing.JFrame {
 	    } catch (ValidationException ve) {
 	        JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 	    } catch (DaoException de) {
-	        JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
 	        de.printStackTrace();
 	    }
 	}
@@ -462,7 +452,7 @@ public class ItemStorage extends javax.swing.JFrame {
     
     
  //----------------------------------------------------------------------------------------------------------------------------------------------------------
-   
+   //Search Function********************************************
    private void searchFunction() {
 	   
 	   	int id = cboCategory.getSelectedIndex();
@@ -502,7 +492,7 @@ public class ItemStorage extends javax.swing.JFrame {
 	    } catch (ValidationException ve) {
 	        JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 	    } catch (DaoException de) {
-	        JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
 	        de.printStackTrace();
 	    }
 	   
@@ -548,8 +538,10 @@ public class ItemStorage extends javax.swing.JFrame {
 
         setBackground(new java.awt.Color(255, 255, 255));
 
+        pnlRoot.setBackground(new java.awt.Color(153, 153, 153));
         pnlRoot.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(250, 250, 250)));
 
+        pnlItemControl.setBackground(new java.awt.Color(153, 153, 153));
         pnlItemControl.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 230, 230), 3));
 
         lblName.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -662,7 +654,7 @@ public class ItemStorage extends javax.swing.JFrame {
                         .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btn_Search, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnAdd1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -706,8 +698,8 @@ public class ItemStorage extends javax.swing.JFrame {
                 .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlItemControlLayout.createSequentialGroup()
                         .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btn_reset)
-                            .addComponent(btn_upload))
+                            .addComponent(btn_upload)
+                            .addComponent(btn_reset))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(pnlItemControlLayout.createSequentialGroup()
                         .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -718,7 +710,9 @@ public class ItemStorage extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        pnlCategotyAll.setBackground(new java.awt.Color(153, 153, 153));
         pnlCategotyAll.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 230, 230), 3));
+        pnlCategotyAll.setForeground(new java.awt.Color(153, 153, 153));
 
         tbl_Category.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -775,7 +769,7 @@ public class ItemStorage extends javax.swing.JFrame {
                     .addComponent(btn_Add_Category, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
                     .addComponent(txt_Category_Name)
                     .addComponent(btn_Update_Category, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         pnlCategotyAllLayout.setVerticalGroup(
@@ -793,10 +787,43 @@ public class ItemStorage extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        tblItems.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        jScrollPane1.setForeground(new java.awt.Color(153, 153, 153));
+
+        tblItems.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 3));
         tblItems.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
                 "Id", "Item_code", "Name", "Price", "Photo", "Category", "Created_at"
@@ -840,12 +867,13 @@ public class ItemStorage extends javax.swing.JFrame {
         pnlRootLayout.setHorizontalGroup(
             pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlRootLayout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1302, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 365, Short.MAX_VALUE))
-            .addGroup(pnlRootLayout.createSequentialGroup()
                 .addComponent(pnlItemControl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pnlCategotyAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(pnlRootLayout.createSequentialGroup()
+                .addGap(41, 41, 41)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1302, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlRootLayout.setVerticalGroup(
             pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -854,8 +882,8 @@ public class ItemStorage extends javax.swing.JFrame {
                     .addComponent(pnlItemControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pnlCategotyAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 492, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -871,43 +899,12 @@ public class ItemStorage extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pnlRoot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addComponent(pnlRoot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void txtNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNameActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtNameActionPerformed
-
-    private void txtPriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPriceActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtPriceActionPerformed
-
-    private void cboCategoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboCategoryActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cboCategoryActionPerformed
-
-    private void btnAdd1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd1ActionPerformed
-        // TODO add your handling code here:
-    	this.addItems();
-    }//GEN-LAST:event_btnAdd1ActionPerformed
-
-    private void btnUpdate1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdate1ActionPerformed
-       this.updateItems();
-        
-    }//GEN-LAST:event_btnUpdate1ActionPerformed
-
-    private void txtItem_codeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtItem_codeActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtItem_codeActionPerformed
-
-    private void btnDelete1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelete1ActionPerformed
-        this.deleteItems();
-        
-    }//GEN-LAST:event_btnDelete1ActionPerformed
 
     private void btn_Add_CategoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_Add_CategoryActionPerformed
         this.addCategory();
@@ -917,14 +914,46 @@ public class ItemStorage extends javax.swing.JFrame {
         this.updateCategory();
     }//GEN-LAST:event_btn_Update_CategoryActionPerformed
 
+    private void btn_SearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SearchActionPerformed
+        this.searchFunction();
+    }//GEN-LAST:event_btn_SearchActionPerformed
+
     private void btn_resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_resetActionPerformed
-       this.clearItemsInput();
-       loadCategories();
+        this.clearItemsInput();
+        loadCategories();
     }//GEN-LAST:event_btn_resetActionPerformed
 
-    private void btn_SearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SearchActionPerformed
-      this.searchFunction();
-    }//GEN-LAST:event_btn_SearchActionPerformed
+
+    private void btnDelete1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelete1ActionPerformed
+        this.deleteItems();
+
+    }//GEN-LAST:event_btnDelete1ActionPerformed
+
+    private void btnUpdate1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdate1ActionPerformed
+        this.updateItems();
+
+    }//GEN-LAST:event_btnUpdate1ActionPerformed
+
+    private void btnAdd1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd1ActionPerformed
+        // TODO add your handling code here:
+        this.addItems();
+    }//GEN-LAST:event_btnAdd1ActionPerformed
+
+    private void cboCategoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboCategoryActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cboCategoryActionPerformed
+
+    private void txtPriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPriceActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtPriceActionPerformed
+
+    private void txtItem_codeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtItem_codeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtItem_codeActionPerformed
+
+    private void txtNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNameActionPerformed
 
     private void btn_uploadActionPerformed(java.awt.event.ActionEvent evt) {                                           
     	 JFileChooser chooser = new JFileChooser();

@@ -44,6 +44,7 @@ import com.mini_pos.helper_function.DaoException;
 import com.mini_pos.helper_function.ItemCard;
 import com.mini_pos.helper_function.PasswordHide;
 import com.mini_pos.helper_function.Session;
+import com.mini_pos.helper_function.ValidationException;
 
 /**
  *
@@ -91,6 +92,7 @@ public class MainFrame extends javax.swing.JFrame {
 	private Map<Integer, ItemCard> cardCache = new HashMap<>();
 	
 	AccountSetting accountsetting = new AccountSetting();
+	
 	ItemStorage itemStorage = new ItemStorage();
 	
     public MainFrame() {
@@ -143,87 +145,79 @@ public class MainFrame extends javax.swing.JFrame {
     }
     
  //login function ***************************************************************
-    private void login() { // login function when click login button take input String from textbox and check with UserDAO loginUser
-		try 
-    	{
-    		String username = this.txtusername.getText();
-    		String password = this.txtpassword.getText();
-    		boolean loginResult = this.userService.loginUser(username, password);
-    		
-    		System.out.println("LoginResult " + loginResult +username + " " + password);
-    		if(loginResult)
-    		{	
-    			
-    			Users user = userService.getUserByUsernameAndPassword(username, password); // write this method
-    			
-    			if (user == null) 
-    			{
-    			    System.out.println("Login failed!");
-    			} 
-    			else 
-    			{
-    			    session.getInstance().setUser(user);   // save to session
-    			    System.out.println("Saved to session: " + session.getInstance().getUsername());
-    			}
-    		              
-    	
-    			
-    			 this.loginSucceeded = true;
-    			this.dialogin.setVisible(false);
-    			
-    			totalItems = itemService.getTotalItems();// this code need to write in login function bec after login success it will work with pagination next and previous button
-    		    this.loadItemsToPanel(); //Main UI code 
-    		    this.updatePageLabel();
-    		    this.resetCart();
-    		}
-    		else
-    		{
-    			JOptionPane.showMessageDialog(this, "IN UI Invalid User", "Warnning", JOptionPane.CLOSED_OPTION);
-    		}
-    	}
-    	catch(Exception e)
-    	{
-    		JOptionPane.showMessageDialog(this, "Invalid User", "Warnning", JOptionPane.CLOSED_OPTION);
-    		e.printStackTrace();
-    	}
-	}
+    private void login() {
+        String username = this.txtusername.getText();
+        String password = this.txtpassword.getText();
+
+        try {
+        
+            boolean loginResult = this.userService.loginUser(username, password);
+
+            if (loginResult) {
+                
+                Users user = userService.getUserByUsernameAndPassword(username, password);
+                session.getInstance().setUser(user);   // save to session
+
+                System.out.println("Saved to session: " + session.getInstance().getUsername());
+
+           
+                this.loginSucceeded = true;
+                this.dialogin.setVisible(false);
+
+             
+                totalItems = itemService.getTotalItems(); // pagination data
+                this.loadItemsToPanel();
+                this.updatePageLabel();
+                this.resetCart();
+            } 
+            
+        } catch (ValidationException ve) {
+            JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+        } catch (DaoException de) {
+            JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+            de.printStackTrace();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Unexpected error occurred during login!", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
 
  //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
    
     //Registration Function
 	private void registration() {
+
+		String username = txtRegUserName.getText();
+		String password = new String(txtRegPassword.getPassword());
+		String repassword = new String(txtRegRePassword.getPassword());
+
+		Users user = new Users(0, username, password, Role.USER, false, null);
+
 		try {
-			String username = txtRegUserName.getText();
-			String password = new String(txtRegPassword.getPassword());
-			String repassword = new String(txtRegRePassword.getPassword());
-
-			Users user = new Users(0, username, password, Role.USER, false, null);
-
-			if (password.equals(repassword)) 
-			{
+			if (password.equals(repassword)) {
 
 				boolean registrationResult = userService.registerUser(user);
 
-				if (registrationResult) 
-				{
+				if (registrationResult) {
 					JOptionPane.showMessageDialog(this, "Registration Success Wait for Admin Approve", "Success",
 							JOptionPane.CLOSED_OPTION);
 					this.diaRegistration.setVisible(false);
-				} 
-				else
-				{
-					JOptionPane.showMessageDialog(this, "Registration Failed", "Warnning", JOptionPane.CLOSED_OPTION);
 				}
 			}
-			
-			else 
-			{
+
+			else {
 				JOptionPane.showMessageDialog(this, "Password is not correct!", "Warnning", JOptionPane.CLOSED_OPTION);
 			}
-
+		} catch (ValidationException ve) {
+			JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+			ve.printStackTrace();
+		} catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(this, " UserName Already Exist!\n Please Try Another Name", "Warnning", JOptionPane.CLOSED_OPTION);
+			JOptionPane.showMessageDialog(this, "Unexpected error occurred during register!", "Error",
+					JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}
 
@@ -368,7 +362,7 @@ public class MainFrame extends javax.swing.JFrame {
 	            }
 	        }
 		 } catch (DaoException de) {
-			JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
 			de.printStackTrace();
 		 } catch (Exception e) {
 	          JOptionPane.showMessageDialog(this, "Unexpected error while loading items!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -476,29 +470,37 @@ public class MainFrame extends javax.swing.JFrame {
     
     private void loadCartTable() // to add existing sql data on ui table
     {
-    	List<CartWithItems> cartwithItem = this.cartService.showcartdata();
+    	
         DefaultTableModel model = (DefaultTableModel)this.tblCart.getModel();// create table in this method
           
         model.setRowCount(0); // without this code when add new items to cart previous data insert duplicate
-        
-
-        total = 0;
-        
-        for(CartWithItems item : cartwithItem)
-        {
-            Object [] row = new Object[5];
-            row[0] = item.cart().item_id();
-            row[1] = item.item_name();
-            row[2] = formatter.format(item.item_price());
-            row[3] = item.cart().quantity();
-            row[4] = formatter.format(item.total_price());
-         
-           // add all columns in array and
-            model.addRow(row); // put array in table
-            total += item.total_price();   
+        try {
+        	List<CartWithItems> cartwithItem = this.cartService.showcartdata();
+            total = 0;
             
-        }    
-        txtTotalPrice.setText(formatter.format(total)); //this code is for to look number is formattly
+            for(CartWithItems item : cartwithItem)
+            {
+                Object [] row = new Object[5];
+                row[0] = item.cart().item_id();
+                row[1] = item.item_name();
+                row[2] = formatter.format(item.item_price());
+                row[3] = item.cart().quantity();
+                row[4] = formatter.format(item.total_price());
+             
+               // add all columns in array and
+                model.addRow(row); // put array in table
+                total += item.total_price();   
+                
+            }    
+            txtTotalPrice.setText(formatter.format(total)); //this code is for to look number is formattly
+        }catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Unexpected error while loading items to cart table!", "Error",JOptionPane.ERROR_MESSAGE);					
+			e.printStackTrace();
+		}
+        
     }
     
     private void reloadAllItems()
@@ -642,10 +644,21 @@ public class MainFrame extends javax.swing.JFrame {
 		 {
 			 for(int i = selectedRows.length -1; i >= 0; i--) 
 			 {
-				 int row = selectedRows[i];
-				 Integer id =(Integer)tblCart.getValueAt(row, 0);
-				 this.cartService.deleteItemsByCartItem_Id(id);
-				 this.reloadAllItems();
+				 
+				 try {
+					 
+					 int row = selectedRows[i];
+					 Integer id =(Integer)tblCart.getValueAt(row, 0);
+					this.cartService.deleteItemsByCartItem_Id(id);
+					 this.reloadAllItems();
+					 
+				} catch (ValidationException ve) {
+			        JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+			    } catch (DaoException de) {
+			        JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			        de.printStackTrace();
+			    }
+				
 			 }
 		 }
 	    	
@@ -657,7 +670,12 @@ public class MainFrame extends javax.swing.JFrame {
 	 
 	 private void resetCart()
 	 {
-	      this.cartService.resetCart();
+	      try {
+			this.cartService.resetCart();
+		  } catch (DaoException e) {			
+			  JOptionPane.showMessageDialog(this, e.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+				e.printStackTrace();
+		  }
 	       this.txtTotalPrice.setText("0");
 	       this.txtPaid.setText("");
 	       this.txtChange.setText("0");
@@ -665,6 +683,7 @@ public class MainFrame extends javax.swing.JFrame {
 	       
 	       this.txtTotalPrice.setEditable(false);
 	       this.txtChange.setEditable(false);
+	       reloadAllItems();
 	 }
 	 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------

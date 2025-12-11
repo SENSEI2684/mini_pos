@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -22,7 +23,9 @@ import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.service.UserService;
 import com.mini_pos.dao.service.UserServiceImpl;
+import com.mini_pos.helper_function.DaoException;
 import com.mini_pos.helper_function.PasswordHide;
+import com.mini_pos.helper_function.ValidationException;
 
 
 /**
@@ -43,13 +46,15 @@ public class AccountSetting extends javax.swing.JFrame {
 
 	Integer selectedID;
 
-	UserService userService = new UserServiceImpl();
+	 UserService userService = new UserServiceImpl();
 
-	public AccountSetting() {
+	public AccountSetting( ) {
+		
 		initComponents();
 		initPasswordFeatures();
-		reloadAllItems();
+		reloadAllIAccounts();
 		valueSelect();
+		
 	}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -84,29 +89,24 @@ public class AccountSetting extends javax.swing.JFrame {
 	public void valueSelect() {
 		this.tblAccounts.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent event) {
-
-				if (!event.getValueIsAdjusting()) 
-				{
-					int row = tblAccounts.getSelectedRow();
-					if (row != -1) {
-//						Integer id = (Integer) tblAccounts.getValueAt(row, 0);
-//						selectedID = id;
-						String username = (String) tblAccounts.getValueAt(row, 0);
-						txtUsername.setText(username);
-						String password = (String) tblAccounts.getValueAt(row, 1);
-						txtPassword.setText(password);
-//						String rolestr = (String) tblAccounts.getValueAt(row, 2);
-//						comAccountType.setSelectedItem(rolestr);
-						
-						Role role = (Role) tblAccounts.getValueAt(row, 2);
-						comAccountType.setSelectedItem(role.name().toString());
-						
-					
-				
+				try {
+					if (!event.getValueIsAdjusting()) {
+						int row = tblAccounts.getSelectedRow();
+						if (row != -1) {
+//							Integer id = (Integer) tblAccounts.getValueAt(row, 0);
+//							selectedID = id;
+							String username = (String) tblAccounts.getValueAt(row, 0);
+							txtUsername.setText(username);
+							String password = (String) tblAccounts.getValueAt(row, 1);
+							txtPassword.setText(password);
+							Role role = (Role) tblAccounts.getValueAt(row, 2);
+							comAccountType.setSelectedItem(role.name().toString());
+						}
 					}
-//						System.out.println("Table row" + row);
-				} // this code is for role selected put into constructor bec want to select even
-//						// after program start run
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+				
 			}
 		});
 	}
@@ -115,36 +115,42 @@ public class AccountSetting extends javax.swing.JFrame {
 	// Show Items data in table
 	// Function***************************************************************
 
-	void LoadallItemsData() {
-		List<Users> users = this.userService.getAllUsers();
-		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
-		for (Users user : users) 
-		{
-			Object[] row = new Object[5];
-			
-			row[0] = user.username();
-			row[1] = user.password();
-			row[2] = user.role();
-			row[3] = user.approved();
-			row[4] = user.created_at();
-			model.addRow(row);
-		}
-	}
-	
-	
+	void LoadallIAccountsData() {
 
-	void reloadAllItems() {
 		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
 		model.setRowCount(0);
-		
-		
-		this.LoadallItemsData();
+		try {
+			List<Users> users = this.userService.getAllUsers();
+			for (Users user : users) {
+				Object[] row = new Object[5];
+
+				row[0] = user.username();
+				row[1] = user.password();
+				row[2] = user.role();
+				row[3] = user.approved();
+				row[4] = user.created_at();
+				model.addRow(row);
+			}
+		} catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Unexpected error while loading items!", "Error",JOptionPane.ERROR_MESSAGE);					
+			e.printStackTrace();
+		}
+
+	}
+
+	void reloadAllIAccounts() {
+		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
+		model.setRowCount(0);	
+		this.LoadallIAccountsData();
 	}
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------		 
 	// CRUD Functions
 
-	private void addItems()// use CRUD savemethod and ui add section
+	private void addAccounts()// use CRUD savemethod and ui add section
 	{
 		String username = this.txtUsername.getText();
 		String password = new String(txtPassword.getPassword());
@@ -155,158 +161,135 @@ public class AccountSetting extends javax.swing.JFrame {
 
 		Users users = new Users(0, username, password, role, true, null);
 		
-		try {
-			
-			if(username.trim().isEmpty() | password.trim().isEmpty()) 
-			{
-				JOptionPane.showMessageDialog(this, "Please Input Username and Password!");
-			}
-			else if(!password.trim().equals(rePassword.trim()))
+		
+			if(!password.trim().equals(rePassword.trim()))
 			{
 				JOptionPane.showMessageDialog(this, "Please try again to match Password!");
-			}
-			else 
-			{
+				return;
+			}	
+			
+			try {
 				this.userService.registerUser(users);
 				JOptionPane.showMessageDialog(this, "User Save Successfully");// for to show popup message
-				this.reloadAllItems();
+				this.reloadAllIAccounts();
 				this.clearItemsInput();
+			} catch (ValidationException ve) {
+				JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+			} catch (DaoException de) {
+				JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+				de.printStackTrace();
 			}
-					
-		} 
-		catch (Exception e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(this, "UserName Already Exist");
-		}
 
 	}
 
-	private void deleteItems() {
+	private void deleteAccounts() {
+
+//		int row = tblAccounts.getSelectedRow();
+//
+//		if (row == -1 | txtUsername.getText().trim().isEmpty()) {
+//			JOptionPane.showMessageDialog(this, "Please Input Username that u want to Delete!", "Warning",
+//					JOptionPane.WARNING_MESSAGE);
+//			return;
+//		}
+//
+//		String username = String.valueOf(tblAccounts.getValueAt(row, 0)).trim();
+		
+		String username = txtUsername.getText();
+		// Block master admin account
+		if (username.equalsIgnoreCase("Admin")) {
+			JOptionPane.showMessageDialog(this, "This account is protected and cannot be deleted!", "Warning",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		
+		
 		try {
-			int row = tblAccounts.getSelectedRow();
-			if (row == -1 |  txtUsername.getText().trim().isEmpty()) 
-			{
-				JOptionPane.showMessageDialog(this, "Please Input Username that u want to Delete!");
-			} 
-			
-			String username = (String) tblAccounts.getValueAt(row, 0);
-	        txtUsername.setText(username);        
+			int result = JOptionPane.showConfirmDialog(this, "Confirm that you want to delete " + username + "?",
+					"Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			System.out.println(username + " " + txtUsername.getText()  );
+			if (result == JOptionPane.YES_OPTION ) {
 
-	        // ✅ Block master admin account
-	        if (username.equalsIgnoreCase("Admin") ) 
-	        {
-	            JOptionPane.showMessageDialog(this, "This account is protected and cannot be deleted!");
-	            return;
-	        }
-	        
-	        int result = JOptionPane.showConfirmDialog(
-	                this,
-	                "Confirm that you want to delete " + username + "?",
-	                "Delete",
-	                JOptionPane.YES_NO_OPTION,
-	                JOptionPane.WARNING_MESSAGE
-	        );
-	        if (result == JOptionPane.YES_OPTION)
-	        {
-	            userService.deleteaAccWithUsername(username);
-	            JOptionPane.showMessageDialog(this, "User deleted successfully");
-	            reloadAllItems();
-	            clearItemsInput();
-	        }
-			
-		} 
-		catch (Exception e) 
-		{
-			JOptionPane.showMessageDialog(this, "Failed to Delete user");
-			e.printStackTrace();
+				userService.deleteaAccWithUsername(username);
+				JOptionPane.showMessageDialog(this, "User deleted successfully");
+				reloadAllIAccounts();
+				clearItemsInput();
+			}
+		} catch (ValidationException ve) {
+			JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+		} catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
 		}
 	}
+	
+	
 
 	
 	private void updateAccount() {
-		try 
-		{
-				String username = txtUsername.getText();
-			    String password = new String(txtPassword.getPassword());
-			    String repassword = new String(txtrepassword.getPassword());
-			    String rolestr = (String) comAccountType.getSelectedItem();
-			    
-			    Role role = Role.valueOf(rolestr);
-			    
-			    
-			    
-			    if (password.trim().isEmpty() || username.trim().isEmpty()) 
-			    {
-			        JOptionPane.showMessageDialog(this, "Please enter Username & Password that you want to Update!");
-			        return;
-			    }
-			    if(!password.trim().equals(repassword.trim()))
-				{
-					JOptionPane.showMessageDialog(this, "Please try again to match Password!");
-					return;
-				}
-			   
-			    int result = JOptionPane.showConfirmDialog(this, "Confirm that you want to Update  " ,
-						"Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
-				if (result == JOptionPane.YES_OPTION) 
-				{
-					
-					userService.updateUser(username, password, role);
-				    reloadAllItems();
-				    JOptionPane.showMessageDialog(this, "Account Updated Successfully!");
-				    clearItemsInput();
-				}
-		    
+		String username = txtUsername.getText();
+		String password = new String(txtPassword.getPassword());
+		String repassword = new String(txtrepassword.getPassword());
+		String rolestr = (String) comAccountType.getSelectedItem();
+		Role role = Role.valueOf(rolestr);
+
+		if (!password.trim().equals(repassword.trim())) {
+			JOptionPane.showMessageDialog(this, "Please try again to match Password!");
+			return;
 		}
-		catch(Exception e)
-		{
-			JOptionPane.showMessageDialog(this, "Failed to Update User");
-			e.printStackTrace();
+
+		try {
+			int result = JOptionPane.showConfirmDialog(this, "Confirm that you want to Update  ", "Delete",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+			if (result == JOptionPane.YES_OPTION) {
+
+				userService.updateUser(username, password, role);
+				reloadAllIAccounts();
+				JOptionPane.showMessageDialog(this, "Account Updated Successfully!");
+				clearItemsInput();
+			}
+		}
+
+		catch (ValidationException ve) {
+			JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+		} catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
 		}
 	}
 	
 	private void approve() {
-		try 
-		{
-			String username = this.txtUsername.getText();
 
-			if (username == null || username.trim().isEmpty()) 
-			{
-				JOptionPane.showMessageDialog(this, "Please select a user first!");
-				return;
-			}
+		String username = this.txtUsername.getText();
 
-			boolean success = userService.UserApproved(username);
+		try {
+			userService.UserApproved(username);
 
-			if (!success) 
-			{
-				clearItemsInput();
-				JOptionPane.showMessageDialog(this, "This user is already approved!");
-				return;
-			}
-
-			reloadAllItems();
+			reloadAllIAccounts();
 			JOptionPane.showMessageDialog(this, "Account Approved Successfully!!");
 			clearItemsInput();
-		} 
-		catch (Exception e) 
-		{
-			clearItemsInput();
-			JOptionPane.showMessageDialog(this, "User Already Approve", "Warnning", JOptionPane.CLOSED_OPTION);
-			e.printStackTrace();
+
+		} catch (ValidationException ve) {
+			JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+		} catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
 		}
-	}
+	} 
+
 	
 //
-	void clearItemsInput()
+	private void clearItemsInput()
 	{
 		this.txtUsername.setText("");
 		this.txtPassword.setText("");
 		this.txtrepassword.setText("");
 		this.comAccountType.setSelectedIndex(0);
+	}
+	
+	private void refersh() {
+		
 	}
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------		
@@ -343,6 +326,7 @@ public class AccountSetting extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        btnRefresh = new javax.swing.JButton();
         pnlAcctable = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblAccounts = new javax.swing.JTable();
@@ -427,6 +411,13 @@ public class AccountSetting extends javax.swing.JFrame {
 
         jLabel6.setText("Approve Register Accounts");
 
+        btnRefresh.setText("Refresh");
+        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefreshActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlinputdataLayout = new javax.swing.GroupLayout(pnlinputdata);
         pnlinputdata.setLayout(pnlinputdataLayout);
         pnlinputdataLayout.setHorizontalGroup(
@@ -460,11 +451,12 @@ public class AccountSetting extends javax.swing.JFrame {
                                 .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addGap(40, 40, 40)
-                        .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnCreateAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnApproved, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnCreateAccount, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
+                            .addComponent(btnUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
+                            .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
+                            .addComponent(btnApproved, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
+                            .addComponent(btnRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(52, Short.MAX_VALUE))
         );
         pnlinputdataLayout.setVerticalGroup(
@@ -507,7 +499,9 @@ public class AccountSetting extends javax.swing.JFrame {
                 .addGroup(pnlinputdataLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnApproved)
                     .addComponent(jLabel6))
-                .addGap(70, 70, 70))
+                .addGap(28, 28, 28)
+                .addComponent(btnRefresh)
+                .addGap(19, 19, 19))
         );
 
         javax.swing.GroupLayout pnlAccSettingLayout = new javax.swing.GroupLayout(pnlAccSetting);
@@ -684,16 +678,20 @@ public class AccountSetting extends javax.swing.JFrame {
 
     private void btnCreateAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateAccountActionPerformed
     	
-        this.addItems();
+        this.addAccounts();
     }//GEN-LAST:event_btnCreateAccountActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        this.deleteItems();
+        this.deleteAccounts();
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnApprovedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApprovedActionPerformed
        this.approve();
     }//GEN-LAST:event_btnApprovedActionPerformed
+
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+       this.reloadAllIAccounts();
+    }//GEN-LAST:event_btnRefreshActionPerformed
 
 	private void comAccountTypeActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_comAccountTypeActionPerformed
 		// TODO add your handling code here:
@@ -749,6 +747,7 @@ public class AccountSetting extends javax.swing.JFrame {
     private javax.swing.JButton btnApproved;
     private javax.swing.JButton btnCreateAccount;
     private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JComboBox<String> comAccountType;
     private javax.swing.JLabel jLabel1;

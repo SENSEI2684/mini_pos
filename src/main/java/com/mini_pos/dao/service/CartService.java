@@ -4,11 +4,13 @@ import java.util.List;
 
 import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.CartWithItems;
+import com.mini_pos.helper_function.DaoException;
+import com.mini_pos.helper_function.ValidationException;
 
 public interface CartService {
-	public List<CartWithItems> showcartdata( );
 	public boolean addToCart(Cart cart);
-	public boolean resetCart();
-	public boolean deleteItemsByCartItem_Id(Integer id);
+	public void resetCart() throws DaoException;
+	public void deleteItemsByCartItem_Id(Integer id) throws ValidationException, DaoException;
+	public List<CartWithItems> showcartdata () throws DaoException;
 	
 }

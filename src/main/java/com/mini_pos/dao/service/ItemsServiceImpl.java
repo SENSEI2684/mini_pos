@@ -51,16 +51,20 @@ public class ItemsServiceImpl implements ItemsService{
                 || item.category_id() == 0 
                 
                 ) 
+        
 		{
 			throw new ValidationException("Please input valid Item Name, Price, Item Code, and Category!");
 		}
-
+        if (path2 == null || path2.isEmpty()) {
+            throw new ValidationException("Please Upload Photo for to add Item.");
+        }
+        
         boolean isExisting = itemsDao.isItemExist(item.item_code(), item.name());
         if (isExisting) {
             throw new ValidationException("Item code or Item name already exists!");
         }
 
-        // 3️⃣ Save item
+        
         try {
             boolean inserted = itemsDao.saveItems(item, path2);
             if (!inserted) {
@@ -94,7 +98,9 @@ public class ItemsServiceImpl implements ItemsService{
     
     @Override
     public void deleteItemsByItemCode(String code) throws ValidationException, DaoException {
-     
+    	 if (code == null || code.trim().isEmpty()) {
+             throw new ValidationException("Please input an item_code to delete!.");
+         }
         try {
             boolean deleted = itemsDao.deleteItemsByItemCode(code);
             if (!deleted) {

@@ -14,6 +14,7 @@ import com.mini_pos.dao.UserDao;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
+import com.mini_pos.helper_function.DaoException;
 
 
 
@@ -36,7 +37,7 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 				Integer id = rs.getInt("id");
 				String username = rs.getString("username");
 				String password = rs.getString("password");
-				Role role = Role.valueOf(rs.getString("role"));
+				Role role = Role.valueOf(rs.getString("role"));				
 				Boolean approved = rs.getBoolean("approved");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
 				Users user = new Users(id,username,password,role,approved,created_at);
@@ -208,7 +209,7 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 		}
 	
 	@Override
-	public boolean isUserApproved(String username) {
+	public boolean isUserApproved(String username)  {
 	    String sql = "SELECT approved FROM users WHERE username = ?";
 	    
 	    try (Connection con = getConnection();
@@ -222,8 +223,9 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	            return rs.getBoolean("approved");
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+	    	 e.printStackTrace();
+	    	
+	    }	
 	    return false;
 	}
 
