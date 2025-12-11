@@ -106,8 +106,16 @@ public class ItemsServiceImpl implements ItemsService{
     }
 
 	@Override
-	public List<ItemsWithCategories> getAllItemsAndCategoryNameByCat_Id(Integer id) {
-		return itemsDao.getAllItemsAndCategoryNameByCat_Id(id);
+	public List<ItemsWithCategories> getAllItemsAndCategoryNameByCat_Id(Integer id) throws ValidationException, DaoException {
+        if (id == null ) {
+            throw new ValidationException("Please Select Category.");
+        }
+        try {
+	        return itemsDao.getAllItemsAndCategoryNameByCat_Id(id);
+	    } catch (Exception e) {
+	        throw new DaoException("Failed to fetch items from database", e);
+	    }
+		
 	}
 
 	@Override

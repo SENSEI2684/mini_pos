@@ -463,9 +463,52 @@ public class ItemStorage extends javax.swing.JFrame {
     
  //----------------------------------------------------------------------------------------------------------------------------------------------------------
    
+   private void searchFunction() {
+	   
+	   	int id = cboCategory.getSelectedIndex();
+//	    Categories selected = (Categories) cboCategory.getSelectedItem();
+//
+//	    Integer id = selected != null ? selected.id() : 0;
+
+	   
+	   try {    
+		   if(id == 0) {
+			   LoadallItemsData();
+		   }
+		   else {
+			   List<ItemsWithCategories> filteredItems = itemsService.getAllItemsAndCategoryNameByCat_Id(id);
+	           
+		        DefaultTableModel model = (DefaultTableModel) this.tblItems.getModel();
+		        model.setRowCount(0); // clear table first
+
+		        for (ItemsWithCategories item : filteredItems) {
+		            Object[] row = new Object[7];
+		            row[0] = item.item().id();
+		            row[1] = item.item().item_code();
+		            row[2] = item.item().name();
+		            row[3] = item.item().price();
+		            row[4] = item.item().photo();
+		            row[5] = item.category_name();
+		            row[6] = item.item().created_at();
+		            model.addRow(row);
+		        }
+
+		   }
+		  
+	        
+//	            reloadAllItems();
+	            clearItemsInput();
+	    
+	    } catch (ValidationException ve) {
+	        JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+	    } catch (DaoException de) {
+	        JOptionPane.showMessageDialog(this, de.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	        de.printStackTrace();
+	    }
+	   
+   }
     
-    
-    
+ //---------------------------------------------------------------------------------------------------------------------------------------------------------- 
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -477,7 +520,6 @@ public class ItemStorage extends javax.swing.JFrame {
     private void initComponents() {
 
         pnlRoot = new javax.swing.JPanel();
-        pnlItemTable = new javax.swing.JPanel();
         pnlItemControl = new javax.swing.JPanel();
         lblName = new javax.swing.JLabel();
         lblItem_Code = new javax.swing.JLabel();
@@ -493,6 +535,7 @@ public class ItemStorage extends javax.swing.JFrame {
         lbl_photo = new javax.swing.JLabel();
         btn_upload = new javax.swing.JButton();
         btn_reset = new javax.swing.JButton();
+        btn_Search = new javax.swing.JButton();
         pnlCategotyAll = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tbl_Category = new javax.swing.JTable();
@@ -503,20 +546,9 @@ public class ItemStorage extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblItems = new javax.swing.JTable();
 
+        setBackground(new java.awt.Color(255, 255, 255));
+
         pnlRoot.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(250, 250, 250)));
-
-        pnlItemTable.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 230, 230), 3));
-
-        javax.swing.GroupLayout pnlItemTableLayout = new javax.swing.GroupLayout(pnlItemTable);
-        pnlItemTable.setLayout(pnlItemTableLayout);
-        pnlItemTableLayout.setHorizontalGroup(
-            pnlItemTableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 65, Short.MAX_VALUE)
-        );
-        pnlItemTableLayout.setVerticalGroup(
-            pnlItemTableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 641, Short.MAX_VALUE)
-        );
 
         pnlItemControl.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 230, 230), 3));
 
@@ -595,6 +627,13 @@ public class ItemStorage extends javax.swing.JFrame {
             }
         });
 
+        btn_Search.setText("Search");
+        btn_Search.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_SearchActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlItemControlLayout = new javax.swing.GroupLayout(pnlItemControl);
         pnlItemControl.setLayout(pnlItemControlLayout);
         pnlItemControlLayout.setHorizontalGroup(
@@ -609,7 +648,6 @@ public class ItemStorage extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(txtItem_code, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlItemControlLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(lblName, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(69, 69, 69)
                                 .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -621,7 +659,9 @@ public class ItemStorage extends javax.swing.JFrame {
                     .addGroup(pnlItemControlLayout.createSequentialGroup()
                         .addComponent(lblCategory, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(cboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btn_Search, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnAdd1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -657,24 +697,25 @@ public class ItemStorage extends javax.swing.JFrame {
                                     .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(btnAdd1))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlItemControlLayout.createSequentialGroup()
-                                .addComponent(btnDelete1)
-                                .addGap(8, 8, 8))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(lblPrice)
-                                .addComponent(txtPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnDelete1)
+                            .addComponent(txtPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblPrice))
+                        .addGap(8, 8, 8)))
+                .addGap(21, 21, 21)
                 .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlItemControlLayout.createSequentialGroup()
-                        .addComponent(btn_upload)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btn_reset)
-                        .addContainerGap(51, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlItemControlLayout.createSequentialGroup()
                         .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblCategory)
-                            .addComponent(cboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(35, 35, 35))))
+                            .addComponent(btn_reset)
+                            .addComponent(btn_upload))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(pnlItemControlLayout.createSequentialGroup()
+                        .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(cboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblCategory))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                        .addComponent(btn_Search)))
+                .addContainerGap())
         );
 
         pnlCategotyAll.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 230, 230), 3));
@@ -800,8 +841,7 @@ public class ItemStorage extends javax.swing.JFrame {
             pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlRootLayout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1302, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(105, 105, 105)
-                .addComponent(pnlItemTable, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 365, Short.MAX_VALUE))
             .addGroup(pnlRootLayout.createSequentialGroup()
                 .addComponent(pnlItemControl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -813,13 +853,9 @@ public class ItemStorage extends javax.swing.JFrame {
                 .addGroup(pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(pnlItemControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pnlCategotyAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGroup(pnlRootLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlRootLayout.createSequentialGroup()
-                        .addGap(198, 198, 198)
-                        .addComponent(pnlItemTable, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(pnlRootLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 475, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(48, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -835,8 +871,8 @@ public class ItemStorage extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pnlRoot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(pnlRoot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         pack();
@@ -885,6 +921,10 @@ public class ItemStorage extends javax.swing.JFrame {
        this.clearItemsInput();
        loadCategories();
     }//GEN-LAST:event_btn_resetActionPerformed
+
+    private void btn_SearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SearchActionPerformed
+      this.searchFunction();
+    }//GEN-LAST:event_btn_SearchActionPerformed
 
     private void btn_uploadActionPerformed(java.awt.event.ActionEvent evt) {                                           
     	 JFileChooser chooser = new JFileChooser();
@@ -965,6 +1005,7 @@ public class ItemStorage extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete1;
     private javax.swing.JButton btnUpdate1;
     private javax.swing.JButton btn_Add_Category;
+    private javax.swing.JButton btn_Search;
     private javax.swing.JButton btn_Update_Category;
     private javax.swing.JButton btn_reset;
     private javax.swing.JButton btn_upload;
@@ -979,7 +1020,6 @@ public class ItemStorage extends javax.swing.JFrame {
     private javax.swing.JLabel lbl_photo;
     private javax.swing.JPanel pnlCategotyAll;
     private javax.swing.JPanel pnlItemControl;
-    private javax.swing.JPanel pnlItemTable;
     private javax.swing.JPanel pnlRoot;
     private javax.swing.JTable tblItems;
     private javax.swing.JTable tbl_Category;
