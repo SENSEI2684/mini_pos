@@ -351,6 +351,7 @@ public class MainFrame extends javax.swing.JFrame {
     // all objs for items are created since the program run 
     private void preloadItemCards() {
     	
+    	
          try {
 			allItems = itemService.getAllItems();// we make allItems as parent List, that list never change the same		
 	        filteredItems = new ArrayList<>(allItems); // and filteredItems list will change on search function
@@ -363,6 +364,7 @@ public class MainFrame extends javax.swing.JFrame {
 	                ItemCard card = new ItemCard(item, () -> loadCartTable());
 
 	                cardCache.put(item.id(), card);
+	                
 	            }
 	        }
 		 } catch (DaoException de) {
@@ -373,6 +375,35 @@ public class MainFrame extends javax.swing.JFrame {
 	          e.printStackTrace();
 	        }
 //        loadItemsToPanel();
+    }
+    
+    private void refreshPanel() {
+    	
+        pnlMainItem.removeAll();
+        pnlMainItem.revalidate();
+        pnlMainItem.repaint();
+    	
+    	
+//    	if (allItems != null) allItems.clear();
+//    	if (filteredItems != null) filteredItems.clear();
+// We create NEW ArrayList objects instead of using .clear().
+// Reason:
+// .clear() only empties the same list object, and any other UI or code
+// still referencing that old list will see unexpected empty data.
+// Creating a NEW list gives a completely fresh state and avoids bugs
+    	
+        allItems = new ArrayList<>();
+        filteredItems = new ArrayList<>();
+//        cardCache.clear();
+        cardCache = new HashMap<>();
+
+       
+        currentPage = 1;
+        updatePageLabel();
+
+        reloadCategoriesComboBox();
+        preloadItemCards();
+        loadItemsToPanel();
     }
     
 //    public void loadItemsToPanel() {
@@ -398,6 +429,7 @@ public class MainFrame extends javax.swing.JFrame {
     
     private void loadItemsToPanel() {
         pnlMainItem.removeAll(); // this code really need bec Java Swing UI cannot auto reload, without this items ui will duplicate
+
         pnlMainItem.setPreferredSize(new Dimension(1000, 350));
         pnlMainItem.setMinimumSize(new Dimension(1000, 350));
         pnlMainItem.setLayout(new GridLayout(0, 3, 20, 20));
@@ -626,7 +658,6 @@ public class MainFrame extends javax.swing.JFrame {
 	 private void resetCart()
 	 {
 	      this.cartService.resetCart();
-	       this.reloadAllItems();
 	       this.txtTotalPrice.setText("0");
 	       this.txtPaid.setText("");
 	       this.txtChange.setText("0");
@@ -731,6 +762,7 @@ public class MainFrame extends javax.swing.JFrame {
 		    
 		}
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	 
 	 
 	 public void reloadCategoriesComboBox() {
@@ -801,6 +833,7 @@ public class MainFrame extends javax.swing.JFrame {
         btnPrevPage = new javax.swing.JButton();
         btnNextPage = new javax.swing.JButton();
         lblPageNumber = new javax.swing.JLabel();
+        btn_refresh = new javax.swing.JButton();
         lbnCart = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblCart = new javax.swing.JTable();
@@ -1111,12 +1144,21 @@ public class MainFrame extends javax.swing.JFrame {
 
         lblPageNumber.setText("1");
 
+        btn_refresh.setText("Refresh");
+        btn_refresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_refreshActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlpaginationLayout = new javax.swing.GroupLayout(pnlpagination);
         pnlpagination.setLayout(pnlpaginationLayout);
         pnlpaginationLayout.setHorizontalGroup(
             pnlpaginationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlpaginationLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(btn_refresh, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 756, Short.MAX_VALUE)
                 .addComponent(btnPrevPage)
                 .addGap(20, 20, 20)
                 .addComponent(lblPageNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1130,7 +1172,8 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(pnlpaginationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnPrevPage)
                     .addComponent(btnNextPage)
-                    .addComponent(lblPageNumber)))
+                    .addComponent(lblPageNumber)
+                    .addComponent(btn_refresh)))
         );
 
         javax.swing.GroupLayout pnlMainLayout = new javax.swing.GroupLayout(pnlMain);
@@ -1323,7 +1366,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(lbnCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(pnlDateTime, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(pnlButtons, javax.swing.GroupLayout.PREFERRED_SIZE, 426, Short.MAX_VALUE))
+                    .addComponent(pnlButtons, javax.swing.GroupLayout.DEFAULT_SIZE, 426, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         lbnCartLayout.setVerticalGroup(
@@ -1417,7 +1460,6 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {                                         
        this.resetCart();
-       reloadCategoriesComboBox();
     }                                           
 
     private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
@@ -1542,6 +1584,10 @@ public class MainFrame extends javax.swing.JFrame {
     	    );
     	}
     }//GEN-LAST:event_mnu_Item_storageActionPerformed
+
+    private void btn_refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_refreshActionPerformed
+       this.refreshPanel();
+    }//GEN-LAST:event_btn_refreshActionPerformed
     
     private void btnPrevPageActionPerformed(java.awt.event.ActionEvent evt) {
         if (currentPage > 1) {
@@ -1623,6 +1669,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnShowAll;
     private javax.swing.JButton btnShowReceip;
+    private javax.swing.JButton btn_refresh;
     private javax.swing.JButton btnlogin;
     private javax.swing.JComboBox<Categories> comCategories;
     private javax.swing.JDialog diaRegistration;

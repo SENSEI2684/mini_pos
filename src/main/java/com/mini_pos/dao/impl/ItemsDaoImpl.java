@@ -41,11 +41,10 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				String item_code = rs.getString("item_code");
 				String name = rs.getString("name");
 				Integer price = rs.getInt("price");
-				Integer quantity = rs.getInt("quantity");
 				String photo = rs.getString("photo");
 				Integer category_id = rs.getInt("category_id");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-				Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
+				Items item = new Items(id,item_code, name, price, photo,category_id, created_at);
 				items.add(item);
 			}
 			rs.close();
@@ -58,7 +57,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	@Override
 	public List<ItemsWithCategories> getAllItemsAndCategoryName() {
 		List<ItemsWithCategories> itemWCat = new ArrayList<>();
-		String sql = "SELECT i.id ,i.item_code, i.name, i.price, i.quantity, i.photo, c.category_name, i.created_at FROM items i JOIN categories c on i.category_id = c.id ORDER BY id ;";
+		String sql = "SELECT i.id ,i.item_code, i.name, i.price, i.photo, c.category_name, i.created_at FROM items i JOIN categories c on i.category_id = c.id ORDER BY id ;";
 		try (Connection con = getConnection();
 	             PreparedStatement stmt = con.prepareStatement(sql)) {
 			
@@ -70,7 +69,6 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				String item_code = rs.getString("item_code");
 				String name = rs.getString("name");
 				Integer price = rs.getInt("price");
-				Integer quantity = rs.getInt("quantity");
 				String photo = rs.getString("photo");
 				
 //				Blob image = rs.getBlob("photo");
@@ -84,7 +82,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				
 //				Integer category_name = rs.getInt("category_id");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-				Items item = new Items(id,item_code, name, price,quantity, photo,null, created_at);
+				Items item = new Items(id,item_code, name, price, photo,null, created_at);
 
 				String cat_name = rs.getString("category_name");
 				ItemsWithCategories item_cat = new ItemsWithCategories(item, cat_name);
@@ -143,11 +141,10 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				String item_code = rs.getString("item_code");
 				String name = rs.getString("name");
 				Integer price = rs.getInt("price");
-				Integer quantity = rs.getInt("quantity");
 				String photo = rs.getString("photo");
 				Integer category_id = rs.getInt("category_id");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-				Items item = new Items(ids,item_code, name, price,quantity, photo,category_id, created_at);
+				Items item = new Items(ids,item_code, name, price, photo,category_id, created_at);
 				items.add(item);
 			}
 			rs.close();
@@ -181,7 +178,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 
 //		String itemCode = generateNextItemCode();
 
-		String sql = "insert into items(item_code,name,price,quantity,photo,category_id) values(?,?,?,?,?,?);";
+		String sql = "insert into items(item_code,name,price,photo,category_id) values(?,?,?,?,?);";
 		try (Connection con = getConnection();
 	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
@@ -189,11 +186,10 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 			stmt.setString(1, item.item_code());
 			stmt.setString(2, item.name());
 			stmt.setInt(3, item.price());
-			stmt.setInt(4, item.quantity());
-			stmt.setString(5, path2);
+			stmt.setString(4, path2);
 //			InputStream ins = new FileInputStream(new File(path2));
 //			stmt.setBlob(5, ins);
-			stmt.setInt(6, item.category_id());
+			stmt.setInt(5, item.category_id());
 
 			int row = stmt.executeUpdate();// this must use .executeUpdate bec we make insert changes
 
@@ -256,11 +252,10 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 				String item_code = rs.getString("item_code");
 				String name = rs.getString("name");
 				Integer price = rs.getInt("price");
-				Integer quantity = rs.getInt("quantity");
 				String photo = rs.getString("photo");
 				Integer category_id = rs.getInt("category_id");
 				LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-				Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
+				Items item = new Items(id,item_code, name, price, photo,category_id, created_at);
 
 				String cat_name = rs.getString("category_name");
 				ItemsWithCategories item_cat = new ItemsWithCategories(item, cat_name);
@@ -291,11 +286,10 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 					String item_code = rs.getString("item_code");
 					String name = rs.getString("name");
 					Integer price = rs.getInt("price");
-					Integer quantity = rs.getInt("quantity");
 					String photo = rs.getString("photo");
 					Integer category_id = rs.getInt("category_id");
 					LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-					Items item = new Items(id,item_code, name, price,quantity, photo,category_id, created_at);
+					Items item = new Items(id,item_code, name, price, photo,category_id, created_at);
 					items.add(item);
 	            }
 				rs.close();
@@ -321,11 +315,10 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 					String item_code = rs.getString("item_code");
 					String names = rs.getString("name");
 					Integer price = rs.getInt("price");
-					Integer quantity = rs.getInt("quantity");
 					String photo = rs.getString("photo");
 					Integer category_id = rs.getInt("category_id");
 					LocalDateTime created_at = rs.getTimestamp("created_at").toLocalDateTime();
-					Items item = new Items(id,item_code, names, price,quantity, photo,category_id, created_at);
+					Items item = new Items(id,item_code, names, price, photo,category_id, created_at);
 					items.add(item);
 	            }
 	            rs.close();
