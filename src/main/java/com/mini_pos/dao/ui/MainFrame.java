@@ -30,14 +30,19 @@ import com.mini_pos.dao.etinity.CartWithItems;
 import com.mini_pos.dao.etinity.Categories;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.ItemsWithCategories;
+import com.mini_pos.dao.etinity.OrderItem;
 import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.service.CartService;
+import com.mini_pos.dao.service.OrderService;
+import com.mini_pos.dao.service.OrderItemService;
 import com.mini_pos.dao.service.CartServiceImpl;
 import com.mini_pos.dao.service.CategoriesService;
 import com.mini_pos.dao.service.CategoriesServiceImpl;
 import com.mini_pos.dao.service.ItemsService;
 import com.mini_pos.dao.service.ItemsServiceImpl;
+import com.mini_pos.dao.service.OrderItemServiceImpl;
+import com.mini_pos.dao.service.OrderServiceImpl;
 import com.mini_pos.dao.service.UserService;
 import com.mini_pos.dao.service.UserServiceImpl;
 import com.mini_pos.helper_function.DaoException;
@@ -83,6 +88,9 @@ public class MainFrame extends javax.swing.JFrame {
 	private CartService cartService = CartServiceImpl.getInstance();
 	private CategoriesService catService = new CategoriesServiceImpl();
 	private UserService userService = new UserServiceImpl();
+	private OrderService orderService = new OrderServiceImpl();
+	private OrderItemService orderitemService = new OrderItemServiceImpl();
+	
 	private Session session = Session.getInstance();
 	NumberFormat formatter = NumberFormat.getInstance();
 	private List<ItemCard> allCards = new ArrayList<>();
@@ -94,6 +102,7 @@ public class MainFrame extends javax.swing.JFrame {
 	AccountSetting accountsetting = new AccountSetting();
 	
 	ItemStorage itemStorage = new ItemStorage();
+	
 	
     public MainFrame() {
         initComponents();
@@ -695,7 +704,7 @@ public class MainFrame extends javax.swing.JFrame {
 		 try {
 			 if(txtTotalPrice.getText().equals("0") |
 			            txtPaid.getText().trim().isEmpty() |
-			            txtChange.getText().equals("0")) 
+			            txtChange.getText() == null) 
 			 {
 				 JOptionPane.showMessageDialog(this, "Please Make the Checkout Process Complete","Missing Data",
 		                    JOptionPane.WARNING_MESSAGE);
@@ -717,13 +726,13 @@ public class MainFrame extends javax.swing.JFrame {
 				    
 				    StringBuilder sb = new StringBuilder();
 
-				    sb.append("****************************  IT STORE  ****************************\n");
-				    sb.append(String.format("%45s%n%n", "Tel: +959 92500 64228"));			
-				    sb.append(String.format("%-25s %41s%n" , "Cashier ID" , session.getUserId()));
+				    sb.append("*************************  IT STORE  *************************\n");
+				    sb.append(String.format("%42s%n%n", "Tel: +959 92500 64228"));			
+				    sb.append(String.format("%-25s %36s%n" , "Cashier ID" , session.getUserId()));
 //				    sb.append(" Receipt ID:\t\t\t\t").append(session.getUserId()).append("\n");
-				    sb.append("--------------------------------------------------------------------\n");
-				    sb.append(String.format("%-25s %9s %12s %17s%n", "Item", "Price", "Qty", "Amount"));
-				    sb.append("--------------------------------------------------------------------\n");
+				    sb.append("--------------------------------------------------------------\n");
+				    sb.append(String.format("%-25s %9s %10s %15s%n", "Item", "Price", "Qty", "Amount"));
+				    sb.append("--------------------------------------------------------------\n");
 		    
 				   
 				    
@@ -745,7 +754,7 @@ public class MainFrame extends javax.swing.JFrame {
 				    	    	pricestr = pricestr.substring(0, 15);
 				    	    }
 				    	
-				    	    String ROW_FORMAT = "%-25s %10s %10s %19s%n";
+				    	    String ROW_FORMAT = "%-25s %11s %8s %15s%n";
 				    	    sb.append(String.format(
 				        	ROW_FORMAT,
 				            item.item_name(),                          
@@ -755,19 +764,19 @@ public class MainFrame extends javax.swing.JFrame {
 				        ));
 				    }
 
-				    sb.append("--------------------------------------------------------------------\n");
-				    sb.append(String.format("%-25s %41s%n", "SUB TOTAL:", txtTotalPrice.getText()));
-				    sb.append(String.format("%-25s %41s%n", "PAID:", paid));
-				    sb.append(String.format("%-25s %41s%n", "CHANGE:", txtChange.getText()));
+				    sb.append("--------------------------------------------------------------\n");
+				    sb.append(String.format("%-25s %36s%n", "TOTAL:", txtTotalPrice.getText()));
+				    sb.append(String.format("%-25s %36s%n", "PAID:", paid));
+				    sb.append(String.format("%-25s %36s%n", "CHANGE:", txtChange.getText()));
 
-				    sb.append("--------------------------------------------------------------------\n");
-				    sb.append(String.format("%1s %7s %38s %7s%n", "Date:", currentDate, "Time:" , currentTime));
-				    sb.append("********************************************************************\n");
-				    sb.append(String.format("%39s%n", "THANK YOU"));
+				    sb.append("--------------------------------------------------------------\n");
+				    sb.append(String.format("%1s %7s %33s %7s%n", "Date:", currentDate, "Time:" , currentTime));
+				    sb.append("**************************************************************\n");
+				    sb.append(String.format("%36s%n", "THANK YOU"));
 
-				    sb.append("********************************************************************\n");
-				    sb.append("                      Program By Aung Khant Kyaw\n");
-				    sb.append("                    Contact : akkyaw.dev@gmail.com\n");
+				    sb.append("**************************************************************\n");
+				    sb.append("                   Program By Aung Khant Kyaw\n");
+				    sb.append("                 Contact : akkyaw.dev@gmail.com\n");
 
 				    txtArea.setText(sb.toString());
 				    System.out.println( "TIME LABEL = " +lbldate.getText() + lbltime.getText());
@@ -780,6 +789,38 @@ public class MainFrame extends javax.swing.JFrame {
 		 }
 		    
 		}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	//add from cart to Order and OrderItem table*************************************************************
+	 private void addtoOrder() {
+		 int orderId = 0;
+		 String pricestr = txtTotalPrice.getText().replace(",", "");
+		 int total_price = Integer.parseInt(pricestr);
+							
+						try {
+							 orderId = orderService.saveOrder(total_price);
+						} catch (ValidationException e) {
+						
+							e.printStackTrace();
+						}catch (DaoException e) {
+							
+							e.printStackTrace();
+						}	
+						
+		try {
+			List<CartWithItems> cartwithItem = this.cartService.showcartdata();
+			for(CartWithItems c : cartwithItem) {
+				OrderItem orderItem = new OrderItem(orderId, c.cart().item_id(),c.cart().quantity(),c.item_price());
+				
+				this.orderitemService.saveOrderItem(orderItem);
+			}
+		} catch (DaoException e) {	
+			e.printStackTrace();
+		}catch (ValidationException e) {
+			
+			e.printStackTrace();	
+		}
+	} 
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	 
@@ -1041,13 +1082,14 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(diareceipLayout.createSequentialGroup()
                 .addGroup(diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(diareceipLayout.createSequentialGroup()
-                        .addGap(178, 178, 178)
-                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(17, 17, 17)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 495, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(diareceipLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 508, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(182, 182, 182)
+                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         diareceipLayout.setVerticalGroup(
             diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1055,9 +1097,9 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 51, Short.MAX_VALUE))
             .addGroup(diareceipLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(12, 12, 12)
                 .addComponent(jScrollPane3)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnPrint)
                 .addGap(19, 19, 19))
         );
@@ -1495,6 +1537,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
     	try {
 			txtArea.print();
+			this.addtoOrder();
 			this.resetCart();
 			this.diareceip.setVisible(false);
 		} catch (PrinterException e) {

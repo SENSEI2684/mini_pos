@@ -115,7 +115,7 @@ public class AccountSetting extends javax.swing.JFrame {
 	// Show Items data in table
 	// Function***************************************************************
 
-	void LoadallIAccountsData() {
+	private void LoadallIAccountsData() {
 
 		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
 		model.setRowCount(0);
@@ -141,7 +141,7 @@ public class AccountSetting extends javax.swing.JFrame {
 
 	}
 
-	void reloadAllIAccounts() {
+	private void reloadAllIAccounts() {
 		DefaultTableModel model = (DefaultTableModel) this.tblAccounts.getModel();
 		model.setRowCount(0);	
 		this.LoadallIAccountsData();
