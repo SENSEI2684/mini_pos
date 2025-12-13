@@ -11,7 +11,9 @@ public interface SaleReportDao {
 	public List<SaleReport> getAllReport(  );
 	public List<SaleReport> getCategoryReport( );
 	public List<SaleReport> getSummaryReport( );
-	public List<SaleReport> getDailyReport(LocalDateTime date );
-	public List<SaleReport> getMonthlyReport(YearMonth month) ;
-	public List<SaleReport> getReportByInterval(LocalDate startDate, LocalDate endDate);
+//	public List<SaleReport> getDailyReport(LocalDateTime date );
+//	public List<SaleReport> getMonthlyReport(YearMonth month) ;
+	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate);
+	public List<SaleReport> getCategoryReportByInterval(LocalDate startDate, LocalDate endDate);
+	public List<SaleReport> getSummaryReportByInterval(LocalDate startDate, LocalDate endDate);
 }

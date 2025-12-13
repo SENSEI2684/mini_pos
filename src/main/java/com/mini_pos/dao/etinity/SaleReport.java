@@ -1,6 +1,6 @@
 package com.mini_pos.dao.etinity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record SaleReport(      
 		String category,
@@ -8,5 +8,5 @@ public record SaleReport(
         int totalQuantity,
         int Price,       
         int totalPrice,
-        LocalDateTime saleDate) {
+        LocalDate saleDate) {
 }

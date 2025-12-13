@@ -9,6 +9,7 @@ import com.mini_pos.dao.SaleReportDao;
 import com.mini_pos.dao.etinity.SaleReport;
 import com.mini_pos.dao.impl.SaleReportDaoImpl;
 import com.mini_pos.helper_function.DaoException;
+import com.mini_pos.helper_function.ValidationException;
 
 public class SaleReportServiceImpl implements SaleReportService {
 
@@ -44,35 +45,85 @@ public class SaleReportServiceImpl implements SaleReportService {
 		}
 	}
 
+//	@Override
+//	public List<SaleReport> getMonthlyReport(YearMonth month) throws DaoException {
+//		try {
+//		return saleRpDao.getMonthlyReport(month	);
+//		}
+//		catch(Exception e) {
+//			throw new DaoException( "Error happen in getSummaryReport from database", e);
+//		}
+//	}
+//
+//	@Override
+//	public List<SaleReport> getDailyReport(LocalDateTime date) throws DaoException {
+//		try {
+//			return saleRpDao.getDailyReport(date);
+//			}
+//			catch(Exception e) {
+//				throw new DaoException( "Error happen in getDailyReport from database", e);
+//			}
+//	}
+
 	@Override
-	public List<SaleReport> getMonthlyReport(YearMonth month) throws DaoException {
+	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate) throws DaoException, ValidationException {
+	    if (startDate == null) {
+	        throw new ValidationException("Start date is required!");
+	    }
+	    if (endDate == null) {
+	        throw new ValidationException("End date is required!");
+	    }
+	    if (endDate.isBefore(startDate)) {
+	        throw new ValidationException("End date cannot be before start date!");
+	    }	
 		try {
-		return saleRpDao.getMonthlyReport(month	);
-		}
-		catch(Exception e) {
-			throw new DaoException( "Error happen in getSummaryReport from database", e);
-		}
+			return saleRpDao.getAllItemsReportByInterval(startDate , endDate);
+			}
+			catch(Exception e) {
+				throw new DaoException( "Error happen in All Items getReport from database", e);
+			}
 	}
 
 	@Override
-	public List<SaleReport> getDailyReport(LocalDateTime date) throws DaoException {
+	public List<SaleReport> getCategoryReportByInterval(LocalDate startDate, LocalDate endDate)throws DaoException, ValidationException {
+			
+	    if (startDate == null) {
+	        throw new ValidationException("Start date is required!");
+	    }
+	    if (endDate == null) {
+	        throw new ValidationException("End date is required!");
+	    }
+	    if (endDate.isBefore(startDate)) {
+	        throw new ValidationException("End date cannot be before start date!");
+	    }	
 		try {
-			return saleRpDao.getDailyReport(date);
+			return saleRpDao.getCategoryReportByInterval(startDate , endDate);
 			}
 			catch(Exception e) {
-				throw new DaoException( "Error happen in getDailyReport from database", e);
+				throw new DaoException( "Error happen in Category getReport from database", e);
 			}
 	}
 
 	@Override
-	public List<SaleReport> getReportByInterval(LocalDate startDate, LocalDate endDate) throws DaoException {
+	public List<SaleReport> getSummaryReportByInterval(LocalDate startDate, LocalDate endDate)throws DaoException, ValidationException {
+			
+	    if (startDate == null) {
+	        throw new ValidationException("Start date is required!");
+	    }
+	    if (endDate == null) {
+	        throw new ValidationException("End date is required!");
+	    }
+	    if (endDate.isBefore(startDate)) {
+	        throw new ValidationException("End date cannot be before start date!");
+	    }		
 		try {
-			return saleRpDao.getReportByInterval(startDate , endDate);
+			return saleRpDao.getSummaryReportByInterval(startDate , endDate);
 			}
 			catch(Exception e) {
-				throw new DaoException( "Error happen in getReport from database", e);
+				throw new DaoException( "Error happen Summary getReport from database", e);
 			}
 	}
+
 	
 	
 

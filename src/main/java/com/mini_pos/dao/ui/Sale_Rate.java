@@ -7,6 +7,8 @@ package com.mini_pos.dao.ui;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Function;
+import java.awt.print.PrinterException;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -20,6 +22,7 @@ import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.service.SaleReportService;
 import com.mini_pos.dao.service.SaleReportServiceImpl;
 import com.mini_pos.helper_function.DaoException;
+import com.mini_pos.helper_function.ValidationException;
 
 /**
  *
@@ -32,8 +35,7 @@ public class Sale_Rate extends javax.swing.JFrame {
      */
 	
 	private SaleReportService saleRpService = new SaleReportServiceImpl();
-	JDateChooser datePicker = new JDateChooser();
-
+	NumberFormat formatter = NumberFormat.getInstance();
 	
 	public Sale_Rate() {
 	    initComponents();
@@ -67,12 +69,14 @@ public class Sale_Rate extends javax.swing.JFrame {
 	    	for (SaleReport sr : data) {
 		        Object[] row = new Object[6];
 
-		        row[0] = sr.saleDate().format(fmt);
+		        row[0] = sr.saleDate() != null 
+		                ? sr.saleDate().format(fmt) 
+		                : "TOTAL";
 		        row[1] = sr.category();
 		        row[2] = sr.itemName();
-		        row[3] = sr.Price();
-		        row[4] = sr.totalQuantity();
-		        row[5] = sr.totalPrice();
+		        row[3] = sr.totalQuantity();
+		        row[4] =  formatter.format(sr.Price());    
+		        row[5] = formatter.format(sr.totalPrice());
 
 		        model.addRow(row);
 	    }
@@ -95,10 +99,12 @@ public class Sale_Rate extends javax.swing.JFrame {
 	    	for (SaleReport sr : data) {
 		        Object[] row = new Object[4];
 
-		        row[0] = sr.saleDate().format(fmt);
+		        row[0] = sr.saleDate() != null 
+		                ? sr.saleDate().format(fmt) 
+		                : "TOTAL";
 		        row[1] = sr.category();
 		        row[2] = sr.totalQuantity();
-		        row[3] = sr.totalPrice();
+		        row[3] = formatter.format(sr.totalPrice());
 
 		        model.addRow(row);
 	    }
@@ -123,10 +129,12 @@ public class Sale_Rate extends javax.swing.JFrame {
 	    	for (SaleReport sr : data) {
 		        Object[] row = new Object[3];
 
-		        row[0] = sr.saleDate().format(fmt);
+		        row[0] = sr.saleDate() != null 
+		                ? sr.saleDate().format(fmt) 
+		                : "TOTAL";
 	
 		        row[1] = sr.totalQuantity();
-		        row[2] = sr.totalPrice();
+		        row[2] = formatter.format(sr.totalPrice());
 
 		        model.addRow(row);
 	    }
@@ -169,56 +177,72 @@ public class Sale_Rate extends javax.swing.JFrame {
 			e.printStackTrace();
 		}
 	}
-	private void mothSearch() {
+//	private void mothSearch() {
+//
+//		
+//		Integer mstr = (Integer) com_Month.getSelectedIndex();
+//		String ystr = (String) com_Year.getSelectedItem();
+//		Integer year = Integer.parseInt(ystr);
+//		YearMonth ym = YearMonth.of(year, mstr);
+//		LocalDate start = ym.atDay(1);
+//		LocalDate end = ym.atEndOfMonth();
+//
+//		try {
+//
+//			List<SaleReport> data = saleRpService.getReportByInterval(start, end);
+//
+//			reloadAllReport(data); // reuse your table loader
+////	        reloadCategoryReport(data);
+////	        reloadSummaryReport(data);
+//		} catch (DaoException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+//	private void oneDay() {
+//		 try {
+//		        LocalDate date = LocalDate.parse(txtDate.getText().trim());
+//		        List<SaleReport> data = saleRpService.getReportByInterval(date, date);
+//		        System.out.println("Searching for date: " + txtDate.getText());
+//		        System.out.println("DAO returned " + data.size() + " records");
+//		        reloadAllReport(data);
+//		       
+//		    } catch (Exception ex) {
+//		        JOptionPane.showMessageDialog(this, "Invalid date or DB error: " + ex.getMessage());
+//		    }
+//	
+//	}
+	
+	private void intervalSearch() { //daily can also search just put start and end same day 
 
+	        String startText = txtstart.getText().trim();
+	        String endText = txtend.getText().trim();
+
+	        if (startText.isEmpty() || endText.isEmpty()) {
+	        	JOptionPane.showMessageDialog(this, "Please input both start and end dates!", "Warrning", JOptionPane.ERROR_MESSAGE);
+	        }
+
+	        LocalDate start = LocalDate.parse(startText);
+	        LocalDate end = LocalDate.parse(endText);
 		
-		Integer mstr = (Integer) com_Month.getSelectedIndex();
-		String ystr = (String) com_Year.getSelectedItem();
-		Integer year = Integer.parseInt(ystr);
-		YearMonth ym = YearMonth.of(year, mstr);
-		LocalDate start = ym.atDay(1);
-		LocalDate end = ym.atEndOfMonth();
-
 		try {
-
-			List<SaleReport> data = saleRpService.getReportByInterval(start, end);
-
-			reloadAllReport(data); // reuse your table loader
-//	        reloadCategoryReport(data);
-//	        reloadSummaryReport(data);
-		} catch (DaoException e) {
-			e.printStackTrace();
+			List<SaleReport> allItems = saleRpService.getAllItemsReportByInterval(start, end);
+			List<SaleReport> category = saleRpService.getCategoryReportByInterval(start, end);
+			List<SaleReport> summary = saleRpService.getSummaryReportByInterval(start, end);
+			reloadAllReport(allItems);
+			reloadCategoryReport(category);
+	        reloadSummaryReport(summary);
+	       
+		} catch (DaoException de) {
+			JOptionPane.showMessageDialog(this, de.getMessage(), "Warrning", JOptionPane.ERROR_MESSAGE);
+			de.printStackTrace();
+		} catch (ValidationException ve) {
+			JOptionPane.showMessageDialog(this, ve.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			ve.printStackTrace();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Invalid date format! Use yyyy-MM-dd",   "Validation Error",  JOptionPane.WARNING_MESSAGE);
 		}
-	}
 	
-	private void oneDay() {
-		 try {
-		        LocalDate date = LocalDate.parse(txtDate.getText().trim());
-		        List<SaleReport> data = saleRpService.getReportByInterval(date, date);
-		        System.out.println("Searching for date: " + txtDate.getText());
-		        System.out.println("DAO returned " + data.size() + " records");
-		        reloadAllReport(data);
-		       
-		    } catch (Exception ex) {
-		        JOptionPane.showMessageDialog(this, "Invalid date or DB error: " + ex.getMessage());
-		    }
-	
-	}
-	
-	private void interval() {
-		try {
-	        LocalDate start = LocalDate.parse(txtstart.getText().trim());
-	        LocalDate end = LocalDate.parse(txtend.getText().trim());     
-
-                   
-List<SaleReport> rangeData = saleRpService.getReportByInterval(start, end);
-
-reloadAllReport(rangeData);
-
-		}
-		catch (Exception ex) {
-	        JOptionPane.showMessageDialog(this, "Invalid date or DB error: " + ex.getMessage());
-	    }
 	}
 		
 //----------------------------------------------------------------------------------------------------------------------------------------------------------  	
@@ -247,22 +271,13 @@ reloadAllReport(rangeData);
         jScrollPane3 = new javax.swing.JScrollPane();
         tbl_total_sale = new javax.swing.JTable();
         pnl_record_mgmt = new javax.swing.JPanel();
-        com_Year = new javax.swing.JComboBox<>();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        com_Month = new javax.swing.JComboBox<>();
-        btn_month_search = new javax.swing.JButton();
         btn_ALL_serach = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        txtDate = new javax.swing.JTextField();
-        btn_day = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         txtstart = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         txtend = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel1.setBackground(new java.awt.Color(243, 243, 243));
@@ -441,21 +456,6 @@ reloadAllReport(rangeData);
 
         pnl_record_mgmt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        com_Year.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2024", "2025", "2026" }));
-
-        jLabel1.setText("Year");
-
-        jLabel2.setText("Month");
-
-        com_Month.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "none", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sept", "Oct", "Nov", "Dec" }));
-
-        btn_month_search.setText("Monthly Search");
-        btn_month_search.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_month_searchActionPerformed(evt);
-            }
-        });
-
         btn_ALL_serach.setText("All Search");
         btn_ALL_serach.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -463,24 +463,9 @@ reloadAllReport(rangeData);
             }
         });
 
-        jLabel3.setText("Date : yy-mm-dd");
+        jLabel4.setText("Start Date : yyyy-MM-dd");
 
-        txtDate.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtDateActionPerformed(evt);
-            }
-        });
-
-        btn_day.setText("Day Search");
-        btn_day.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_dayActionPerformed(evt);
-            }
-        });
-
-        jLabel4.setText("Start");
-
-        jLabel5.setText("End");
+        jLabel5.setText("End Date : yyyy-MM-dd");
 
         jButton1.setText("Interval serach");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -493,74 +478,39 @@ reloadAllReport(rangeData);
         pnl_record_mgmt.setLayout(pnl_record_mgmtLayout);
         pnl_record_mgmtLayout.setHorizontalGroup(
             pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_record_mgmtLayout.createSequentialGroup()
+            .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addGap(30, 30, 30)
+                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(com_Month, 0, 105, Short.MAX_VALUE)
-                            .addComponent(com_Year, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(btn_month_search))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_record_mgmtLayout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtDate, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btn_day)
-                        .addGap(291, 291, 291))
-                    .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                                .addGap(34, 34, 34)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtend, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
-                            .addComponent(txtstart))
-                        .addGap(30, 30, 30)
                         .addComponent(jButton1)
-                        .addGap(203, 203, 203)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btn_ALL_serach, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(17, 17, 17))))
+                        .addGap(17, 17, 17))
+                    .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
+                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtstart, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
+                            .addComponent(txtend))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         pnl_record_mgmtLayout.setVerticalGroup(
             pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(com_Year, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel3)
-                            .addComponent(txtDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn_day))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(com_Month, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_record_mgmtLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(txtstart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)))
-                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btn_month_search)
-                        .addComponent(btn_ALL_serach))
-                    .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txtend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton1)
-                        .addComponent(jLabel5)))
+                .addContainerGap(8, Short.MAX_VALUE)
+                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtstart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12)
+                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btn_ALL_serach)
+                    .addComponent(jButton1))
                 .addContainerGap())
         );
 
@@ -598,25 +548,14 @@ reloadAllReport(rangeData);
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btn_month_searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_month_searchActionPerformed
-        this.mothSearch();
-    }//GEN-LAST:event_btn_month_searchActionPerformed
-
     private void btn_ALL_serachActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ALL_serachActionPerformed
         this.normalSearch();
         
      
     }//GEN-LAST:event_btn_ALL_serachActionPerformed
 
-    private void txtDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDateActionPerformed
-         }//GEN-LAST:event_txtDateActionPerformed
-
-    private void btn_dayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_dayActionPerformed
-    	this.oneDay(); 
-    }//GEN-LAST:event_btn_dayActionPerformed
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    	this.interval();
+    	this.intervalSearch();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -656,14 +595,7 @@ reloadAllReport(rangeData);
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_ALL_serach;
-    private javax.swing.JButton btn_day;
-    private javax.swing.JButton btn_month_search;
-    private javax.swing.JComboBox<String> com_Month;
-    private javax.swing.JComboBox<String> com_Year;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
@@ -681,7 +613,6 @@ reloadAllReport(rangeData);
     private javax.swing.JTable tbl_all_sale;
     private javax.swing.JTable tbl_category_sale;
     private javax.swing.JTable tbl_total_sale;
-    private javax.swing.JTextField txtDate;
     private javax.swing.JTextField txtend;
     private javax.swing.JTextField txtstart;
     // End of variables declaration//GEN-END:variables

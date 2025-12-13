@@ -93,6 +93,7 @@ public class MainFrame extends javax.swing.JFrame {
 	
 	private Session session = Session.getInstance();
 	NumberFormat formatter = NumberFormat.getInstance();
+	
 	private List<ItemCard> allCards = new ArrayList<>();
 	
 	private List<Items> allItems = new ArrayList<>();
@@ -103,6 +104,7 @@ public class MainFrame extends javax.swing.JFrame {
 	
 	ItemStorage itemStorage = new ItemStorage();
 	
+	Sale_Rate sale = new Sale_Rate();
 	
     public MainFrame() {
         initComponents();
@@ -182,6 +184,7 @@ public class MainFrame extends javax.swing.JFrame {
             
         } catch (ValidationException ve) {
             JOptionPane.showMessageDialog(this, ve.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+            ve.printStackTrace();
         } catch (DaoException de) {
             JOptionPane.showMessageDialog(this, de.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
             de.printStackTrace();
@@ -914,6 +917,7 @@ public class MainFrame extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         mnuMainStore = new javax.swing.JMenu();
         mnu_Item_storage = new javax.swing.JMenuItem();
+        mnu_sale_record = new javax.swing.JMenuItem();
         mnuMainSetting = new javax.swing.JMenu();
         mnuAccountSetting = new javax.swing.JMenuItem();
 
@@ -1427,7 +1431,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(lbnCartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(pnlDateTime, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(pnlButtons, javax.swing.GroupLayout.DEFAULT_SIZE, 426, Short.MAX_VALUE))
+                    .addComponent(pnlButtons, javax.swing.GroupLayout.PREFERRED_SIZE, 426, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         lbnCartLayout.setVerticalGroup(
@@ -1469,6 +1473,14 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
         mnuMainStore.add(mnu_Item_storage);
+
+        mnu_sale_record.setText("Sale Record");
+        mnu_sale_record.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mnu_sale_recordActionPerformed(evt);
+            }
+        });
+        mnuMainStore.add(mnu_sale_record);
 
         jMenuBar1.add(mnuMainStore);
 
@@ -1650,6 +1662,10 @@ public class MainFrame extends javax.swing.JFrame {
     private void btn_refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_refreshActionPerformed
        this.refreshPanel();
     }//GEN-LAST:event_btn_refreshActionPerformed
+
+    private void mnu_sale_recordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnu_sale_recordActionPerformed
+       this.sale.setVisible(true);
+    }//GEN-LAST:event_mnu_sale_recordActionPerformed
     
     private void btnPrevPageActionPerformed(java.awt.event.ActionEvent evt) {
         if (currentPage > 1) {
@@ -1763,6 +1779,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenu mnuMainSetting;
     private javax.swing.JMenu mnuMainStore;
     private javax.swing.JMenuItem mnu_Item_storage;
+    private javax.swing.JMenuItem mnu_sale_record;
     private javax.swing.JPanel pnlButtons;
     private javax.swing.JPanel pnlDateTime;
     private javax.swing.JPanel pnlMain;

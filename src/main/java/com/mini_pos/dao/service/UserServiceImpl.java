@@ -60,14 +60,17 @@ public class UserServiceImpl implements UserService{
 		{
 			throw new ValidationException("Please input valid  UserName, Password!");
 		}
-		
-		try{
-			boolean loginOK = this.userdao.loginUser(username, password);
 			
+		
+			boolean loginOK = this.userdao.loginUser(username, password);
 			if(!loginOK)
 			{		
-				throw new DaoException("Invalid username/password OR user not approved by admin", null);
+				throw new ValidationException("Invalid username/password OR user not approved by admin");
 			}
+			
+			
+			try{
+			
 			return loginOK;
 		
 		}catch(Exception e) {
