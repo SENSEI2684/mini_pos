@@ -84,6 +84,7 @@ db.password=your_db_password
 - USER Role
     - Username: User
     - Username: User
+      
 ## Project Structure
 ```
 .
@@ -158,8 +159,8 @@ db.password=your_db_password
     │       │   ├── images
     │       │   └── logo
     │       └── config.properties  
-    └── DB/
-        ├── data.sql
-        └── schema.sql
-
+    ├── DB/
+    │   ├── data.sql
+    │   └── schema.sql
+    └── pom.xml
 ```
