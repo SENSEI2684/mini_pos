@@ -12,5 +12,5 @@ target/
 *.war
 *.ear
 
-src/main/resources/config.properties
+
 
