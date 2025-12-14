@@ -23,23 +23,38 @@ public class SaleReportDaoImpl extends BaseDao implements SaleReportDao {
 		 List<SaleReport> list = new ArrayList<>();
 
 		 String sql = 
-				    "(SELECT DATE(o.order_date) AS sale_date, " +
-				    "       c.category_name AS category, " +
-				    "       i.name AS item_name, " +
-				    "       SUM(oi.quantity) AS total_quantity, " +
-				    "       oi.price AS price, " +
-				    "       SUM(oi.subtotal) AS total_price " +
-				    "FROM orders o " +
-				    "JOIN order_items oi ON o.id = oi.order_id " +
-				    "JOIN items i ON oi.item_id = i.id " +
-				    "JOIN categories c ON i.category_id = c.id " +
-				    "GROUP BY DATE(o.order_date), c.category_name, i.name, oi.price) " +
-				    "UNION ALL " +
-				    "(SELECT 'TOTAL' AS sale_date, NULL AS category, NULL AS item_name, " +
-				    "       SUM(oi.quantity) AS total_quantity, NULL AS price, SUM(oi.subtotal) AS total_price " +
-				    "FROM orders o " +
-				    "JOIN order_items oi ON o.id = oi.order_id) " +
-				    "ORDER BY sale_date, category, item_name";
+				    "SELECT sale_date, category, item_name, total_quantity, price, total_price " +
+				    "FROM ( " +
+				    "    SELECT DATE(o.order_date) AS sale_date, " +
+				    "           c.category_name AS category, " +
+				    "           i.name AS item_name, " +
+				    "           SUM(oi.quantity) AS total_quantity, " +
+				    "           oi.price AS price, " +
+				    "           SUM(oi.subtotal) AS total_price, " +
+				    "           c.id AS category_id, " +   
+				    "           i.id AS item_id " +       
+				    "    FROM orders o " +
+				    "    JOIN order_items oi ON o.id = oi.order_id " +
+				    "    JOIN items i ON oi.item_id = i.id " +
+				    "    JOIN categories c ON i.category_id = c.id " +
+				    "    GROUP BY DATE(o.order_date), c.category_name, i.name, oi.price, c.id, i.id " +
+				    "    " +
+				    "    UNION ALL " +
+				    "    " +
+				    "    SELECT 'TOTAL' AS sale_date, " +
+				    "           NULL AS category, " +
+				    "           NULL AS item_name, " +
+				    "           SUM(oi.quantity) AS total_quantity, " +
+				    "           NULL AS price, " +
+				    "           SUM(oi.subtotal) AS total_price, " +
+				    "           NULL AS category_id, " +
+				    "           NULL AS item_id " +
+				    "    FROM orders o " +
+				    "    JOIN order_items oi ON o.id = oi.order_id " +
+				    ") AS combined " +
+				    "ORDER BY " +
+				    "    sale_date DESC, category_id ,  item_id ";
+				   
 				   
 
 				   
@@ -175,23 +190,26 @@ public class SaleReportDaoImpl extends BaseDao implements SaleReportDao {
 public List<SaleReport> getCategoryReport() {
 	List<SaleReport> list = new ArrayList<>();
 
-	String sql = 
-		    "(SELECT DATE(o.order_date) AS sale_date, " +
+	String sql =  "SELECT sale_date, category,total_quantity, total_price " +
+		    "FROM ( " +
+		    "SELECT DATE(o.order_date) AS sale_date, " +
 		    "       c.category_name AS category, " +
 		    "       SUM(oi.quantity) AS total_quantity, " +
-		    "       SUM(oi.subtotal) AS total_price " +
+		    "       SUM(oi.subtotal) AS total_price, " +
+		    "       c.id as category_id " +
 		    "FROM orders o " +
 		    "JOIN order_items oi ON o.id = oi.order_id " +
 		    "JOIN items i ON oi.item_id = i.id " +
 		    "JOIN categories c ON i.category_id = c.id " +
-		    "GROUP BY c.category_name, DATE(o.order_date)) " +
+		    "GROUP BY c.category_name, DATE(o.order_date), c.id " +
 		    "UNION ALL " +
-		    "(SELECT 'TOTAL' AS sale_date, NULL AS category, " +
+		    "SELECT 'TOTAL' AS sale_date, NULL AS category, " +
 		    "       SUM(oi.quantity) AS total_quantity, " +
-		    "       SUM(oi.subtotal) AS total_price " +
+		    "       SUM(oi.subtotal) AS total_price, NULL AS category_id " +
 		    "FROM orders o " +
-		    "JOIN order_items oi ON o.id = oi.order_id) " +
-		    "ORDER BY sale_date;";
+		    "JOIN order_items oi ON o.id = oi.order_id " +
+		    ") AS combined " +	
+		    "ORDER BY sale_date DESC, category_id;";
 				    
 				   
 		 
@@ -242,7 +260,7 @@ public List<SaleReport> getCategoryReport() {
 				    "       SUM(oi.subtotal) AS total_price " +
 				    "FROM orders o " +
 				    "JOIN order_items oi ON o.id = oi.order_id) " +
-				    "ORDER BY sale_date;";
+				    "ORDER BY sale_date DESC;";
 		
 				    	   
 		 
@@ -274,44 +292,71 @@ public List<SaleReport> getCategoryReport() {
 		    }
 	
 
-	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate) {//you can search daily monthly and any time interval with this
+	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate, String itemCode) {//you can search daily monthly and any time interval with this
 	    List<SaleReport> list = new ArrayList<>();
 
-	    String sql = 
-	    	    "(SELECT DATE(o.order_date) AS sale_date, " +
+	    StringBuilder sql = new StringBuilder(
+	    		"SELECT sale_date, category, item_name, total_quantity, price, total_price " +
+					    "FROM (" +
+	    	    "SELECT DATE(o.order_date) AS sale_date, " +
 	    	    "        c.category_name AS category, " +
 	    	    "        i.name AS item_name, " +
 	    	    "        SUM(oi.quantity) AS total_quantity, " +
 	    	    "        oi.price AS price, " +
-	    	    "        SUM(oi.subtotal) AS total_price " +
+	    	    "        SUM(oi.subtotal) AS total_price, " +
+	    	    "        i.id AS item_id, " +
+	    	    "        c.id AS category_id " +
 	    	    " FROM orders o " +
 	    	    " JOIN order_items oi ON o.id = oi.order_id " +
 	    	    " JOIN items i ON oi.item_id = i.id " +
 	    	    " JOIN categories c ON i.category_id = c.id " +
-	    	    " WHERE o.order_date >= ? " +
-	    	    "   AND o.order_date < ? " +
-	    	    " GROUP BY c.category_name, i.name, oi.price, DATE(o.order_date)) " +
+	    	    " WHERE o.order_date >= ? AND o.order_date < ? "
+	    	);
+
+	    	// 👇 add condition ONLY if itemCode exists
+	    	if (itemCode != null && !itemCode.isBlank()) {
+	    	    sql.append(" AND i.item_code = ? ");
+	    	}
+
+	    	sql.append(
+	    	    " GROUP BY c.category_name, i.name, oi.price, DATE(o.order_date), i.id, c.id " +
 	    	    "UNION ALL " +
-	    	    "(SELECT 'TOTAL' AS sale_date, NULL AS category, NULL AS item_name, " +
-	    	    "        SUM(oi.quantity) AS total_quantity, NULL AS price, SUM(oi.subtotal) AS total_price " +
+	    	    "SELECT 'TOTAL' AS sale_date, NULL AS category, NULL AS item_name, " +
+	    	    "        SUM(oi.quantity) AS total_quantity, NULL AS price, SUM(oi.subtotal) AS total_price, NULL AS item_id, NULL AS category_id " +
 	    	    " FROM orders o " +
 	    	    " JOIN order_items oi ON o.id = oi.order_id " +
-	    	    " WHERE o.order_date >= ? " +
-	    	    "   AND o.order_date < ?) " +
-	    	    "ORDER BY sale_date, category, item_name";
+	    	    " WHERE o.order_date >= ? AND o.order_date < ?"
+	    	);
+
+	    	if (itemCode != null && !itemCode.isBlank()) {
+	    	    sql.append(" AND oi.item_id IN (SELECT id FROM items WHERE item_code = ? ");
+	    	} 
+	    	sql.append(") AS combined ");
+	    	sql.append(" ORDER BY sale_date DESC, category_id , item_id ");
 
 
 	    try (Connection con = getConnection();
-	         PreparedStatement ps = con.prepareStatement(sql)) {
+	         PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
 	    	LocalDateTime startDateTime = startDate.atStartOfDay();
 	    	LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
 //	        ps.setDate(1, java.sql.Date.valueOf(startDateTime));
 //	        ps.setDate(2, java.sql.Date.valueOf(endDateTime));
-	        ps.setTimestamp(1, Timestamp.valueOf(startDateTime));
-	        ps.setTimestamp(2, Timestamp.valueOf(endDateTime));
-	        ps.setTimestamp(3, Timestamp.valueOf(startDateTime));
-	        ps.setTimestamp(4, Timestamp.valueOf(endDateTime));
+	    	int idx = 1;
+
+	        ps.setTimestamp(idx++, Timestamp.valueOf(startDateTime));
+	        ps.setTimestamp(idx++, Timestamp.valueOf(endDateTime));
+
+	        if (itemCode != null && !itemCode.isBlank()) {
+	            ps.setString(idx++, itemCode);
+	        }
+
+	        ps.setTimestamp(idx++, Timestamp.valueOf(startDateTime));
+	        ps.setTimestamp(idx++, Timestamp.valueOf(endDateTime));
+
+	        if (itemCode != null && !itemCode.isBlank()) {
+	            ps.setString(idx++, itemCode);
+	        }
 
 	        ResultSet rs = ps.executeQuery();
 	        while (rs.next()) {
@@ -345,27 +390,30 @@ public List<SaleReport> getCategoryReport() {
 		
 			List<SaleReport> list = new ArrayList<>();
 
-			String sql = 
-				    "(SELECT DATE(o.order_date) AS sale_date, " +
+			String sql = 	"SELECT sale_date, category, total_quantity, total_price " +
+				    "FROM ( " +
+				    "SELECT DATE(o.order_date) AS sale_date, " +
 				    "        c.category_name AS category, " +
 				    "        SUM(oi.quantity) AS total_quantity, " +
-				    "        SUM(oi.subtotal) AS total_price " +
+				    "        SUM(oi.subtotal) AS total_price, " +
+				    "        c.id as category_id " +
 				    " FROM orders o " +
 				    " JOIN order_items oi ON o.id = oi.order_id " +
 				    " JOIN items i ON oi.item_id = i.id " +
 				    " JOIN categories c ON i.category_id = c.id " +
 				    " WHERE o.order_date >= ? " +
 				    "   AND o.order_date < ? " +
-				    " GROUP BY DATE(o.order_date), c.category_name) " +
+				    " GROUP BY DATE(o.order_date), c.category_name " +
 				    "UNION ALL " +
-				    "(SELECT 'TOTAL' AS sale_date, NULL AS category, " +
+				    "SELECT 'TOTAL' AS sale_date, NULL AS category, " +
 				    "        SUM(oi.quantity) AS total_quantity, " +
 				    "        SUM(oi.subtotal) AS total_price " +
 				    " FROM orders o " +
 				    " JOIN order_items oi ON o.id = oi.order_id " +
 				    " WHERE o.order_date >= ? " +
-				    "   AND o.order_date < ?) " +
-				    "ORDER BY sale_date, category";
+				    "   AND o.order_date < ? " +
+				    " ) As combined " +
+				    "ORDER BY sale_date DESC, category_id ";
 
 						   
 				 
@@ -412,7 +460,7 @@ public List<SaleReport> getCategoryReport() {
 		 List<SaleReport> list = new ArrayList<>();
 
 		 String sql = 
-				    "SELECT " +
+				    "(SELECT " +
 				    "    DATE(o.order_date) AS sale_date, " +
 				    "    SUM(oi.quantity) AS total_quantity, " +
 				    "    SUM(oi.subtotal) AS total_price " +
@@ -420,17 +468,17 @@ public List<SaleReport> getCategoryReport() {
 				    "JOIN order_items oi ON o.id = oi.order_id " +
 				    "WHERE o.order_date >= ? " +
 				    "  AND o.order_date < ? " +
-				    "GROUP BY DATE(o.order_date) " +
+				    "GROUP BY DATE(o.order_date)) " +
 				    "UNION ALL " +
-				    "SELECT " +
+				    "(SELECT " +
 				    "    'TOTAL', " +
 				    "    SUM(oi.quantity), " +
 				    "    SUM(oi.subtotal) " +
 				    "FROM orders o " +
 				    "JOIN order_items oi ON o.id = oi.order_id " +
 				    "WHERE o.order_date >= ? " +
-				    "  AND o.order_date < ? " +   // <- added space here
-				    "ORDER BY sale_date";
+				    "  AND o.order_date < ?) " +   // <- added space here
+				    "ORDER BY sale_date DESC";
 
 				   
 		 
@@ -469,6 +517,71 @@ public List<SaleReport> getCategoryReport() {
 			        }		    	
 		    return list;
 		    }
+	
+	
+	@Override
+	public List<SaleReport> getItemReport(String itemcode ) {
+		 List<SaleReport> list = new ArrayList<>();
+
+		 String sql = "SELECT sale_date, category, total_quantity, total_price " +
+				    "FROM ( " +
+				    "SELECT DATE(o.order_date) AS sale_date, " +
+				    "       c.category_name AS category, " +
+				    "       i.name AS item_name, " +
+				    "       SUM(oi.quantity) AS total_quantity, " +
+				    "       oi.price AS price, " +
+				    "       SUM(oi.subtotal) AS total_price, " +
+				    "        i.id AS item_id, " +
+		    	    "        c.id AS category_id " +
+				    "FROM orders o " +
+				    "JOIN order_items oi ON o.id = oi.order_id " +
+				    "JOIN items i ON oi.item_id = i.id " +
+				    "JOIN categories c ON i.category_id = c.id " +
+				    "WHERE i.item_code = ? "+
+				    "GROUP BY DATE(o.order_date), c.category_name, i.name, oi.price, i.id, c.id " +
+				    "UNION ALL " +
+				    "SELECT 'TOTAL' AS sale_date, NULL AS category, NULL AS item_name, " +
+				    "       SUM(oi.quantity) AS total_quantity, NULL AS price, SUM(oi.subtotal) AS total_price, NULL AS item_id, NULL AS category_id " +
+				    "FROM orders o " +
+				    "JOIN order_items oi ON o.id = oi.order_id " +
+				    " JOIN items i ON oi.item_id = i.id " +
+				    " Where i.item_code = ? "+
+				    " ) AS combined " +
+				    "ORDER BY  sale_date DESC, category , item_name ";
+				   
+
+				   
+			try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+				
+				ps.setString(1, itemcode);
+				ps.setString(2, itemcode);
+				
+				ResultSet rs = ps.executeQuery();
+				while (rs.next()) {
+
+					String saleDateStr = rs.getString("sale_date");
+		        	LocalDate saleDate = null;
+		        	 if (!"TOTAL".equals(saleDateStr)) {
+			                saleDate = LocalDate.parse(saleDateStr); // convert to LocalDate
+			            }
+					
+					String cat_name = rs.getString("category");
+					String item_name = rs.getString("item_name");
+					Integer qty = rs.getInt("total_quantity");
+					Integer total_price = rs.getInt("total_price");
+					Integer sub_price = rs.getInt("price");
+					SaleReport sr = new SaleReport(cat_name, item_name, qty, sub_price, total_price,
+							saleDate);
+
+					list.add(sr);
+				}
+				rs.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+		}
 }
 	
 		 

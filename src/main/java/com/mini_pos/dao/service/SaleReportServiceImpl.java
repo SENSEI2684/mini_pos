@@ -66,7 +66,7 @@ public class SaleReportServiceImpl implements SaleReportService {
 //	}
 
 	@Override
-	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate) throws DaoException, ValidationException {
+	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate,String itemCode) throws DaoException, ValidationException {
 	    if (startDate == null) {
 	        throw new ValidationException("Start date is required!");
 	    }
@@ -77,7 +77,7 @@ public class SaleReportServiceImpl implements SaleReportService {
 	        throw new ValidationException("End date cannot be before start date!");
 	    }	
 		try {
-			return saleRpDao.getAllItemsReportByInterval(startDate , endDate);
+			return saleRpDao.getAllItemsReportByInterval(startDate , endDate,itemCode);
 			}
 			catch(Exception e) {
 				throw new DaoException( "Error happen in All Items getReport from database", e);
@@ -124,7 +124,19 @@ public class SaleReportServiceImpl implements SaleReportService {
 			}
 	}
 
-	
-	
+	@Override
+	public List<SaleReport> getItemReport(String itemcode) throws DaoException, ValidationException {
+		if (itemcode == null || itemcode.trim().isEmpty()) {
+	        throw new ValidationException("ItemCode required!");
+	    }
+		
+		try {
+			return saleRpDao.getItemReport(itemcode);
+			}
+			catch(Exception e) {
+				throw new DaoException( "Error happen in getAllReport from database", e);
+			}
+		}
+	}
 
-}
+	

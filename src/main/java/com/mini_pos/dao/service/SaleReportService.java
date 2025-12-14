@@ -15,7 +15,8 @@ public interface SaleReportService {
 	public List<SaleReport> getSummaryReport( ) throws DaoException;
 //	public List<SaleReport> getMonthlyReport(YearMonth month) throws DaoException;
 //	public List<SaleReport> getDailyReport(LocalDateTime date) throws DaoException;
-	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate) throws DaoException, ValidationException;
+	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate,String itemCode) throws DaoException, ValidationException;
 	public List<SaleReport> getCategoryReportByInterval(LocalDate startDate, LocalDate endDate) throws DaoException, ValidationException;
 	public List<SaleReport> getSummaryReportByInterval(LocalDate startDate, LocalDate endDate) throws DaoException, ValidationException;
+	public List<SaleReport> getItemReport(String itemcode )throws DaoException, ValidationException;
 }

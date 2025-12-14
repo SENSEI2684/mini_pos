@@ -13,7 +13,8 @@ public interface SaleReportDao {
 	public List<SaleReport> getSummaryReport( );
 //	public List<SaleReport> getDailyReport(LocalDateTime date );
 //	public List<SaleReport> getMonthlyReport(YearMonth month) ;
-	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate);
+	public List<SaleReport> getAllItemsReportByInterval(LocalDate startDate, LocalDate endDate,String itemCode);
 	public List<SaleReport> getCategoryReportByInterval(LocalDate startDate, LocalDate endDate);
 	public List<SaleReport> getSummaryReportByInterval(LocalDate startDate, LocalDate endDate);
+	public List<SaleReport> getItemReport(String itemcode );
 }

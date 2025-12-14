@@ -217,16 +217,17 @@ public class Sale_Rate extends javax.swing.JFrame {
 
 	        String startText = txtstart.getText().trim();
 	        String endText = txtend.getText().trim();
+	        String itemcode = txt_item_code.getText().trim(); 
 
 	        if (startText.isEmpty() || endText.isEmpty()) {
-	        	JOptionPane.showMessageDialog(this, "Please input both start and end dates!", "Warrning", JOptionPane.ERROR_MESSAGE);
+	        	JOptionPane.showMessageDialog(this, "Please input both start and end dates!", "Warrning", JOptionPane.WARNING_MESSAGE);
 	        }
 
 	        LocalDate start = LocalDate.parse(startText);
 	        LocalDate end = LocalDate.parse(endText);
 		
 		try {
-			List<SaleReport> allItems = saleRpService.getAllItemsReportByInterval(start, end);
+			List<SaleReport> allItems = saleRpService.getAllItemsReportByInterval(start, end,itemcode);
 			List<SaleReport> category = saleRpService.getCategoryReportByInterval(start, end);
 			List<SaleReport> summary = saleRpService.getSummaryReportByInterval(start, end);
 			reloadAllReport(allItems);
@@ -237,12 +238,31 @@ public class Sale_Rate extends javax.swing.JFrame {
 			JOptionPane.showMessageDialog(this, de.getMessage(), "Warrning", JOptionPane.ERROR_MESSAGE);
 			de.printStackTrace();
 		} catch (ValidationException ve) {
-			JOptionPane.showMessageDialog(this, ve.getMessage(), "DataBase Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, ve.getMessage(), "DataBase Error", JOptionPane.WARNING_MESSAGE);
 			ve.printStackTrace();
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, "Invalid date format! Use yyyy-MM-dd",   "Validation Error",  JOptionPane.WARNING_MESSAGE);
 		}
 	
+	}
+	
+	private void itemReportSearch() {
+		 String itemcode = txt_item_code.getText().trim();
+		 try {
+				List<SaleReport> allItems = saleRpService.getItemReport(itemcode);
+				
+				reloadAllReport(allItems);
+
+		       
+			} catch (DaoException de) {
+				JOptionPane.showMessageDialog(this, de.getMessage(), "Warrning", JOptionPane.ERROR_MESSAGE);
+				de.printStackTrace();
+			} catch (ValidationException ve) {
+				JOptionPane.showMessageDialog(this, ve.getMessage(), "DataBase Error", JOptionPane.WARNING_MESSAGE);
+				ve.printStackTrace();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(this, "Invalid Item_code!",   "Validation Error",  JOptionPane.WARNING_MESSAGE);
+			}
 	}
 		
 //----------------------------------------------------------------------------------------------------------------------------------------------------------  	
@@ -276,16 +296,23 @@ public class Sale_Rate extends javax.swing.JFrame {
         txtstart = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         txtend = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        txt_interval_date_search = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        txt_item_code = new javax.swing.JTextField();
+        btn_item_search = new javax.swing.JButton();
+        btn_refresh = new javax.swing.JButton();
 
-        setBackground(new java.awt.Color(255, 255, 255));
+        setBackground(new java.awt.Color(245, 177, 28));
 
-        jPanel1.setBackground(new java.awt.Color(243, 243, 243));
+        jPanel1.setBackground(new java.awt.Color(181, 165, 130));
 
         tabbedPaneCustom1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         tabbedPaneCustom1.setSelectedColor(new java.awt.Color(49, 173, 248));
         tabbedPaneCustom1.setUnselectedColor(new java.awt.Color(194, 226, 243));
 
+        pnl_all_sale.setBackground(new java.awt.Color(181, 165, 130));
+
+        pnl_all_base.setBackground(new java.awt.Color(204, 204, 204));
         pnl_all_base.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
 
         tbl_all_sale.setModel(new javax.swing.table.DefaultTableModel(
@@ -315,14 +342,14 @@ public class Sale_Rate extends javax.swing.JFrame {
             pnl_all_baseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_all_baseLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 818, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 781, Short.MAX_VALUE)
                 .addContainerGap())
         );
         pnl_all_baseLayout.setVerticalGroup(
             pnl_all_baseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnl_all_baseLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -336,7 +363,7 @@ public class Sale_Rate extends javax.swing.JFrame {
             pnl_all_saleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnl_all_saleLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pnl_all_base, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pnl_all_base, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -371,7 +398,7 @@ public class Sale_Rate extends javax.swing.JFrame {
             pnl_category_baseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_category_baseLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 818, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 781, Short.MAX_VALUE)
                 .addContainerGap())
         );
         pnl_category_baseLayout.setVerticalGroup(
@@ -427,7 +454,7 @@ public class Sale_Rate extends javax.swing.JFrame {
             pnl_total_baseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnl_total_baseLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 818, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 781, Short.MAX_VALUE)
                 .addContainerGap())
         );
         pnl_total_baseLayout.setVerticalGroup(
@@ -454,6 +481,7 @@ public class Sale_Rate extends javax.swing.JFrame {
 
         tabbedPaneCustom1.addTab("Total Sale", pnl_total_sale);
 
+        pnl_record_mgmt.setBackground(new java.awt.Color(204, 204, 204));
         pnl_record_mgmt.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         btn_ALL_serach.setText("All Search");
@@ -463,14 +491,33 @@ public class Sale_Rate extends javax.swing.JFrame {
             }
         });
 
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel4.setText("Start Date : yyyy-MM-dd");
 
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel5.setText("End Date : yyyy-MM-dd");
 
-        jButton1.setText("Interval serach");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        txt_interval_date_search.setText("Interval Date Search");
+        txt_interval_date_search.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                txt_interval_date_searchActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel1.setText("Item Code :");
+
+        btn_item_search.setText("Item Search");
+        btn_item_search.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_item_searchActionPerformed(evt);
+            }
+        });
+
+        btn_refresh.setText("Refresh");
+        btn_refresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_refreshActionPerformed(evt);
             }
         });
 
@@ -481,36 +528,44 @@ public class Sale_Rate extends javax.swing.JFrame {
             .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addGap(30, 30, 30)
+                    .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(25, 25, 25)
+                .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtstart)
+                    .addComponent(txtend)
+                    .addComponent(txt_item_code, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE))
+                .addGap(58, 58, 58)
                 .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btn_item_search, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_interval_date_search)
                     .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btn_ALL_serach, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(17, 17, 17))
-                    .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                        .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtstart, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                            .addComponent(txtend))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addComponent(btn_ALL_serach, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btn_refresh)))
+                .addContainerGap(7, Short.MAX_VALUE))
         );
         pnl_record_mgmtLayout.setVerticalGroup(
             pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                .addContainerGap(8, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(txtstart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtstart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txt_interval_date_search))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(txtend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
+                    .addComponent(txtend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_item_search))
+                .addGap(11, 11, 11)
                 .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_ALL_serach)
-                    .addComponent(jButton1))
+                    .addComponent(jLabel1)
+                    .addComponent(txt_item_code, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_refresh))
                 .addContainerGap())
         );
 
@@ -521,28 +576,19 @@ public class Sale_Rate extends javax.swing.JFrame {
             .addComponent(tabbedPaneCustom1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pnl_record_mgmt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(pnl_record_mgmt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(8, 8, 8)
-                .addComponent(pnl_record_mgmt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(pnl_record_mgmt, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabbedPaneCustom1, javax.swing.GroupLayout.PREFERRED_SIZE, 527, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(tabbedPaneCustom1, javax.swing.GroupLayout.PREFERRED_SIZE, 527, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
         setLocationRelativeTo(null);
@@ -554,9 +600,19 @@ public class Sale_Rate extends javax.swing.JFrame {
      
     }//GEN-LAST:event_btn_ALL_serachActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void txt_interval_date_searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_interval_date_searchActionPerformed
     	this.intervalSearch();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_txt_interval_date_searchActionPerformed
+
+    private void btn_item_searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_item_searchActionPerformed
+        this.itemReportSearch();
+    }//GEN-LAST:event_btn_item_searchActionPerformed
+
+    private void btn_refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_refreshActionPerformed
+        this.reloadCategoryReport(null);
+        this.reloadCategoryReport(null);
+        this.reloadSummaryReport(null);
+    }//GEN-LAST:event_btn_refreshActionPerformed
 
     /**
      * @param args the command line arguments
@@ -595,7 +651,9 @@ public class Sale_Rate extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_ALL_serach;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btn_item_search;
+    private javax.swing.JButton btn_refresh;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
@@ -613,6 +671,8 @@ public class Sale_Rate extends javax.swing.JFrame {
     private javax.swing.JTable tbl_all_sale;
     private javax.swing.JTable tbl_category_sale;
     private javax.swing.JTable tbl_total_sale;
+    private javax.swing.JButton txt_interval_date_search;
+    private javax.swing.JTextField txt_item_code;
     private javax.swing.JTextField txtend;
     private javax.swing.JTextField txtstart;
     // End of variables declaration//GEN-END:variables

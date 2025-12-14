@@ -1664,7 +1664,20 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_refreshActionPerformed
 
     private void mnu_sale_recordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnu_sale_recordActionPerformed
-       this.sale.setVisible(true);
+       
+       if (Session.getInstance().getAccountType() == Role.ADMIN) 
+   	{
+    	   this.sale.setVisible(true);
+   	} 
+   	else 
+   	{
+   	    JOptionPane.showMessageDialog(
+   	        this, 
+   	        "You have no permission to access this", 
+   	        "Warning", 
+   	        JOptionPane.WARNING_MESSAGE
+   	    );
+   	}
     }//GEN-LAST:event_mnu_sale_recordActionPerformed
     
     private void btnPrevPageActionPerformed(java.awt.event.ActionEvent evt) {
