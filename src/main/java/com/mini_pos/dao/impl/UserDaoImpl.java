@@ -4,19 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.mini_pos.dao.BaseDao;
 import com.mini_pos.dao.UserDao;
-import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
-import com.mini_pos.helper_function.DaoException;
-
-
 
 public class UserDaoImpl extends BaseDao implements UserDao {
 
@@ -134,7 +128,6 @@ public class UserDaoImpl extends BaseDao implements UserDao {
 	                Integer id = rs.getInt("id");
 	                String uname = rs.getString("username");
 	                String pwd = rs.getString("password");
-	                String roleStr = rs.getString("role");
 	                Boolean approved = rs.getBoolean("approved");
 	                java.time.LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
 	                Role role = Role.valueOf(rs.getString("role"));

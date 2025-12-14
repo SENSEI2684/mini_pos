@@ -7,8 +7,7 @@ import java.sql.Statement;
 
 import com.mini_pos.dao.BaseDao;
 import com.mini_pos.dao.OrderDao;
-import com.mini_pos.dao.etinity.Items;
-import com.mini_pos.dao.etinity.Order;
+
 
 public class OrderDaoImpl extends BaseDao implements OrderDao {
 

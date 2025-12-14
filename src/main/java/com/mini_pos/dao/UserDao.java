@@ -2,10 +2,10 @@ package com.mini_pos.dao;
 
 import java.util.List;
 
-import com.mini_pos.dao.etinity.Items;
+
 import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
-import com.mini_pos.helper_function.DaoException;
+
 
 public interface UserDao {
 	public boolean saveUser(Users users);

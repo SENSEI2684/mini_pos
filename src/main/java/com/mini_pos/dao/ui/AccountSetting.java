@@ -5,20 +5,12 @@
 package com.mini_pos.dao.ui;
 
 import java.awt.Image;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
 import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.service.UserService;
@@ -39,10 +31,6 @@ public class AccountSetting extends javax.swing.JFrame {
 	 */
 	private ImageIcon eyeIcon;
 	private ImageIcon eyeHideIcon;
-	private ImageIcon eyeIcon1;
-	private ImageIcon eyeHideIcon1;
-	private boolean passwordHidden = true;
-	private boolean repasswordHidden = true;
 
 	Integer selectedID;
 
@@ -71,8 +59,8 @@ public class AccountSetting extends javax.swing.JFrame {
 		eyeIcon = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
 		eyeHideIcon = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
 
-		eyeIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
-		eyeHideIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
+//		eyeIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/show.png")), 20, 20);
+//		eyeHideIcon1 = resizeIcon(new ImageIcon(getClass().getResource("/static/logo/hide.png")), 20, 20);
 
 	    boolean[] passHidden = { true };
 	    boolean[] rePassHidden = { true };
@@ -288,9 +276,7 @@ public class AccountSetting extends javax.swing.JFrame {
 		this.comAccountType.setSelectedIndex(0);
 	}
 	
-	private void refersh() {
-		
-	}
+
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------		
 	/**
@@ -527,66 +513,7 @@ public class AccountSetting extends javax.swing.JFrame {
         tblAccounts.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(230, 230, 230), 2, true));
         tblAccounts.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
                 "username", "password", "role", "approved", "created_at"

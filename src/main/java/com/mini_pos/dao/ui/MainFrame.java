@@ -19,17 +19,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
 import com.mini_pos.dao.etinity.CartWithItems;
 import com.mini_pos.dao.etinity.Categories;
 import com.mini_pos.dao.etinity.Items;
-import com.mini_pos.dao.etinity.ItemsWithCategories;
 import com.mini_pos.dao.etinity.OrderItem;
 import com.mini_pos.dao.etinity.Role;
 import com.mini_pos.dao.etinity.Users;
@@ -65,12 +60,10 @@ public class MainFrame extends javax.swing.JFrame {
 	private int currentPage = 1; //for pagination
 	private int itemsPerPage = 12; // 3x3 grid , for pagination
 	private int totalItems = 0;  // for items JDBC
-	private boolean loginSucceeded = false; // for login
-	
+	public boolean loginSucceeded = false; // for login	
     private ImageIcon eyeIcon;   // for login eyelogo
     private ImageIcon eyeHideIcon; // for login eyelogo hide
-	private boolean passwordHidden = true; // for login function
-	
+	private boolean passwordHidden = true; // for login function	
 	private ImageIcon regEyeIcon;
 	private ImageIcon regEyeIconHidden;
 	private ImageIcon regEyeIcon1;
@@ -127,7 +120,7 @@ public class MainFrame extends javax.swing.JFrame {
  //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
  //loginUI ***************************************************************
-    private void loginForm() { //setup dlglogin box 
+    public void loginForm() { //setup dlglogin box 
     	dialogin.setModal(true);// this code mean another step will appear only if this box close
     	dialogin.pack();
     	dialogin.setLocationRelativeTo(this); // center
@@ -145,7 +138,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     }
     
-    private void registrationForm() { 
+    public void registrationForm() { 
     	diaRegistration.setModal(true);
     	diaRegistration.pack();
     	diaRegistration.setLocationRelativeTo(this); // center
@@ -889,7 +882,6 @@ public class MainFrame extends javax.swing.JFrame {
         btnSearch = new javax.swing.JButton();
         lblCategories = new javax.swing.JLabel();
         comCategories = new javax.swing.JComboBox<>();
-        btnShowAll = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         pnlpagination = new javax.swing.JPanel();
@@ -1057,16 +1049,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap(63, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout pnlreceipLayout = new javax.swing.GroupLayout(pnlreceip);
-        pnlreceip.setLayout(pnlreceipLayout);
-        pnlreceipLayout.setHorizontalGroup(
-            pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        pnlreceipLayout.setVerticalGroup(
-            pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 580, Short.MAX_VALUE)
-        );
+        pnlreceip.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         txtArea.setColumns(20);
         txtArea.setRows(5);
@@ -1079,33 +1062,44 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        javax.swing.GroupLayout pnlreceipLayout = new javax.swing.GroupLayout(pnlreceip);
+        pnlreceip.setLayout(pnlreceipLayout);
+        pnlreceipLayout.setHorizontalGroup(
+            pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlreceipLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 482, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(21, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlreceipLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(193, 193, 193))
+        );
+        pnlreceipLayout.setVerticalGroup(
+            pnlreceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlreceipLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnPrint)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout diareceipLayout = new javax.swing.GroupLayout(diareceip.getContentPane());
         diareceip.getContentPane().setLayout(diareceipLayout);
         diareceipLayout.setHorizontalGroup(
             diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(diareceipLayout.createSequentialGroup()
-                .addGroup(diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(diareceipLayout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 495, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(diareceipLayout.createSequentialGroup()
-                        .addGap(182, 182, 182)
-                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, diareceipLayout.createSequentialGroup()
+                .addContainerGap(14, Short.MAX_VALUE)
+                .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15))
         );
         diareceipLayout.setVerticalGroup(
             diareceipLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(diareceipLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, diareceipLayout.createSequentialGroup()
+                .addContainerGap(16, Short.MAX_VALUE)
                 .addComponent(pnlreceip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 51, Short.MAX_VALUE))
-            .addGroup(diareceipLayout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addComponent(jScrollPane3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnPrint)
-                .addGap(19, 19, 19))
+                .addGap(14, 14, 14))
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -1126,8 +1120,6 @@ public class MainFrame extends javax.swing.JFrame {
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
-        txtSearch.setText("Item Name");
-
         btnSearch.setText("Search");
         btnSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1141,13 +1133,6 @@ public class MainFrame extends javax.swing.JFrame {
         comCategories.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comCategoriesActionPerformed(evt);
-            }
-        });
-
-        btnShowAll.setText("Show All");
-        btnShowAll.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnShowAllActionPerformed(evt);
             }
         });
 
@@ -1174,9 +1159,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(comCategories, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnShowAll, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(126, 126, 126))
         );
         pnlMainTitleLayout.setVerticalGroup(
             pnlMainTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1184,7 +1167,6 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(pnlMainTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(comCategories, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnShowAll)
                     .addComponent(lblCategories, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSearch)
                     .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1274,9 +1256,16 @@ public class MainFrame extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         jScrollPane1.setViewportView(tblCart);
@@ -1565,8 +1554,8 @@ public class MainFrame extends javax.swing.JFrame {
     	 boolean isAll = selected.equalsIgnoreCase("None");
  
 			if (isAll) {
-				filteredItems = allItems.stream().filter(i -> i.name().toLowerCase().contains(text))
-						.toList();
+				filteredItems = allItems.stream().filter(i -> i.name().toLowerCase().contains(text))// in here search fiels is blank it still contain "" and evey items.name have "" too, 
+						.toList();																	//so if we select none every items will show
 			} else {
 				filteredItems = allItems.stream()
 
@@ -1585,18 +1574,6 @@ public class MainFrame extends javax.swing.JFrame {
     	
    
     }//GEN-LAST:event_comCategoriesActionPerformed
-
-    private void btnShowAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowAllActionPerformed
-
-    	filteredItems = allItems;
-        txtSearch.setText("");
-        comCategories.setSelectedIndex(0);
-
-        currentPage = 1;
-        updatePageLabel();
-        loadItemsToPanel();
-    	
-    }//GEN-LAST:event_btnShowAllActionPerformed
 
     private void btnloginActionPerformed(java.awt.event.ActionEvent evt) {                                         
     	this.login();
@@ -1758,7 +1735,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnRemove;
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnSearch;
-    private javax.swing.JButton btnShowAll;
     private javax.swing.JButton btnShowReceip;
     private javax.swing.JButton btn_refresh;
     private javax.swing.JButton btnlogin;

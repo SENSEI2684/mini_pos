@@ -2,11 +2,8 @@ package com.mini_pos.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-
 import com.mini_pos.dao.BaseDao;
-import com.mini_pos.dao.OrderDao;
 import com.mini_pos.dao.OrderItemDao;
-import com.mini_pos.dao.etinity.Order;
 import com.mini_pos.dao.etinity.OrderItem;
 
 public class OrderItemDaoImpl extends BaseDao implements OrderItemDao {

@@ -6,12 +6,9 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.mini_pos.dao.BaseDao;
-import com.mini_pos.dao.OrderDao;
 import com.mini_pos.dao.SaleReportDao;
 import com.mini_pos.dao.etinity.SaleReport;
 
@@ -279,7 +276,7 @@ public List<SaleReport> getCategoryReport() {
 			            Integer total_price = rs.getInt("total_price");
 			           
 			            String item_name = null;
-			            Integer sub_price ; 	
+			      	
 			            SaleReport sr = new SaleReport(cat_name,item_name,qty,0,total_price,saleDate); 
 
 			            list.add(sr);			            
@@ -506,7 +503,7 @@ public List<SaleReport> getCategoryReport() {
 			            Integer total_price = rs.getInt("total_price");
 			  		 
 			            String item_name = null;
-			            Integer sub_price ; 	
+			        	
 			            SaleReport sr = new SaleReport(cat_name,item_name,qty,0,total_price,saleDate); 
 
 			            list.add(sr);			            
@@ -523,7 +520,7 @@ public List<SaleReport> getCategoryReport() {
 	public List<SaleReport> getItemReport(String itemcode ) {
 		 List<SaleReport> list = new ArrayList<>();
 
-		 String sql = "SELECT sale_date, category, total_quantity, total_price " +
+		 String sql = "SELECT sale_date, category, item_name, total_quantity, price, total_price " +
 				    "FROM ( " +
 				    "SELECT DATE(o.order_date) AS sale_date, " +
 				    "       c.category_name AS category, " +

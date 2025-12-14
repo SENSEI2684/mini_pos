@@ -1,7 +1,17 @@
+-- Insert Admin user
+INSERT INTO users (username, password, role, approved) 
+VALUES ('Admin', SHA2(CONCAT('#@!*&456','Admin'), 256), 'ADMIN', 1);
+
+-- Insert normal User
+INSERT INTO users (username, password, role, approved) 
+VALUES ('User', SHA2(CONCAT('#@!*&456','User'), 256), 'USER', 1);
+
+
 INSERT INTO categories (category_name) VALUES
 ('Phones'),
 ('Laptops'),
-('HeadPhone');
+('HeadPhone'),
+('Console');
 
 INSERT INTO items (item_code, name, price, photo, category_id) VALUES
 ('ACER001','Acer Aspire Lite 15',2550000,'Acer_Aspire_Lite_15.png',2),
@@ -51,28 +61,12 @@ INSERT INTO items (item_code, name, price, photo, category_id) VALUES
 ('SAM010','Samsung S25',2500000,'Samsung-S25.jpg',1),
 ('SAM011','Samsung Z Flip',4200000,'Samsung-Z-Flip.jpg',1),
 ('SAM012','Samsung Z Fold-7',6000000,'Samsung-Z-Fold-7.jpg',1),
-('NSW001','Nintendo Switch 2',5000000,'Nintendo Switch 2.jpg',3),
-('PS001','PlayStation 1',3500000,'PlayStation 1.jpg',3),
-('PS002','PlayStation 2',3600000,'PlayStation 2.jpg',3),
-('PS005','PlayStation 5',4500000,'PlayStation 5.jpg',3);
+('NSW001','Nintendo Switch 2',5000000,'Nintendo Switch 2.jpg',4),
+('PS001','PlayStation 1',3500000,'PlayStation 1.jpg',4),
+('PS002','PlayStation 2',3600000,'PlayStation 2.jpg',4),
+('PS005','PlayStation 5',4500000,'PlayStation 5.jpg',4);
 
 
-
-
--- Insert Admin user
-INSERT INTO users (username, password, role, approved) 
-VALUES ('Admin', SHA2(CONCAT('#@!*&456','Admin'), 256), 'ADMIN', 1);
-
--- Insert normal User
-INSERT INTO users (username, password, role, approved) 
-VALUES ('User', SHA2(CONCAT('#@!*&456','User'), 256), 'USER', 1);
-
--- =======================================
--- 100 ORDERS + ORDER_ITEMS
--- =======================================
-
--- 100 ORDERS
--- =======================================
 INSERT INTO orders (total_amount, order_date) VALUES
 (3200000,'2024-01-05 09:12:00'),
 (4100000,'2024-01-06 11:30:00'),

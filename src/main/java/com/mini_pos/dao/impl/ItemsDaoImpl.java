@@ -1,26 +1,16 @@
 package com.mini_pos.dao.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-
-import javax.swing.ImageIcon;
-
 import com.mini_pos.dao.BaseDao;
 import com.mini_pos.dao.ItemsDao;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.ItemsWithCategories;
-import com.mysql.cj.jdbc.Blob;
+
 
 
 
@@ -201,15 +191,16 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	}
 
 	@Override
-	public boolean updateItems(Integer price, String item_code) {
-		String sql = "Update items set price = ? where item_code =?;";
+	public boolean updateItems(Integer price, String item_code,String name) {
+		String sql = "Update items set price = ? , name = ?  where item_code =?;";
 		try (Connection con = getConnection();
 	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk
 																					// to sql
 
 			stmt.setInt(1, price); // for price
-			stmt.setString(2, item_code); // for item_code
-
+			stmt.setString(2, name); // for item_code
+			stmt.setString(3, item_code);
+			
 			int row = stmt.executeUpdate();// this must use .executeUpdate bec we make insert changes
 
 			return row > 0;
@@ -244,7 +235,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 		try (Connection con = getConnection();
 	             PreparedStatement stmt = con.prepareStatement(sql)) {
 			stmt.setInt(1, ids);
-			System.out.println("SQL" + sql);
+//			System.out.println("SQL" + sql);
 			ResultSet rs = stmt.executeQuery();
 
 			while (rs.next()) {
@@ -350,7 +341,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	
 	@Override
 	public boolean isItemExist(String item_code,String name) { // this code is need for (Register)Business Logic Request
-		String sql = "SELECT COUNT(*) FROM items WHERE item_code = ? AND name = ?";
+		String sql = "SELECT COUNT(*) FROM items WHERE item_code = ? OR name = ?";
 		System.out.println("SQL " + sql);
 		try (Connection con = getConnection();
 	             PreparedStatement stmt = con.prepareStatement(sql)) {// this Statement is created for talk to sql
@@ -371,7 +362,7 @@ public class ItemsDaoImpl extends BaseDao implements ItemsDao {
 	
 
 	public static void main(String[] args) {
-		ItemsDao itemsdao = new ItemsDaoImpl();
+//		ItemsDao itemsdao = new ItemsDaoImpl();
 //		List<Items> items = itemsdao.getAllItems();
 //			items.forEach(System.out::println);// normal read
 //		

@@ -9,8 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -19,14 +19,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
-import com.mini_pos.dao.CategoriesDao;
 import com.mini_pos.dao.etinity.Categories;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.ItemsWithCategories;
-import com.mini_pos.dao.etinity.Role;
-import com.mini_pos.dao.etinity.Users;
-import com.mini_pos.dao.impl.CategoriesDaoImpl;
 import com.mini_pos.dao.service.CategoriesService;
 import com.mini_pos.dao.service.CategoriesServiceImpl;
 import com.mini_pos.dao.service.ItemsService;
@@ -49,6 +44,8 @@ public class ItemStorage extends javax.swing.JFrame {
 	String path2 = null;
 	 
 	
+	private List<ItemsWithCategories> allItems = new ArrayList<>();
+	private List<ItemsWithCategories> filteredItems = new ArrayList<>();
 	
 	ItemsService itemsService = new ItemsServiceImpl();
 	CategoriesService catService = new CategoriesServiceImpl();
@@ -71,9 +68,9 @@ public class ItemStorage extends javax.swing.JFrame {
         DefaultTableModel model = (DefaultTableModel) this.tblItems.getModel();
         model.setRowCount(0);
         try {
-            List<ItemsWithCategories> items = itemsService.getAllItemsAndCategoryName();
+           allItems = itemsService.getAllItemsAndCategoryName();
 
-            for (ItemsWithCategories item : items) {
+            for (ItemsWithCategories item : allItems) {
                 Object[] row = new Object[7];
                 row[0] = item.item().id();
                 row[1] = item.item().item_code();
@@ -405,6 +402,7 @@ public class ItemStorage extends javax.swing.JFrame {
 	private void updateItems() {
 	    String item_code = txtItem_code.getText().trim();
 	    String priceText = txtPrice.getText().trim();
+	    String item_name = txtName.getText().trim();
 	    int price;
 
 	    try {
@@ -419,7 +417,7 @@ public class ItemStorage extends javax.swing.JFrame {
 	                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
 	        if (result == JOptionPane.YES_OPTION) {
-	            itemsService.updateItems(price, item_code);
+	            itemsService.updateItems(price, item_code,item_name);
 	            JOptionPane.showMessageDialog(this, "Item updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 	            reloadAllItems();
 	            clearItemsInput();
@@ -526,6 +524,7 @@ public class ItemStorage extends javax.swing.JFrame {
         btn_upload = new javax.swing.JButton();
         btn_reset = new javax.swing.JButton();
         btn_Search = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
         pnlCategotyAll = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tbl_Category = new javax.swing.JTable();
@@ -588,7 +587,7 @@ public class ItemStorage extends javax.swing.JFrame {
             }
         });
 
-        btnUpdate1.setText("Update Price");
+        btnUpdate1.setText("Update ");
         btnUpdate1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnUpdate1ActionPerformed(evt);
@@ -626,6 +625,10 @@ public class ItemStorage extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 51, 51));
+        jLabel1.setText("!! Only JPG photo can be Upload");
+
         javax.swing.GroupLayout pnlItemControlLayout = new javax.swing.GroupLayout(pnlItemControl);
         pnlItemControl.setLayout(pnlItemControlLayout);
         pnlItemControlLayout.setHorizontalGroup(
@@ -656,16 +659,22 @@ public class ItemStorage extends javax.swing.JFrame {
                             .addComponent(cboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnAdd1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(btn_reset, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnDelete1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnUpdate1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
-                .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lbl_photo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btn_upload, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(87, 87, 87))
+                    .addGroup(pnlItemControlLayout.createSequentialGroup()
+                        .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnAdd1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(btn_reset, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnDelete1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnUpdate1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
+                        .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(lbl_photo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btn_upload, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(87, 87, 87))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlItemControlLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1)
+                        .addContainerGap())))
         );
         pnlItemControlLayout.setVerticalGroup(
             pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -698,16 +707,17 @@ public class ItemStorage extends javax.swing.JFrame {
                 .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnlItemControlLayout.createSequentialGroup()
                         .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btn_upload)
-                            .addComponent(btn_reset))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(pnlItemControlLayout.createSequentialGroup()
-                        .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(cboCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(lblCategory))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                        .addComponent(btn_Search)))
-                .addContainerGap())
+                        .addComponent(btn_Search)
+                        .addContainerGap())
+                    .addGroup(pnlItemControlLayout.createSequentialGroup()
+                        .addGroup(pnlItemControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btn_upload)
+                            .addComponent(btn_reset))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1))))
         );
 
         pnlCategotyAll.setBackground(new java.awt.Color(153, 153, 153));
@@ -716,10 +726,7 @@ public class ItemStorage extends javax.swing.JFrame {
 
         tbl_Category.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+
             },
             new String [] {
                 "Id", "Category_Name"
@@ -792,38 +799,7 @@ public class ItemStorage extends javax.swing.JFrame {
         tblItems.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 3));
         tblItems.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+
             },
             new String [] {
                 "Id", "Item_code", "Name", "Price", "Photo", "Category", "Created_at"
@@ -1039,6 +1015,7 @@ public class ItemStorage extends javax.swing.JFrame {
     private javax.swing.JButton btn_reset;
     private javax.swing.JButton btn_upload;
     private javax.swing.JComboBox<Categories> cboCategory;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblCategory;

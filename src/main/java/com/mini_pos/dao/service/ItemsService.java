@@ -14,7 +14,7 @@ public interface ItemsService  {
 	List<ItemsWithCategories> getAllItemsAndCategoryName() throws DaoException;
 	List<Items> getItemsByCategoryCode(Integer id);
 	void saveItems(Items items,String path2) throws ValidationException, DaoException;
-	void updateItems(Integer price,String item_code) throws ValidationException, DaoException;
+	void updateItems(Integer price,String item_code,String name) throws ValidationException, DaoException;
 	void deleteItemsByItemCode(String code) throws ValidationException, DaoException;
 	List<ItemsWithCategories> getAllItemsAndCategoryNameByCat_Id(Integer id) throws ValidationException, DaoException;
 	List<Items> getItemsEachPage(int page, int limit);

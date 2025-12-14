@@ -4,7 +4,6 @@ import com.mini_pos.dao.impl.OrderDaoImpl;
 import com.mini_pos.helper_function.DaoException;
 import com.mini_pos.helper_function.ValidationException;
 import com.mini_pos.dao.OrderDao;
-import com.mini_pos.dao.etinity.Order;
 
 public class OrderServiceImpl implements OrderService {
 

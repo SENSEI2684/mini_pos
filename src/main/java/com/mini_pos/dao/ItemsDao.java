@@ -11,7 +11,7 @@ public interface ItemsDao {
 	List<ItemsWithCategories> getAllItemsAndCategoryName();
 	List<Items> getItemsByCategoryCode(Integer code);
 	boolean saveItems(Items items,String path2);
-	boolean updateItems(Integer price,String item_code);
+	boolean updateItems(Integer price,String item_code,String name);
 	boolean deleteItemsByItemCode(String code);
 	List<ItemsWithCategories> getAllItemsAndCategoryNameByCat_Id(Integer id);
 	List<Items> getItemsEachPage(int page, int itemsPerPage);

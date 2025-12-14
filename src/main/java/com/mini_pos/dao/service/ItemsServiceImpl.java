@@ -1,12 +1,9 @@
 package com.mini_pos.dao.service;
 
 import java.util.List;
-
-import com.mini_pos.dao.BaseDao;
 import com.mini_pos.dao.ItemsDao;
 import com.mini_pos.dao.etinity.Items;
 import com.mini_pos.dao.etinity.ItemsWithCategories;
-import com.mini_pos.dao.etinity.Users;
 import com.mini_pos.dao.impl.ItemsDaoImpl;
 
 import com.mini_pos.helper_function.DaoException;
@@ -76,8 +73,11 @@ public class ItemsServiceImpl implements ItemsService{
     }
     
     @Override
-    public void updateItems(Integer price, String item_code) throws ValidationException, DaoException {
-        if (item_code == null || item_code.isEmpty()) {
+    public void updateItems(Integer price, String item_code,String name) throws ValidationException, DaoException {
+    	if (name == null || name.isEmpty()) {
+            throw new ValidationException("Item name cannot be empty for update.");
+        }
+    	if (item_code == null || item_code.isEmpty()) {
             throw new ValidationException("Item code cannot be empty for update.");
         }
         if (price == null || price <= 0) {
@@ -85,7 +85,7 @@ public class ItemsServiceImpl implements ItemsService{
         }
       
         try {
-            boolean updated = itemsDao.updateItems(price, item_code);
+            boolean updated = itemsDao.updateItems(price,item_code,name);
             if (!updated) {
                 throw new DaoException("Item code not found. Cannot update.", null);
             	}

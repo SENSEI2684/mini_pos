@@ -7,14 +7,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.net.URL;
-import java.time.LocalDateTime;
-
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -23,14 +19,11 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
-
 import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.Items;
-import com.mini_pos.dao.etinity.ItemsWithCategories;
 import com.mini_pos.dao.service.CartService;
 import com.mini_pos.dao.service.CartServiceImpl;
-import com.mini_pos.helper_function.ImageCache;
-import com.mini_pos.helper_function.Session;
+
 
 public class ItemCard extends JPanel {
 	
@@ -40,7 +33,7 @@ public class ItemCard extends JPanel {
 
     public ItemCard(Items item, Runnable afterAdd) {
     	
-    	System.out.println("Print Item Card Obj create");
+//    	System.out.println("Print Item Card Obj create");
         setLayout(new BorderLayout());
         setBackground(new Color(245, 245, 245));
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // smaller padding to remove top space

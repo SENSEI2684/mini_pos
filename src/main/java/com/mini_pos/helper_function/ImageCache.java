@@ -2,7 +2,6 @@ package com.mini_pos.helper_function;
 
 import java.awt.Image;
 import java.io.File;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 

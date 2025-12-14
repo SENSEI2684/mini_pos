@@ -300,7 +300,6 @@ public class Sale_Rate extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         txt_item_code = new javax.swing.JTextField();
         btn_item_search = new javax.swing.JButton();
-        btn_refresh = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(245, 177, 28));
 
@@ -317,10 +316,7 @@ public class Sale_Rate extends javax.swing.JFrame {
 
         tbl_all_sale.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
                 "sale_date", "category", "item_name", "total_quantity", "price", "total_price"
@@ -514,13 +510,6 @@ public class Sale_Rate extends javax.swing.JFrame {
             }
         });
 
-        btn_refresh.setText("Refresh");
-        btn_refresh.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_refreshActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout pnl_record_mgmtLayout = new javax.swing.GroupLayout(pnl_record_mgmt);
         pnl_record_mgmt.setLayout(pnl_record_mgmtLayout);
         pnl_record_mgmtLayout.setHorizontalGroup(
@@ -541,11 +530,8 @@ public class Sale_Rate extends javax.swing.JFrame {
                 .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btn_item_search, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txt_interval_date_search)
-                    .addGroup(pnl_record_mgmtLayout.createSequentialGroup()
-                        .addComponent(btn_ALL_serach, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_refresh)))
-                .addContainerGap(7, Short.MAX_VALUE))
+                    .addComponent(btn_ALL_serach, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(91, Short.MAX_VALUE))
         );
         pnl_record_mgmtLayout.setVerticalGroup(
             pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -564,8 +550,7 @@ public class Sale_Rate extends javax.swing.JFrame {
                 .addGroup(pnl_record_mgmtLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_ALL_serach)
                     .addComponent(jLabel1)
-                    .addComponent(txt_item_code, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn_refresh))
+                    .addComponent(txt_item_code, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -608,12 +593,6 @@ public class Sale_Rate extends javax.swing.JFrame {
         this.itemReportSearch();
     }//GEN-LAST:event_btn_item_searchActionPerformed
 
-    private void btn_refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_refreshActionPerformed
-        this.reloadCategoryReport(null);
-        this.reloadCategoryReport(null);
-        this.reloadSummaryReport(null);
-    }//GEN-LAST:event_btn_refreshActionPerformed
-
     /**
      * @param args the command line arguments
      */
@@ -652,7 +631,6 @@ public class Sale_Rate extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_ALL_serach;
     private javax.swing.JButton btn_item_search;
-    private javax.swing.JButton btn_refresh;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

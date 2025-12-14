@@ -1,6 +1,5 @@
 package com.mini_pos.dao.service;
 
-import com.mini_pos.dao.etinity.Order;
 import com.mini_pos.helper_function.DaoException;
 import com.mini_pos.helper_function.ValidationException;
 

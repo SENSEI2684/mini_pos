@@ -3,15 +3,13 @@ package com.mini_pos.dao.impl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.mini_pos.dao.BaseDao;
 import com.mini_pos.dao.CartDao;
 import com.mini_pos.dao.etinity.Cart;
 import com.mini_pos.dao.etinity.CartWithItems;
-import com.mini_pos.dao.etinity.Items;
+
 
 
 
