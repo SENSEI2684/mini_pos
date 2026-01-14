@@ -59,10 +59,16 @@ DAO & Service Layer design patterns
 - In the `DB/` folder, you will find SQL files containing:
 ```
     - data.sql
+    - mini_pos.sql
     - schema.sql 
 ```    
-- Import these SQL files into your MySQL database.
-
+- If you have SQL Workbench:
+   1. Open SQL Workbench and connect to your MySQL database.
+   2. Open and execute the mini_pos.sql file directly.
+- If you do NOT have SQL Workbench:
+   1. Manually copy the SQL statements from schema.sql first and data.sql.
+   2. Paste them into your database client or MySQL command line and execute them.
+  
 **2. Database Configuration**
 
 - Under `src/main/resources/`, there is a `config.properties` file.
