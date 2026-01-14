@@ -326,7 +326,7 @@ public List<SaleReport> getCategoryReport() {
 	    	);
 
 	    	if (itemCode != null && !itemCode.isBlank()) {
-	    	    sql.append(" AND oi.item_id IN (SELECT id FROM items WHERE item_code = ? ");
+	    	    sql.append(" AND oi.item_id IN (SELECT id FROM items WHERE item_code = ? )");
 	    	} 
 	    	sql.append(") AS combined ");
 	    	sql.append(" ORDER BY sale_date DESC, category_id , item_id ");
@@ -404,7 +404,8 @@ public List<SaleReport> getCategoryReport() {
 				    "UNION ALL " +
 				    "SELECT 'TOTAL' AS sale_date, NULL AS category, " +
 				    "        SUM(oi.quantity) AS total_quantity, " +
-				    "        SUM(oi.subtotal) AS total_price " +
+				    "        SUM(oi.subtotal) AS total_price, " +
+				    "        NULL AS category_id " +
 				    " FROM orders o " +
 				    " JOIN order_items oi ON o.id = oi.order_id " +
 				    " WHERE o.order_date >= ? " +
