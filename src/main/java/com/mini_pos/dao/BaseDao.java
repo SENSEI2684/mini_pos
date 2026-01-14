@@ -89,9 +89,9 @@ public class BaseDao {
 
             props.load(in);
 
-            String url = props.getProperty("db.url");
-            String user = props.getProperty("db.user");
-            String pass = props.getProperty("db.password");
+            String url = props.getProperty("db.url").trim();
+            String user = props.getProperty("db.user").trim();
+            String pass = props.getProperty("db.password").trim();
 
             return DriverManager.getConnection(url, user, pass);
 
